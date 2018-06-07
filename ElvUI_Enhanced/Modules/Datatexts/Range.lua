@@ -1,13 +1,12 @@
 local E, L, V, P, G = unpack(ElvUI);
-local DT = E:GetModule("DataTexts");
-
+local DT = E:GetModule("DataTexts")
 local LRC = LibStub("LibRangeCheck-2.0");
 
 local join = string.join;
 
 local UnitName = UnitName
 
-local displayString = "";
+local displayNumberString = "";
 local lastPanel;
 local int = 1;
 local curMin, curMax;
@@ -28,7 +27,7 @@ local function OnUpdate(self, t)
 	curMax = max;
 
 	if(min and max) then
-		self.text:SetFormattedText(displayString, L["Distance"], min, max);
+		self.text:SetFormattedText(displayNumberString, L["Distance"], min, max);
 	else
 		self.text:SetText("");
 	end
@@ -47,7 +46,7 @@ local function OnEvent(self)
 end
 
 local function ValueColorUpdate(hex)
-	displayString = join("", "%s: ", hex, "%d|r - ", hex, "%d|r");
+	displayNumberString = join("", "%s: ", hex, "%d|r - ", hex, "%d|r");
 
 	if(lastPanel ~= nil) then
 		OnEvent(lastPanel);
@@ -55,4 +54,4 @@ local function ValueColorUpdate(hex)
 end
 E["valueColorUpdateFuncs"][ValueColorUpdate] = true;
 
-DT:RegisterDatatext("Target Range", {"PLAYER_TARGET_CHANGED"}, OnEvent, OnUpdate);
+DT:RegisterDatatext("Target Range", {"PLAYER_TARGET_CHANGED"}, OnEvent, OnUpdate, nil, nil, nil, L["Target Range"])

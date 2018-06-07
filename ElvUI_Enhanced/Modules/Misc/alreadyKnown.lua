@@ -14,14 +14,11 @@ local GetGuildBankItemLink = GetGuildBankItemLink
 local GetItemInfo = GetItemInfo
 local GetMerchantNumItems = GetMerchantNumItems
 local GetNumAuctionItems = GetNumAuctionItems
-local GetAuctionItemClasses = GetAuctionItemClasses
 local GetNumBuybackItems = GetNumBuybackItems
-local GetMerchantItemInfo = GetMerchantItemInfo
-local GetBuybackItemInfo = GetBuybackItemInfo
-local GetBuybackItemLink = GetBuybackItemLink
 local IsAddOnLoaded = IsAddOnLoaded
 local SetItemButtonTextureVertexColor = SetItemButtonTextureVertexColor
 local hooksecurefunc = hooksecurefunc
+
 local BUYBACK_ITEMS_PER_PAGE = BUYBACK_ITEMS_PER_PAGE
 local ITEM_SPELL_KNOWN = ITEM_SPELL_KNOWN
 local MERCHANT_ITEMS_PER_PAGE = MERCHANT_ITEMS_PER_PAGE
@@ -59,7 +56,9 @@ local function MerchantFrame_UpdateBuybackInfo()
 	local numItems = GetNumBuybackItems()
 
 	for i = 1, BUYBACK_ITEMS_PER_PAGE do
-		if i > numItems then return end
+		if i > numItems then
+			return
+		end
 
 		local button = _G["MerchantItem" .. i .. "ItemButton"]
 
@@ -164,7 +163,9 @@ function AK:IsAlreadyKnown(itemLink)
 	if not itemLink then return end
 
 	local itemID = match(itemLink, "item:(%d+):")
-	if self.knownTable[itemID] then return true end
+	if self.knownTable[itemID] then
+		return true
+	end
 
 	local _, _, _, _, _, itemType = GetItemInfo(itemLink)
 	if not self.knowableTypes[itemType] then return end
@@ -238,10 +239,9 @@ function AK:ToggleState()
 
 		self.knownTable = {}
 
-		local _, _, _, consumable, glyph, _, recipe, _, miscallaneous = GetAuctionItemClasses()
+		local _, _, _, consumable, _, _, _, recipe, _, miscallaneous = GetAuctionItemClasses()
 		self.knowableTypes = {
 			[consumable] = true,
-			[glyph] = true,
 			[recipe] = true,
 			[miscallaneous] = true
 		}

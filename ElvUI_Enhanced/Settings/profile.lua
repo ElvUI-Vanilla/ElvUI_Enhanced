@@ -1,16 +1,16 @@
-local E, L, V, P, G = unpack(ElvUI)
+local E, L, V, P, G = unpack(ElvUI);
 
 -- Minimap
 P.general.minimap.locationText = "ABOVE"
 
 -- Unitframes
-P.unitframe.units.player.portrait.detachFromFrame = false
-P.unitframe.units.player.portrait.detachedWidth = 54
-P.unitframe.units.player.portrait.detachedHeight = 54
+P.unitframe.units.player.portrait.detachFromFrame = false;
+P.unitframe.units.player.portrait.detachedWidth = 54;
+P.unitframe.units.player.portrait.detachedHeight = 54;
 
-P.unitframe.units.target.portrait.detachFromFrame = false
-P.unitframe.units.target.portrait.detachedWidth = 54
-P.unitframe.units.target.portrait.detachedHeight = 54
+P.unitframe.units.target.portrait.detachFromFrame = false;
+P.unitframe.units.target.portrait.detachedWidth = 54;
+P.unitframe.units.target.portrait.detachedHeight = 54;
 
 P.unitframe.units.player.animatedLoss = {
 	enable = false,
@@ -18,7 +18,7 @@ P.unitframe.units.player.animatedLoss = {
 	startDelay = .2,
 	pauseDelay = .05,
 	postponeDelay = .05
-}
+};
 
 -- Enhanced
 P.enhanced = {
@@ -30,6 +30,7 @@ P.enhanced = {
 		showQuestLevel = false,
 		declineduel = false,
 		hideZoneText = false,
+		originalCloseButton = false,
 		trainAllButton = false,
 		undressButton = false,
 		alreadyKnown = false,
@@ -42,12 +43,6 @@ P.enhanced = {
 			transparentButtons = false
 		}
 	},
-	blizzard = {
-		dressUpFrame = {
-			enable = true,
-			multiplier = 1.25
-		},
-	},
 	chat = {
 		dpsLinks = false,
 	},
@@ -55,9 +50,7 @@ P.enhanced = {
 		background = false,
 		petBackground = false,
 		inspectBackground = false,
-		companionBackground = false,
 		collapsed = false,
-		style = "Cata",
 		player = {
 			orderName = "",
 			collapsedName = {
@@ -92,14 +85,14 @@ P.enhanced = {
 		fontSize = 10,
 		fontOutline = "MONOCHROMEOUTLINE",
 		durability = {
-			enable = false,
+			enable = true,
 			onlydamaged = true,
 			position = "TOPLEFT",
 			xOffset = 1,
 			yOffset = 0
 		},
 		itemlevel = {
-			enable = false,
+			enable = true,
 			qualityColor = true,
 			position = "BOTTOMLEFT",
 			xOffset = 1,
@@ -108,13 +101,11 @@ P.enhanced = {
 	},
 	minimap = {
 		location = false,
-		showlocationdigits = true,
 		locationdigits = 1,
 		hideincombat = false,
 		fadeindelay = 5,
 	},
 	nameplates = {
-		cacheUnitClass = false,
 		smooth = false,
 		smoothSpeed = 0.3,
 	},
@@ -122,25 +113,11 @@ P.enhanced = {
 		itemQualityBorderColor = false,
 		tooltipIcon = {
 			enable = false,
-			tooltipIconSpells = true,
-			tooltipIconItems = true,
-			tooltipIconAchievements = true
-		},
-		progressInfo = {
-			enable = false,
-			checkPlayer = false,
-			modifier = "SHIFT",
-			tiers = {
-				["DS"] = true,
-				["FL"] = true,
-				["BH"] = true,
-				["TOTFW"] = true,
-				["BT"] = true,
-				["BWD"] = true
-			}
+			tooltipIconSpells  = true,
+			tooltipIconItems  = true,
 		}
 	},
-	loseControl = {
+	loseofcontrol = {
 		CC = true,
 		PvE = true,
 		Silence = true,
@@ -148,27 +125,7 @@ P.enhanced = {
 		Root = false,
 		Snare = true
 	},
-	timerTracker = {
-		dbm = true
-	},
-	interruptTracker = {
-		size = 32,
-		text = {
-			enable = true,
-			position = "CENTER",
-			xOffset = 0,
-			yOffset = 0,
-			font = "PT Sans Narrow",
-			fontSize = 10,
-			fontOutline = "MONOCHROMEOUTLINE"
-		}
-	},
 	unitframe = {
-		portraitHDModelFix = {
-			enable = false,
-			debug = false,
-			modelsToFix = "scourgemale.m2; scourgefemale.m2; humanfemale.m2; dwarfmale.m2; orcmalenpc.m2; scourgemalenpc.m2; scourgefemalenpc.m2; dwarfmalenpc.m2; humanmalekid.m2; humanfemalekid.m2; chicken.m2; rat.m2"
-		},
 		units = {
 			target = {
 				classicon = {
@@ -183,10 +140,10 @@ P.enhanced = {
 	},
 	watchframe = {
 		enable = false,
-		city = "COLLAPSED",
+		city = "HIDDEN",
 		pvp = "HIDDEN",
 		arena = "HIDDEN",
-		party = "COLLAPSED",
-		raid = "COLLAPSED"
+		party = "HIDDEN",
+		raid = "HIDDEN"
 	}
-}
+};

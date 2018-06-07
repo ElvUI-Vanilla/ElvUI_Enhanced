@@ -3,9 +3,8 @@ local TI = E:NewModule("Enhanced_TooltipIcon", "AceHook-3.0")
 
 local _G = _G
 local select = select
-local find, strmatch = string.find, string.match
+local find = string.find
 
-local GetAchievementInfo = GetAchievementInfo
 local GetItemIcon = GetItemIcon
 local GetSpellInfo = GetSpellInfo
 
@@ -26,7 +25,7 @@ local function AddIcon(self, icon)
 
 	local title = _G[self:GetName() .. "TextLeft1"]
 	if title and not find(title:GetText(), "|T" .. icon) then
-		title:SetFormattedText("|T%s:30:30:0:0:64:64:5:59:5:59|t %s", icon, title:GetText())
+		title:SetFormattedText("|T%s:48:48:0:0:64:64:5:59:5:59|t %s", icon, title:GetText())
 	end
 end
 
@@ -40,14 +39,6 @@ local function SpellIcon(self)
 	local id = self:GetSpell()
 	if id then
 		AddIcon(self, select(3, GetSpellInfo(id)))
-	end
-end
-
-local function AchievementIcon(self, link)
-	if type(link) ~= "string" then return end
-	local linkType, id = strmatch(link, "^([^:]+):(%d+)")
-	if id and (linkType == "achievement") then
-		AddIcon(self, select(10, GetAchievementInfo(id)))
 	end
 end
 
@@ -79,24 +70,11 @@ function TI:ToggleSpellsState()
 	end
 end
 
-function TI:ToggleAchievementsState()
-	local state = E.db.enhanced.tooltip.tooltipIcon.tooltipIconAchievements and E.db.enhanced.tooltip.tooltipIcon.enable
-
-	if state then
-		if not self:IsHooked(GameTooltip, "SetHyperlink", AchievementIcon) then
-			self:SecureHook(GameTooltip, "SetHyperlink", AchievementIcon)
-		end
-	else
-		self:Unhook(GameTooltip, "SetHyperlink")
-	end
-end
-
 function TI:Initialize()
 	if not E.db.enhanced.tooltip.tooltipIcon.enable then return end
 
 	self:ToggleItemsState()
 	self:ToggleSpellsState()
-	self:ToggleAchievementsState()
 end
 
 local function InitializeCallback()

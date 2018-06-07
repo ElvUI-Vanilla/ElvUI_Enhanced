@@ -1,31 +1,26 @@
-local E, L, V, P, G = unpack(ElvUI)
+local E, L, V, P, G = unpack(ElvUI);
 
-V.general.selectQuestReward = false
+V.general.selectQuestReward = true
 
 V.equipment = {
 	["durability"] = {
-		enable = false,
+		enable = true,
 		onlydamaged = false
 	},
 	["itemlevel"] = {
-		enable = false
+		enable = true
 	}
+}
+
+V.loseofcontrol = {
+	enable = false
 }
 
 V.enhanced = {
 	character = {
-		enable = false,
-		model = {
-			enable = false
-		}
+		enable = true
 	},
-	timerTracker = {
-		enable = false
-	},
-	loseControl = {
-		enable = false
-	},
-	interruptTracker = {
-		enable = false
+	model = {
+		enable = true
 	}
 }

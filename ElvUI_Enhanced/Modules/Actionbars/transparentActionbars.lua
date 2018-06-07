@@ -1,4 +1,4 @@
-local E, L, V, P, G = unpack(ElvUI)
+local E, L, V, P, G = unpack(ElvUI);
 local ETAB = E:NewModule("Enhanced_TransparentActionbars")
 
 local _G = _G
@@ -20,9 +20,8 @@ function ETAB:StyleBackdrops()
 				frame.backdrop:SetTemplate(styleBackdrop)
 			end
 
-		for j = 1, NUM_ACTIONBAR_BUTTONS do
+			for j = 1, NUM_ACTIONBAR_BUTTONS do
 				frame = _G["ElvUI_Bar"..i.."Button"..j]
-
 				if frame and frame.backdrop then
 					frame.backdrop:SetTemplate(styleButtons, true)
 				end
@@ -38,7 +37,6 @@ function ETAB:StyleBackdrops()
 
 	for i = 1, NUM_PET_ACTION_SLOTS do
 		frame = _G["PetActionButton"..i]
-
 		if frame and frame.backdrop then
 			frame.backdrop:SetTemplate(styleButtons, true)
 		end
@@ -48,7 +46,7 @@ end
 function ETAB:Initialize()
 	if not E.private.actionbar.enable or not (E.db.enhanced.actionbars.transparentActionbars.transparentBackdrops or E.db.enhanced.actionbars.transparentActionbars.transparentButtons) then return end
 
-	self:StyleBackdrops()
+	E:Delay(0.3, ETAB.StyleBackdrops)
 end
 
 local function InitializeCallback()

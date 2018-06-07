@@ -3,14 +3,16 @@ local mod = E:NewModule("Enhanced_ActionBars")
 local LAB = LibStub("LibActionButton-1.0")
 
 function mod:LAB_ButtonUpdate(button)
-	local color = E.db.enhanced.actionbars.equippedColor
-
 	if button.backdrop then
-		if button:IsEquipped() then
-			button.backdrop:SetBackdropBorderColor(color.r, color.g, color.b)
-		else
-			button.backdrop:SetBackdropBorderColor(unpack(E.media.bordercolor))
-		end
+		local color = E.db.enhanced.actionbars.equippedColor
+
+		E:Delay(0.05, function()
+			if button:IsEquipped() then
+				button.backdrop:SetBackdropBorderColor(color.r, color.g, color.b)
+			else
+				button.backdrop:SetBackdropBorderColor(unpack(E.media.bordercolor))
+			end
+		end)
 	end
 end
 
@@ -38,4 +40,4 @@ local function InitializeCallback()
 	mod:Initialize()
 end
 
-E:RegisterModule(mod:GetName(), InitializeCallback) 
+E:RegisterModule(mod:GetName(), InitializeCallback)

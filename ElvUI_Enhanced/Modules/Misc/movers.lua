@@ -1,5 +1,10 @@
-local E, L, V, P, G = unpack(ElvUI)
-local M = E:GetModule("Enhanced_Misc")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local M = E:GetModule("Enhanced_Misc");
+
+--Cache global variables
+--Lua functions
+local _G = _G
+--WoW API / Variables
 
 function M:UpdateMoverTransparancy()
 	local mover

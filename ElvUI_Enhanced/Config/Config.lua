@@ -64,18 +64,8 @@ local function GeneralOptions()
 				get = function(info) return E.db.enhanced.general.hideZoneText end,
 				set = function(info, value) E.db.enhanced.general.hideZoneText = value M:HideZone() end
 			},
-			originalCloseButton = {
-				order = 6,
-				type = "toggle",
-				name = L["Original Close Button"],
-				get = function(info) return E.db.enhanced.general.originalCloseButton end,
-				set = function(info, value)
-					E.db.enhanced.general.originalCloseButton = value
-					M:UpdateCloseButtons()
-				end
-			},
 			trainAllButton = {
-				order = 7,
+				order = 6,
 				type = "toggle",
 				name = L["Train All Button"],
 				desc = L["Add button to Trainer frame with ability to train all available skills in one click."],
@@ -86,7 +76,7 @@ local function GeneralOptions()
 				end
 			},
 			undressButton = {
-				order = 8,
+				order = 7,
 				type = "toggle",
 				name = L["Undress Button"],
 				desc = L["Add button to Dressing Room frame with ability to undress model."],
@@ -97,14 +87,14 @@ local function GeneralOptions()
 				end
 			},
 			model = {
-				order = 9,
+				order = 8,
 				type = "toggle",
 				name = L["Model Frames"],
 				get = function(info) return E.private.enhanced.model.enable end,
 				set = function(info, value) E.private.enhanced.model.enable = value E:StaticPopup_Show("PRIVATE_RL") end
 			},
 			alreadyKnown = {
-				order = 10,
+				order = 9,
 				type = "toggle",
 				name = L["Already Known"],
 				desc = L["Change color of item icons which already known."],
@@ -115,7 +105,7 @@ local function GeneralOptions()
 				end
 			},
 			altBuyMaxStack = {
-				order = 11,
+				order = 10,
 				type = "toggle",
 				name = L["Alt-Click Merchant"],
 				desc = L["Holding Alt key while buying something from vendor will now buy an entire stack."],
@@ -126,7 +116,7 @@ local function GeneralOptions()
 				end
 			},
 			moverTransparancy = {
-				order = 12,
+				order = 11,
 				type = "range",
 				isPercent = true,
 				name = L["Mover Transparency"],

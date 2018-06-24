@@ -312,7 +312,7 @@ function AL:Initialize()
 	scrollFrame:SetScript("OnVerticalScroll", function()
 		local scrollbar = _G[this:GetName().."ScrollBar"]
 		scrollbar:SetValue(arg1)
-		addonList.arg1 = floor((arg1 / 16) + 0.5)
+		addonList.offset = floor((arg1 / 16) + 0.5)
 		AL:Update()
 		if GameTooltip:IsShown() then
 			AL:TooltipUpdate(GameTooltip:GetParent())

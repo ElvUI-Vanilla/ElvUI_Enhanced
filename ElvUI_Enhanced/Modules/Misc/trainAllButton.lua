@@ -12,8 +12,7 @@ local GetTrainerServiceInfo = GetTrainerServiceInfo
 
 function TA:ButtonCreate()
 	self.button = CreateFrame("Button", "ElvUI_TrainAllButton", ClassTrainerFrame, "UIPanelButtonTemplate")
-	self.button:SetWidth(80)
-	self.button:SetHeight(22)
+	E:Size(self.button, 80, 22)
 	self.button:SetText(TRAIN.." "..ALL)
 
 	if not (E.private.skins.blizzard.enable and E.private.skins.blizzard.trainer) then

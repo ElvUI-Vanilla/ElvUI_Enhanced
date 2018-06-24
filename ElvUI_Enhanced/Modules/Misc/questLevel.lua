@@ -1,6 +1,10 @@
-local E, L, V, P, G = unpack(ElvUI)
-local M = E:GetModule("Enhanced_Misc")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local M = E:GetModule("Enhanced_Misc");
 
+--Cache global variables
+--Lua functions
+local _G = _G
+--WoW API / Variables
 local FauxScrollFrame_GetOffset = FauxScrollFrame_GetOffset
 local GetNumQuestLogEntries = GetNumQuestLogEntries
 local GetQuestLogTitle = GetQuestLogTitle
@@ -16,11 +20,11 @@ local function ShowLevel()
 		questCheck = _G["QuestLogTitle"..i.."Check"]
 
 		if questIndex <= numEntries then
-			title, level, _, _, isHeader = GetQuestLogTitle(questIndex)
+			title, level, _, isHeader = GetQuestLogTitle(questIndex)
 
 			if not isHeader then
-				questLogTitle:SetText("[" .. level .. "] " .. title)
-				questCheck:SetPoint("LEFT", 5, 0)
+				questLogTitle:SetText("["..level.."] "..title)
+				E:Point(questCheck, "LEFT", 5, 0)
 			end
 		end
 	end

@@ -5,8 +5,7 @@ local S = E:GetModule("Skins")
 function UB:CreateUndressButton(auction)
 	if not auction then
 		self.dressUpButton = CreateFrame("Button", "DressUpFrame_UndressButton", DressUpFrame, "UIPanelButtonTemplate")
-		self.dressUpButton:SetWidth(80)
-		self.dressUpButton:SetHeight(22)
+		E:Size(self.dressUpButton, 80, 22)
 		self.dressUpButton:SetText(L["Undress"])
 		self.dressUpButton:SetScript("OnClick", function()
 			this.model:Undress()
@@ -15,15 +14,14 @@ function UB:CreateUndressButton(auction)
 		self.dressUpButton.model = DressUpModel
 
 		if not (E.private.skins.blizzard.enable and E.private.skins.blizzard.dressingroom) then
-			self.dressUpButton:Point("RIGHT", DressUpFrameResetButton, "LEFT", 2, 0)
+			E:Point(self.dressUpButton, "RIGHT", DressUpFrameResetButton, "LEFT", 2, 0)
 		else
 			S:HandleButton(self.dressUpButton)
-			self.dressUpButton:SetPoint("RIGHT", DressUpFrameResetButton, "LEFT", -3, 0)
+			E:Point(self.dressUpButton, "RIGHT", DressUpFrameResetButton, "LEFT", -3, 0)
 		end
 	else
 		self.auctionDressUpButton = CreateFrame("Button", "AuctionDressUpFrame_UndressButton", AuctionDressUpFrame, "UIPanelButtonTemplate")
-		self.auctionDressUpButton:SetWidth(80)
-		self.auctionDressUpButton:SetHeight(22)
+		E:Size(self.auctionDressUpButton, 80, 22)
 		self.auctionDressUpButton:SetFrameStrata("HIGH")
 		self.auctionDressUpButton:SetText(L["Undress"])
 		self.auctionDressUpButton:SetScript("OnClick", function()
@@ -33,11 +31,11 @@ function UB:CreateUndressButton(auction)
 		self.auctionDressUpButton.model = AuctionDressUpModel
 
 		if not (E.private.skins.blizzard.enable and E.private.skins.blizzard.dressingroom) then
-			self.auctionDressUpButton:SetPoint("BOTTOM", AuctionDressUpFrameResetButton, "BOTTOM", 0, -25)
+			E:Point(self.auctionDressUpButton, "BOTTOM", AuctionDressUpFrameResetButton, "BOTTOM", 0, -25)
 		else
 			S:HandleButton(self.auctionDressUpButton)
-			self.auctionDressUpButton:SetPoint("RIGHT", AuctionDressUpFrameResetButton, "LEFT", -3, 0)
-			AuctionDressUpFrameResetButton:SetPoint("BOTTOM", 42, 33)
+			E:Point(self.auctionDressUpButton, "RIGHT", AuctionDressUpFrameResetButton, "LEFT", -3, 0)
+			E:Point(AuctionDressUpFrameResetButton, "BOTTOM", 42, 33)
 		end
 	end
 end

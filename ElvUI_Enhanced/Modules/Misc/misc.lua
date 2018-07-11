@@ -1,16 +1,18 @@
-local E, L, V, P, G = unpack(ElvUI)
-local M = E:NewModule("Enhanced_Misc", "AceHook-3.0", "AceEvent-3.0")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local M = E:NewModule("Enhanced_Misc", "AceHook-3.0", "AceEvent-3.0");
 
 E.Enhanced_Misc = M
 
+--WoW API / Variables
 local CancelDuel = CancelDuel
+local GetSpellName = GetSpellName
 local IsInInstance = IsInInstance
 local RepopMe = RepopMe
 
 function M:PLAYER_DEAD()
 	local inInstance, instanceType = IsInInstance()
-	if inInstance and (instanceType == "pvp") then
-		local soulstone = GetSpellInfo(20707)
+	if inInstance then
+		local soulstone = GetSpellName(20707, BOOKTYPE_SPELL)
 		if E.myclass ~= "SHAMAN" and not (soulstone and UnitBuff("player", soulstone)) then
 			RepopMe()
 		end
@@ -25,10 +27,10 @@ function M:AutoRelease()
 	end
 end
 
-function M:DUEL_REQUESTED(_, name)
+function M:DUEL_REQUESTED()
 	StaticPopup_Hide("DUEL_REQUESTED")
 	CancelDuel()
-	E:Print(L["Declined duel request from "]..name..".")
+	E:Print(L["Declined duel request from "]..arg1..".")
 end
 
 function M:DeclineDuel()

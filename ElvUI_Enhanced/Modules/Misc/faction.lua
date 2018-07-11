@@ -18,18 +18,14 @@ local decpat		= gsub(gsub(FACTION_STANDING_DECREASED, "(%%s)", "(.+)"), "(%%d)",
 local standing		= format("%s:", STANDING)
 local reputation	= format("%s:", REPUTATION)
 
-function M:CHAT_MSG_COMBAT_FACTION_CHANGE(msg)
-	local faction = select(3, find(msg, incpat))
+function M:CHAT_MSG_COMBAT_FACTION_CHANGE()
+	local faction = select(3, find(arg1, incpat))
 
 	if not faction then
-		faction = select(3, find(msg, changedpat)) or select(3, find(msg, decpat))
+		faction = select(3, find(arg1, changedpat)) or select(3, find(arg1, decpat))
 	end
 
 	if faction then
-		if faction == GUILD_REPUTATION then
-			faction = GetGuildInfo("player")
-		end
-
 		local active = GetWatchedFactionInfo()
 		for factionIndex = 1, GetNumFactions() do
 			local name = GetFactionInfo(factionIndex)

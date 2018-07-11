@@ -1,6 +1,9 @@
-local E, L, V, P, G = unpack(ElvUI)
+local E, L, V, P, G = unpack(ElvUI) --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local UB = E:NewModule("Enhanced_UndressButtons", "AceEvent-3.0")
 local S = E:GetModule("Skins")
+
+--WoW API / Variables
+local PlaySound = PlaySound
 
 function UB:CreateUndressButton(auction)
 	if not auction then
@@ -40,8 +43,8 @@ function UB:CreateUndressButton(auction)
 	end
 end
 
-function UB:ADDON_LOADED(_, addon)
-	if addon ~= "Blizzard_AuctionUI" then return end
+function UB:ADDON_LOADED()
+	if arg1 ~= "Blizzard_AuctionUI" then return end
 
 	self:CreateUndressButton(true)
 

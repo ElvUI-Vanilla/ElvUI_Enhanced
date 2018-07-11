@@ -4,9 +4,12 @@ local M = E:GetModule("Minimap");
 
 --Cache global variables
 --Lua functions
+local format = string.format
+--WoW API / Variables
 local GetPlayerMapPosition = GetPlayerMapPosition
 local UnitAffectingCombat = UnitAffectingCombat
---WoW API / Variables
+local UIFrameFadeIn = UIFrameFadeIn
+
 local init = false
 local cluster, panel, location, xMap, yMap
 
@@ -64,32 +67,21 @@ local function CreateEnhancedMaplocation()
 	location.text:SetAllPoints(location)
 end
 
-local function FadeFrame(frame, direction, startAlpha, endAlpha, time, func)
-	UIFrameFade(frame, {
-		mode = direction,
-		finishedFunc = func,
-		startAlpha = startAlpha,
-		endAlpha = endAlpha,
-		timeToFade = time
-	})
-end
-
-local function FadeInMinimap()
-	if not UnitAffectingCombat("player") then
-		FadeFrame(cluster, "IN", 0, 1, .5, function() if not UnitAffectingCombat("player") then cluster:Show() end end)
-	end
-end
-
 local function ShowMinimap()
-	if E.db.enhanced.minimap.fadeindelay == 0 then
-		FadeInMinimap()
-	else
-		E:Delay(E.db.enhanced.minimap.fadeindelay, FadeInMinimap)
+	if not UnitAffectingCombat("player") then
+		if E.db.enhanced.minimap.fadeindelay == 0 then
+			cluster:Show()
+			Minimap.backdrop:Show()
+		else
+			UIFrameFadeIn(cluster, E.db.enhanced.minimap.fadeindelay)
+			UIFrameFadeIn(Minimap.backdrop, E.db.enhanced.minimap.fadeindelay)
+		end
 	end
 end
 
 local function HideMinimap()
 	cluster:Hide()
+	Minimap.backdrop:Hide()
 end
 
 local function Update_ZoneText()

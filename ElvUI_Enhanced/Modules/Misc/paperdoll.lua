@@ -49,7 +49,8 @@ function PD:UpdatePaperDoll(unit)
 
 	local baseName = unit == "player" and "Character" or "Inspect"
 	local frame, slotID, hasItem
-	local itemLink, itemID, itemLevel
+	local itemLink
+	local _, rarity, itemLevel
 	local current, maximum, r, g, b
 
 	for slotName, durability in pairs(slots) do
@@ -57,24 +58,26 @@ function PD:UpdatePaperDoll(unit)
 		slotID = GetInventorySlotInfo(slotName)
 		hasItem = GetInventoryItemTexture(unit, slotID)
 
-		frame.ItemLevel:SetText()
-		if E.db.enhanced.equipment.itemlevel.enable and (unit == "player" or (unit ~= "player" and hasItem)) then
-			itemLink = GetInventoryItemLink(unit, slotID)
-			if itemLink then
-				itemID = tonumber(match(itemLink, "item:(%d+)"))
-				rarity, itemLevel = select(3, GetItemInfo(itemID))
-				if itemLevel then
-					frame.ItemLevel:SetText(itemLevel)
+		if frame.ItemLevel then
+			frame.ItemLevel:SetText()
+			if E.db.enhanced.equipment.itemlevel.enable and (unit == "player" or (unit ~= "player" and hasItem)) then
+				itemLink = GetInventoryItemLink(unit, slotID)
 
-					if E.db.enhanced.equipment.itemlevel.qualityColor then
-						frame.ItemLevel:SetTextColor()
-						if rarity and rarity > 1 then
-							frame.ItemLevel:SetTextColor(GetItemQualityColor(rarity))
+				if itemLink then
+					_, _, rarity, itemLevel = GetItemInfo(match(itemLink, "item:(%d+)"))
+					if itemLevel then
+						frame.ItemLevel:SetText(itemLevel)
+
+						if E.db.enhanced.equipment.itemlevel.qualityColor then
+							frame.ItemLevel:SetTextColor()
+							if rarity and rarity > 1 then
+								frame.ItemLevel:SetTextColor(GetItemQualityColor(rarity))
+							else
+								frame.ItemLevel:SetTextColor(1, 1, 1)
+							end
 						else
 							frame.ItemLevel:SetTextColor(1, 1, 1)
 						end
-					else
-						frame.ItemLevel:SetTextColor(1, 1, 1)
 					end
 				end
 			end
@@ -99,9 +102,11 @@ function PD:UpdateInfoText(name)
 	for slotName, durability in pairs(slots) do
 		frame = _G[format("%s%s", name, slotName)]
 
-		frame.ItemLevel:ClearAllPoints()
-		E:Point(frame.ItemLevel, db.itemlevel.position, frame, db.itemlevel.xOffset, db.itemlevel.yOffset)
-		E:FontTemplate(frame.ItemLevel, E.LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
+		if frame.ItemLevel then
+			frame.ItemLevel:ClearAllPoints()
+			E:Point(frame.ItemLevel, db.itemlevel.position, frame, db.itemlevel.xOffset, db.itemlevel.yOffset)
+			E:FontTemplate(frame.ItemLevel, E.LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
+		end
 
 		if name == "Character" and durability then
 			frame.DurabilityInfo:ClearAllPoints()
@@ -126,7 +131,11 @@ function PD:BuildInfoText(name)
 end
 
 function PD:OnEvent()
-	if event == "UPDATE_INVENTORY_DURABILITY" then
+	if event == "ADDON_LOADED" and arg1 == "Blizzard_InspectUI" then
+		self:BuildInfoText("Inspect")
+
+		self:UnregisterEvent("ADDON_LOADED")
+	elseif event == "UPDATE_INVENTORY_ALERTS" then
 		self:UpdatePaperDoll("player")
 	elseif event == "UNIT_INVENTORY_CHANGED" then
 		self:UpdatePaperDoll(arg1)
@@ -139,10 +148,9 @@ end
 function PD:InitialUpdatePaperDoll()
 	if self.initialized then return end
 
-	LoadAddOn("Blizzard_InspectUI")
+	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 
 	self:BuildInfoText("Character")
-	self:BuildInfoText("Inspect")
 
 	self.initialized = true
 end
@@ -151,21 +159,32 @@ function PD:ToggleState(init)
 	if E.db.enhanced.equipment.enable then
 		if not self.initialized then
 			if init then
+				self:RegisterEvent("PLAYER_ENTERING_WORLD", "InitialUpdatePaperDoll")
+			else
 				self:InitialUpdatePaperDoll()
 			end
 		end
 
 		self:UpdatePaperDoll("player")
 
-		self:RegisterEvent("UPDATE_INVENTORY_DURABILITY", "OnEvent")
+		if self.initialized then
+			self:UpdateInfoText("Inspect")
+		end
+
+		self:RegisterEvent("UPDATE_INVENTORY_ALERTS", "OnEvent")
 		self:RegisterEvent("UNIT_INVENTORY_CHANGED", "OnEvent")
+		self:RegisterEvent("ADDON_LOADED", "OnEvent")
 	elseif self.initialized then
 		self:UnhookAll()
 		self:UnregisterAllEvents()
 
 		for slotName, durability in pairs(slots) do
-			_G["Character"..slotName].ItemLevel:SetText()
-			_G["Inspect"..slotName].ItemLevel:SetText()
+			if _G["Character"..slotName].ItemLevel then
+				_G["Character"..slotName].ItemLevel:SetText()
+			end
+			if _G["Inspect"..slotName].ItemLevel then
+				_G["Inspect"..slotName].ItemLevel:SetText()
+			end
 
 			if durability then
 				_G["Character"..slotName].DurabilityInfo:SetText()

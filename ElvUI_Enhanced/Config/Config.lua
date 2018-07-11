@@ -49,8 +49,16 @@ local function GeneralOptions()
 					M:QuestLevelToggle()
 				end
 			},
-			declineduel = {
+			selectQuestReward = {
 				order = 4,
+				type = "toggle",
+				name = L["Select Quest Reward"],
+				desc = L["Automatically select the quest reward with the highest vendor sell value."],
+				get = function(info) return E.private.general.selectQuestReward end,
+				set = function(info, value) E.private.general.selectQuestReward = value; end
+			},
+			declineduel = {
+				order = 5,
 				type = "toggle",
 				name = L["Decline Duel"],
 				desc = L["Auto decline all duels"],
@@ -58,14 +66,14 @@ local function GeneralOptions()
 				set = function(info, value) E.db.enhanced.general.declineduel = value M:DeclineDuel() end
 			},
 			hideZoneText = {
-				order = 5,
+				order = 6,
 				type = "toggle",
 				name = L["Hide Zone Text"],
 				get = function(info) return E.db.enhanced.general.hideZoneText end,
 				set = function(info, value) E.db.enhanced.general.hideZoneText = value M:HideZone() end
 			},
 			trainAllButton = {
-				order = 6,
+				order = 7,
 				type = "toggle",
 				name = L["Train All Button"],
 				desc = L["Add button to Trainer frame with ability to train all available skills in one click."],
@@ -76,7 +84,7 @@ local function GeneralOptions()
 				end
 			},
 			undressButton = {
-				order = 7,
+				order = 8,
 				type = "toggle",
 				name = L["Undress Button"],
 				desc = L["Add button to Dressing Room frame with ability to undress model."],
@@ -87,14 +95,14 @@ local function GeneralOptions()
 				end
 			},
 			model = {
-				order = 8,
+				order = 9,
 				type = "toggle",
 				name = L["Model Frames"],
 				get = function(info) return E.private.enhanced.model.enable end,
 				set = function(info, value) E.private.enhanced.model.enable = value E:StaticPopup_Show("PRIVATE_RL") end
 			},
 			alreadyKnown = {
-				order = 9,
+				order = 10,
 				type = "toggle",
 				name = L["Already Known"],
 				desc = L["Change color of item icons which already known."],
@@ -105,7 +113,7 @@ local function GeneralOptions()
 				end
 			},
 			altBuyMaxStack = {
-				order = 10,
+				order = 11,
 				type = "toggle",
 				name = L["Alt-Click Merchant"],
 				desc = L["Holding Alt key while buying something from vendor will now buy an entire stack."],
@@ -116,7 +124,7 @@ local function GeneralOptions()
 				end
 			},
 			moverTransparancy = {
-				order = 11,
+				order = 12,
 				type = "range",
 				isPercent = true,
 				name = L["Mover Transparency"],

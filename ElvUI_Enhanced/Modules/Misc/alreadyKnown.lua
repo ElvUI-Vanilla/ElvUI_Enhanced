@@ -1,16 +1,15 @@
-local E, L, V, P, G = unpack(ElvUI)
+local E, L, V, P, G = unpack(ElvUI) --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local AK = E:NewModule("Enhanced_AlreadyKnown", "AceHook-3.0", "AceEvent-3.0")
 
+--Cache global variables
+--Lua functions
 local _G = _G
 local match = string.match
-local ceil, fmod = math.ceil, math.fmod
-
+--WoW API / Variables
+local CreateFrame = CreateFrame
 local FauxScrollFrame_GetOffset = FauxScrollFrame_GetOffset
 local GetAuctionItemInfo = GetAuctionItemInfo
 local GetAuctionItemLink = GetAuctionItemLink
-local GetCurrentGuildBankTab = GetCurrentGuildBankTab
-local GetGuildBankItemInfo = GetGuildBankItemInfo
-local GetGuildBankItemLink = GetGuildBankItemLink
 local GetItemInfo = GetItemInfo
 local GetMerchantNumItems = GetMerchantNumItems
 local GetNumAuctionItems = GetNumAuctionItems
@@ -63,9 +62,10 @@ local function MerchantFrame_UpdateBuybackInfo()
 		local button = _G["MerchantItem" .. i .. "ItemButton"]
 
 		if button and button:IsShown() then
-			local _, _, _, _, _, isUsable = GetBuybackItemInfo(i)
+			local name = GetBuybackItemInfo(i)
+			local _, itemLink = GetItemInfoByName(name)
 
-			if isUsable and AK:IsAlreadyKnown(GetBuybackItemLink(i)) then
+			if itemLink and AK:IsAlreadyKnown(itemLink) then
 				SetItemButtonTextureVertexColor(button, knownColor.r, knownColor.g, knownColor.b)
 			end
 		end
@@ -137,41 +137,16 @@ local function AuctionFrameAuctions_Update()
 	end
 end
 
-local function GuildBankFrame_Update()
-	if GuildBankFrame.mode ~= "bank" then return end
-
-	local tab = GetCurrentGuildBankTab()
-
-	for i = 1, MAX_GUILDBANK_SLOTS_PER_TAB do
-		local button = _G["GuildBankColumn" .. ceil((i - 0.5) / NUM_SLOTS_PER_GUILDBANK_GROUP) .. "Button" .. fmod(i, NUM_SLOTS_PER_GUILDBANK_GROUP)]
-
-		if button and button:IsShown() then
-			local texture, _, locked = GetGuildBankItemInfo(tab, i)
-
-			if texture and not locked then
-				if AK:IsAlreadyKnown(GetGuildBankItemLink(tab, i)) then
-					SetItemButtonTextureVertexColor(button, knownColor.r, knownColor.g, knownColor.b)
-				else
-					SetItemButtonTextureVertexColor(button, 1, 1, 1)
-				end
-			end
-		end
-	end
-end
-
 function AK:IsAlreadyKnown(itemLink)
 	if not itemLink then return end
+	local itemID = match(itemLink, "item:(%d+)")
+	if self.knownTable[itemID] then return true end
 
-	local itemID = match(itemLink, "item:(%d+):")
-	if self.knownTable[itemID] then
-		return true
-	end
-
-	local _, _, _, _, _, itemType = GetItemInfo(itemLink)
+	local _, _, _, _, itemType = GetItemInfo(itemID)
 	if not self.knowableTypes[itemType] then return end
 
 	self.scantip:ClearLines()
-	self.scantip:SetHyperlink(itemLink)
+	self.scantip:SetHyperlink(match(itemLink, "item[%-?%d:]+"))
 
 	for i = 2, self.scantip:NumLines() do
 		local text = _G["ElvUI_MerchantAlreadyKnownTextLeft"..i]:GetText()
@@ -183,14 +158,12 @@ function AK:IsAlreadyKnown(itemLink)
 	end
 end
 
-function AK:ADDON_LOADED(_, addon)
-	if addon == "Blizzard_AuctionUI" and not self.auctionHooked then
-		self:SetHooks()
-	elseif addon == "Blizzard_GuildBankUI" and not self.guildBankHooked then
+function AK:ADDON_LOADED()
+	if arg1 == "Blizzard_AuctionUI" and not self.auctionHooked then
 		self:SetHooks()
 	end
 
-	if self.auctionHooked and self.guildBankHooked then
+	if self.auctionHooked then
 		self:UnregisterEvent("ADDON_LOADED")
 	end
 end
@@ -215,14 +188,6 @@ function AK:SetHooks()
 		end
 
 		self.auctionHooked = true
-	end
-
-	if not self.guildBankHooked and IsAddOnLoaded("Blizzard_GuildBankUI") then
-		if not self:IsHooked("GuildBankFrame_Update") then
-			self:SecureHook("GuildBankFrame_Update", GuildBankFrame_Update)
-		end
-
-		self.guildBankHooked = true
 	end
 end
 
@@ -252,14 +217,13 @@ function AK:ToggleState()
 	if E.db.enhanced.general.alreadyKnown then
 		self:SetHooks()
 
-		if not (IsAddOnLoaded("Blizzard_AuctionUI") and IsAddOnLoaded("Blizzard_GuildBankUI")) then
+		if not IsAddOnLoaded("Blizzard_AuctionUI") then
 			self:RegisterEvent("ADDON_LOADED")
 		end
 	else
 		self:UnhookAll()
 
 		self.auctionHooked = nil
-		self.guildBankHooked = nil
 	end
 end
 

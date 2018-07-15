@@ -4,6 +4,8 @@ local addon = E:GetModule("ElvUI_Enhanced")
 local format = string.format
 local tsort = table.sort
 
+local NONE, FONT_SIZE = NONE, FONT_SIZE
+
 local function ColorizeSettingName(settingName)
 	return format("|cffff8000%s|r", settingName)
 end
@@ -465,7 +467,7 @@ local function CharacterFrameOptions()
 							fontSize = {
 								order = 3,
 								type = "range",
-								name = L["Font Size"],
+								name = FONT_SIZE,
 								min = 6, max = 36, step = 1
 							},
 							fontOutline = {
@@ -473,7 +475,7 @@ local function CharacterFrameOptions()
 								type = "select",
 								name = L["Font Outline"],
 								values = {
-									["NONE"] = L["None"],
+									["NONE"] = NONE,
 									["OUTLINE"] = "OUTLINE",
 									["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
 									["THICKOUTLINE"] = "THICKOUTLINE"
@@ -687,7 +689,7 @@ local function WatchFrameOptions()
 	local WF = E:GetModule("Enhanced_WatchFrame")
 
 	local choices = {
-		["NONE"] = L["None"],
+		["NONE"] = NONE,
 		["HIDDEN"] = L["Hidden"]
 	}
 

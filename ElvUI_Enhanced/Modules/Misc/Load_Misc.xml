@@ -15,7 +15,7 @@
 	<Script file="modelframes.lua"/>
 	<Script file="merchant.lua"/>
 
-	<Script file="characterFrame.lua"/>
+	<!-- <Script file="characterFrame.lua"/> -->
 
 	<Frame name="CharacterStatFrameTemplate" virtual="true">
 		<Size x="187" y="15"/>

@@ -1,10 +1,12 @@
-local E, L, V, P, G = unpack(ElvUI)
-local addon = E:GetModule("ElvUI_Enhanced")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local addon = E:GetModule("ElvUI_Enhanced");
 
+--Cache global variables
+--Lua functions
 local format = string.format
-local tsort = table.sort
-
-local NONE, FONT_SIZE = NONE, FONT_SIZE
+local getn, sort = table.getn, table.sort
+--WoW API / Variables
+local ACTIONBAR_LABEL, CHAT_LABEL, FONT_SIZE, GENERAL, NONE = ACTIONBAR_LABEL, CHAT_LABEL, FONT_SIZE, GENERAL, NONE
 
 local function ColorizeSettingName(settingName)
 	return format("|cffff8000%s|r", settingName)
@@ -17,12 +19,12 @@ local function GeneralOptions()
 	local config = {
 		order = 1,
 		type = "group",
-		name = L["General"],
+		name = GENERAL,
 		args = {
 			header = {
 				order = 0,
 				type = "header",
-				name = ColorizeSettingName(L["General"])
+				name = ColorizeSettingName(FONT_SIZE)
 			},
 			pvpAutoRelease = {
 				order = 1,
@@ -148,12 +150,12 @@ local function ActionbarOptions()
 	local config = {
 		order = 2,
 		type = "group",
-		name = L["ActionBars"],
+		name = ACTIONBAR_LABEL,
 		args = {
 			header = {
 				order = 0,
 				type = "header",
-				name = ColorizeSettingName(L["ActionBars"])
+				name = ColorizeSettingName(ACTIONBAR_LABEL)
 			},
 			equipped = {
 				order = 1,
@@ -221,12 +223,12 @@ local function ChatOptions()
 	local config = {
 		order = 3,
 		type = "group",
-		name = L["Chat"],
+		name = CHAT_LABEL,
 		args = {
 			header = {
 				order = 0,
 				type = "header",
-				name = ColorizeSettingName(L["Chat"])
+				name = ColorizeSettingName(CHAT_LABEL)
 			},
 			dpsLinks = {
 				order = 1,
@@ -568,7 +570,7 @@ local function MinimapOptions()
 		["MOUSEOVER"] = L["Minimap Mouseover"],
 		["SHOW"] = L["Always Display"],
 		["ABOVE"] = ColorizeSettingName(L["Above Minimap"]),
-		["HIDE"] = L["Hide"]
+		["HIDE"] = HIDE
 	}
 	config.args.locationText = E.Options.args.maps.args.minimap.args.locationTextGroup.args.locationText
 	return config
@@ -579,13 +581,13 @@ local function NamePlatesOptions()
 	local config = {
 		order = 7,
 		type = "group",
-		name = L["NamePlates"],
+		name = L["Nameplates"],
 		get = function(info) return E.db.enhanced.nameplates[info[getn(info)]] end,
 		args = {
 			header = {
 				order = 0,
 				type = "header",
-				name = ColorizeSettingName(L["NamePlates"])
+				name = ColorizeSettingName(L["Nameplates"])
 			},
 			smooth = {
 				type = "toggle",
@@ -827,18 +829,18 @@ local function UnitFrameOptions()
 	local config = {
 		order = 11,
 		type = "group",
-		name = L["UnitFrames"],
+		name = L["Unitframes"],
 		childGroups = "tab",
 		args = {
 			header = {
 				order = 0,
 				type = "header",
-				name = ColorizeSettingName(L["UnitFrames"])
+				name = ColorizeSettingName(L["Unitframes"])
 			},
 			general = {
 				order = 1,
 				type = "group",
-				name = L["General"],
+				name = GENERAL,
 				guiInline = true,
 				args = {
 					hideRoleInCombat = {

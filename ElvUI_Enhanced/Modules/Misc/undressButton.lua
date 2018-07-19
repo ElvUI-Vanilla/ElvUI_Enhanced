@@ -1,14 +1,16 @@
-local E, L, V, P, G = unpack(ElvUI) --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
-local UB = E:NewModule("Enhanced_UndressButtons", "AceEvent-3.0")
-local S = E:GetModule("Skins")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local UB = E:NewModule("Enhanced_UndressButtons", "AceEvent-3.0");
+local S = E:GetModule("Skins");
 
 --WoW API / Variables
+local CreateFrame = CreateFrame
 local PlaySound = PlaySound
 
 function UB:CreateUndressButton(auction)
 	if not auction then
 		self.dressUpButton = CreateFrame("Button", "DressUpFrame_UndressButton", DressUpFrame, "UIPanelButtonTemplate")
 		E:Size(self.dressUpButton, 80, 22)
+		self.dressUpButton:SetFrameLevel(DressUpModel:GetFrameLevel() + 1)
 		self.dressUpButton:SetText(L["Undress"])
 		self.dressUpButton:SetScript("OnClick", function()
 			this.model:Undress()

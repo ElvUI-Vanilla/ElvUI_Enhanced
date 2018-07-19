@@ -358,6 +358,7 @@ function module:ADDON_LOADED()
 
 		self:ModelWithControls(InspectModelFrame)
 	elseif arg1 == "Blizzard_AuctionUI" then
+
 		AuctionDressUpModel:EnableMouse(true)
 		AuctionDressUpModel:EnableMouseWheel(true)
 
@@ -365,6 +366,8 @@ function module:ADDON_LOADED()
 		E:Kill(AuctionDressUpModelRotateRightButton)
 
 		self:ModelWithControls(AuctionDressUpModel)
+
+		E:Point(AuctionDressUpModelControlFrame, "TOP", 0, -10)
 	end
 end
 

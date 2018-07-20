@@ -1,5 +1,5 @@
-local E, L, V, P, G = unpack(ElvUI) --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
-local AK = E:NewModule("Enhanced_AlreadyKnown", "AceHook-3.0", "AceEvent-3.0")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local AK = E:NewModule("Enhanced_AlreadyKnown", "AceHook-3.0", "AceEvent-3.0");
 
 --Cache global variables
 --Lua functions
@@ -16,7 +16,6 @@ local GetNumAuctionItems = GetNumAuctionItems
 local GetNumBuybackItems = GetNumBuybackItems
 local IsAddOnLoaded = IsAddOnLoaded
 local SetItemButtonTextureVertexColor = SetItemButtonTextureVertexColor
-local hooksecurefunc = hooksecurefunc
 
 local BUYBACK_ITEMS_PER_PAGE = BUYBACK_ITEMS_PER_PAGE
 local ITEM_SPELL_KNOWN = ITEM_SPELL_KNOWN

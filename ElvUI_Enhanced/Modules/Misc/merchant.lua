@@ -11,10 +11,11 @@ local GetMerchantItemLink = GetMerchantItemLink
 local GetMerchantItemMaxStack = GetMerchantItemMaxStack
 
 function M:MerchantItemButton_OnClick()
+	local id = this:GetID()
 	if IsAltKeyDown() then
-		local maxStack = select(7, GetItemInfo(match(GetMerchantItemLink(this:GetID()), "item:(%d+)")))
+		local _, _, _, _, _, _, maxStack = GetItemInfo(match(GetMerchantItemLink(id), "item:(%d+)"))
 		if maxStack and maxStack > 1 then
-			BuyMerchantItem(this:GetID(), GetMerchantItemMaxStack(this:GetID()))
+			BuyMerchantItem(id, GetMerchantItemMaxStack(id))
 		end
 	end
 end

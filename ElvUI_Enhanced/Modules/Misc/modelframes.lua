@@ -2,6 +2,20 @@ local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, Profi
 local module = E:NewModule("HookModelFrames", "AceHook-3.0", "AceEvent-3.0");
 local S = E:GetModule("Skins");
 
+--Cache global variables
+--Lua functions
+local _G = _G
+local min, max = math.min, math.max
+--WoW API / Variables
+local CreateFrame = CreateFrame
+local GetCVar = GetCVar
+local GetCursorPosition = GetCursorPosition
+local PI = PI
+local UIFrameFadeIn = UIFrameFadeIn
+local UIFrameFadeOut = UIFrameFadeOut
+local UnitRace = UnitRace
+local UnitSex = UnitSex
+
 local models = {
 	"CharacterModelFrame",
 	"DressUpModel",

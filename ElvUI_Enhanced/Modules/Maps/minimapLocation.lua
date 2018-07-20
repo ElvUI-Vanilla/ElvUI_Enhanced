@@ -4,6 +4,7 @@ local M = E:GetModule("Minimap");
 
 --Cache global variables
 --Lua functions
+local _G = _G
 local format = string.format
 --WoW API / Variables
 local GetPlayerMapPosition = GetPlayerMapPosition

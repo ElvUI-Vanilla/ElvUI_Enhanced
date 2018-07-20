@@ -169,9 +169,5 @@ L["Show class icon for units."] = true;
 L["Target"] = true;
 
 -- WatchFrame
-L["Hidden"] = true;
 L["City (Resting)"] = true;
-L["PvP"] = true;
-L["Arena"] = true;
-L["Party"] = true;
-L["Raid"] = true;
+L["Hidden"] = true;

@@ -169,9 +169,5 @@ L["Show class icon for units."] = true;
 L["Target"] = true;
 
 -- WatchFrame
-L["Hidden"] = "Caché"
 L["City (Resting)"] = "Ville (repos)"
-L["PvP"] = "PvP"
-L["Arena"] = "Arêne"
-L["Party"] = "Groupe"
-L["Raid"] = "Raid"
+L["Hidden"] = "Caché"

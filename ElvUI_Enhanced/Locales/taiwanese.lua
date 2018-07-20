@@ -169,9 +169,5 @@ L["Show class icon for units."] = "顯是職業圖標"
 L["Target"] = true;
 
 -- WatchFrame
-L["Arena"] = "競技場"
 L["City (Resting)"] = "城市 (休息)"
 L["Hidden"] = "隱藏"
-L["Party"] = "隊伍"
-L["PvP"] = true;
-L["Raid"] = "團隊"

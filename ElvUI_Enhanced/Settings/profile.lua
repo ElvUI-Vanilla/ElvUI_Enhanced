@@ -141,7 +141,6 @@ P.enhanced = {
 		enable = false,
 		city = "HIDDEN",
 		pvp = "HIDDEN",
-		arena = "HIDDEN",
 		party = "HIDDEN",
 		raid = "HIDDEN"
 	}

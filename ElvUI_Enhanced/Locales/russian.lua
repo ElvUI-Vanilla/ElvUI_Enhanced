@@ -169,9 +169,5 @@ L["Show class icon for units."] = "Показывать иконку класс�
 L["Target"] = true;
 
 -- WatchFrame
-L["Arena"] = "Арена"
 L["City (Resting)"] = "Город (отдых)"
 L["Hidden"] = "Скрыть"
-L["Party"] = "Группа"
-L["PvP"] = "PvP"
-L["Raid"] = "Рейд"

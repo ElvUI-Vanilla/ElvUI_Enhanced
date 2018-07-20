@@ -169,9 +169,5 @@ L["Show class icon for units."] = "Zeige Klassensymbole für Einheiten"
 L["Target"] = "Ziel"
 
 -- WatchFrame
-L["Arena"] = "Arena"
 L["City (Resting)"] = "Stadt (erholend)"
 L["Hidden"] = "Versteckt"
-L["Party"] = "Gruppe"
-L["PvP"] = "PvP"
-L["Raid"] = "Schlachtzug"

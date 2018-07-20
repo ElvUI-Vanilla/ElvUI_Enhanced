@@ -3,6 +3,7 @@ local PD = E:NewModule("Enhanced_PaperDoll", "AceHook-3.0", "AceEvent-3.0");
 
 --Cache global variables
 --Lua functions
+local _G = _G
 local format, match = string.format, string.match
 local pairs, select, tonumber = pairs, select, tonumber
 --WoW API / Variables

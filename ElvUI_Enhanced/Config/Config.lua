@@ -6,7 +6,9 @@ local addon = E:GetModule("ElvUI_Enhanced");
 local format = string.format
 local getn, sort = table.getn, table.sort
 --WoW API / Variables
-local ACTIONBAR_LABEL, CHAT_LABEL, FONT_SIZE, GENERAL, NONE = ACTIONBAR_LABEL, CHAT_LABEL, FONT_SIZE, GENERAL, NONE
+local ACTIONBAR_LABEL, CHAT_LABEL, FONT_SIZE = ACTIONBAR_LABEL, CHAT_LABEL, FONT_SIZE
+local GENERAL, HELPFRAME_HOME_ISSUE3_HEADER = GENERAL, HELPFRAME_HOME_ISSUE3_HEADER
+local HIDE, ITEMS, NONE, PARTY, RAID, SKILLS = HIDE, ITEMS, NONE, PARTY, RAID, SKILLS
 
 local function ColorizeSettingName(settingName)
 	return format("|cffff8000%s|r", settingName)
@@ -735,25 +737,19 @@ local function WatchFrameOptions()
 					pvp = {
 						order = 2,
 						type = "select",
-						name = L["PvP"],
-						values = choices
-					},
-					arena = {
-						order = 3,
-						type = "select",
-						name = L["Arena"],
+						name = HELPFRAME_HOME_ISSUE3_HEADER,
 						values = choices
 					},
 					party = {
-						order = 4,
+						order = 3,
 						type = "select",
-						name = L["Party"],
+						name = PARTY,
 						values = choices
 					},
 					raid = {
-						order = 5,
+						order = 4,
 						type = "select",
-						name = L["Raid"],
+						name = RAID,
 						values = choices
 					}
 				}
@@ -1064,7 +1060,7 @@ function addon:GetOptions()
 		args = {
 			generalGroup = GeneralOptions(),
 			-- actionbarGroup = ActionbarOptions(),
-			chatGroup = ChatOptions(),
+			-- chatGroup = ChatOptions(),
 			characterFrameGroup = CharacterFrameOptions(),
 			-- datatextsGroup = DataTextsOptions(),
 			minimapGroup = MinimapOptions(),

@@ -633,7 +633,7 @@ local function TooltipOptions()
 				get = function(info) return E.db.enhanced.tooltip.itemQualityBorderColor end,
 				set = function(info, value) E.db.enhanced.tooltip.itemQualityBorderColor = value E:GetModule("Enhanced_ItemBorderColor"):ToggleState() end
 			},
-			tooltipIcon = {
+			--[[tooltipIcon = {
 				order = 2,
 				type = "group",
 				name = L["Tooltip Icon"],
@@ -682,7 +682,7 @@ local function TooltipOptions()
 						disabled = function() return not E.db.enhanced.tooltip.tooltipIcon.enable end
 					},
 				}
-			}
+			}--]]
 		}
 	}
 	return config
@@ -1065,7 +1065,7 @@ function addon:GetOptions()
 			-- datatextsGroup = DataTextsOptions(),
 			minimapGroup = MinimapOptions(),
 			namePlatesGroup = NamePlatesOptions(),
-			-- tooltipGroup = TooltipOptions(),
+			tooltipGroup = TooltipOptions(),
 			-- unitframesGroup = UnitFrameOptions(),
 			-- losecontrolGroup = LoseControlOptions(),
 			watchFrameGroup = WatchFrameOptions(),

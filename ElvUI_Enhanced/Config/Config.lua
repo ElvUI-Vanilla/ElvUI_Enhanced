@@ -633,56 +633,14 @@ local function TooltipOptions()
 				get = function(info) return E.db.enhanced.tooltip.itemQualityBorderColor end,
 				set = function(info, value) E.db.enhanced.tooltip.itemQualityBorderColor = value E:GetModule("Enhanced_ItemBorderColor"):ToggleState() end
 			},
-			--[[tooltipIcon = {
+			tooltipIcon = {
 				order = 2,
-				type = "group",
+				type = "toggle",
 				name = L["Tooltip Icon"],
-				guiInline = true,
-				args = {
-					tooltipIcon = {
-						order = 1,
-						type = "toggle",
-						name = L["Enable"],
-						desc = L["Show/Hides an Icon for Spells and Items on the Tooltip."],
-						get = function(info) return E.db.enhanced.tooltip.tooltipIcon.enable end,
-						set = function(info, value)
-							E.db.enhanced.tooltip.tooltipIcon.enable = value
-							E:GetModule("Enhanced_TooltipIcon"):ToggleItemsState()
-							E:GetModule("Enhanced_TooltipIcon"):ToggleSpellsState()
-						end
-					},
-					spacer = {
-						order = 2,
-						type = "description",
-						name = "",
-						width = "full"
-					},
-					tooltipIconSpells = {
-						order = 3,
-						type = "toggle",
-						name = SPELLS,
-						desc = L["Show/Hides an Icon for Spells on the Tooltip."],
-						get = function(info) return E.db.enhanced.tooltip.tooltipIcon.tooltipIconSpells end,
-						set = function(info, value)
-							E.db.enhanced.tooltip.tooltipIcon.tooltipIconSpells = value
-							E:GetModule("Enhanced_TooltipIcon"):ToggleSpellsState()
-						end,
-						disabled = function() return not E.db.enhanced.tooltip.tooltipIcon.enable end
-					},
-					tooltipIconItems = {
-						order = 4,
-						type = "toggle",
-						name = ITEMS,
-						desc = L["Show/Hides an Icon for Items on the Tooltip."],
-						get = function(info) return E.db.enhanced.tooltip.tooltipIcon.tooltipIconItems end,
-						set = function(info, value)
-							E.db.enhanced.tooltip.tooltipIcon.tooltipIconItems = value
-							E:GetModule("Enhanced_TooltipIcon"):ToggleItemsState()
-						end,
-						disabled = function() return not E.db.enhanced.tooltip.tooltipIcon.enable end
-					},
-				}
-			}--]]
+				desc = L["Show/Hides an Icon for Items on the Tooltip."],
+				get = function(info) return E.db.enhanced.tooltip.tooltipIcon.enable end,
+				set = function(info, value) E.db.enhanced.tooltip.tooltipIcon.enable = value E:GetModule("Enhanced_TooltipIcon"):ToggleState() end
+			}
 		}
 	}
 	return config

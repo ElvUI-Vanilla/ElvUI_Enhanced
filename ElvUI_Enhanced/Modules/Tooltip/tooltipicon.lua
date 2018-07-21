@@ -1,80 +1,88 @@
-local E, L, V, P, G = unpack(ElvUI)
-local TI = E:NewModule("Enhanced_TooltipIcon", "AceHook-3.0")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local TI = E:NewModule("Enhanced_TooltipIcon", "AceHook-3.0");
+local TT = E:GetModule("Tooltip");
 
+--Cache global variables
+--Lua functions
 local _G = _G
-local select = select
-local find = string.find
+local tonumber, unpack = tonumber, unpack
+local match = string.match
+--WoW API / Variables
+local CreateFrame = CreateFrame
+local GetItemInfoByName = GetItemInfoByName
+local GetItemQualityColor = GetItemQualityColor
 
-local GetItemIcon = GetItemIcon
-local GetSpellInfo = GetSpellInfo
+function TI:SetIcon(_, tt)
+	local tooltip = tt:GetName()
 
-local itemTooltips = {
-	GameTooltip,
-	ItemRefTooltip,
-	ShoppingTooltip1,
-	ShoppingTooltip2
-}
+	if not _G[tooltip.."TextRight1"]:IsShown() then
+		local itemName = _G[tooltip.."TextLeft1"]:GetText()
+		if itemName then
+			local _, _, quality, _, _, _, _, _, texture = GetItemInfoByName(itemName)
+			if texture then
+				self.icon.texture:SetTexture(texture)
+				self.icon:Show()
 
-local spellTooltips = {
-	GameTooltip,
-	ItemRefTooltip
-}
+				if E.db.enhanced.tooltip.itemQualityBorderColor then
+					if quality then
+						self.icon:SetBackdropBorderColor(GetItemQualityColor(quality))
+					end
+				end
 
-local function AddIcon(self, icon)
-	if not icon then return end
-
-	local title = _G[self:GetName() .. "TextLeft1"]
-	if title and not find(title:GetText(), "|T" .. icon) then
-		title:SetFormattedText("|T%s:48:48:0:0:64:64:5:59:5:59|t %s", icon, title:GetText())
-	end
-end
-
-local function ItemIcon(self)
-	local _, link = self:GetItem()
-	local icon = link and GetItemIcon(link)
-	AddIcon(self, icon)
-end
-
-local function SpellIcon(self)
-	local id = self:GetSpell()
-	if id then
-		AddIcon(self, select(3, GetSpellInfo(id)))
-	end
-end
-
-function TI:ToggleItemsState()
-	local state = E.db.enhanced.tooltip.tooltipIcon.tooltipIconItems and E.db.enhanced.tooltip.tooltipIcon.enable
-
-	for _, tooltip in pairs(itemTooltips) do
-		if state then
-			if not self:IsHooked(tooltip, "OnTooltipSetItem", ItemIcon) then
-				self:SecureHookScript(tooltip, "OnTooltipSetItem", ItemIcon)
+				return
 			end
-		else
-			self:Unhook(tooltip, "OnTooltipSetItem")
 		end
 	end
+
+	self.icon.texture:SetTexture(nil)
+	self.icon:Hide()
 end
 
-function TI:ToggleSpellsState()
-	local state = E.db.enhanced.tooltip.tooltipIcon.tooltipIconSpells and E.db.enhanced.tooltip.tooltipIcon.enable
+function TI:ToggleState()
+	if E.db.enhanced.tooltip.tooltipIcon.enable then
+		if not self.icon then
+			self.icon = CreateFrame("Frame", "Enhanced_TooltipIcon", GameTooltip)
+			E:Point(self.icon, "TOPRIGHT", GameTooltip, "TOPLEFT", -3, 0)
+			E:SetTemplate(self.icon, "Default")
+			E:Size(self.icon, 22)
+			self.icon:Hide()
 
-	for _, tooltip in pairs(spellTooltips) do
-		if state then
-			if not self:IsHooked(tooltip, "OnTooltipSetSpell", SpellIcon) then
-				self:SecureHookScript(tooltip, "OnTooltipSetSpell", SpellIcon)
-			end
-		else
-			self:Unhook(tooltip, "OnTooltipSetSpell")
+			self.icon.texture = self.icon:CreateTexture(nil, "ARTWORK")
+			self.icon.texture:SetTexture(nil)
+			E:SetInside(self.icon.texture)
+			self.icon.texture:SetTexCoord(unpack(E.TexCoords))
 		end
+
+		if not self:IsHooked(TT, "SetAction", "SetIcon") then
+			self:SecureHook(TT, "SetAction", "SetIcon")
+			self:SecureHook(TT, "SetAuctionItem", "SetIcon")
+			self:SecureHook(TT, "SetAuctionSellItem", "SetIcon")
+			self:SecureHook(TT, "SetBagItem", "SetIcon")
+			self:SecureHook(TT, "SetCraftItem", "SetIcon")
+			self:SecureHook(TT, "SetCraftSpell", "SetIcon")
+			self:SecureHook(TT, "SetHyperlink", "SetIcon")
+			self:SecureHook(TT, "SetInboxItem", "SetIcon")
+			self:SecureHook(TT, "SetInventoryItem", "SetIcon")
+			self:SecureHook(TT, "SetLootItem", "SetIcon")
+			self:SecureHook(TT, "SetLootRollItem", "SetIcon")
+			self:SecureHook(TT, "SetMerchantItem", "SetIcon")
+			self:SecureHook(TT, "SetQuestItem", "SetIcon")
+			self:SecureHook(TT, "SetQuestLogItem", "SetIcon")
+			self:SecureHook(TT, "SetSendMailItem", "SetIcon")
+			self:SecureHook(TT, "SetTradePlayerItem", "SetIcon")
+			self:SecureHook(TT, "SetTradeSkillItem", "SetIcon")
+			self:SecureHook(TT, "SetTradeTargetItem", "SetIcon")
+		end
+	else
+		self.icon:Hide()
+		self:UnhookAll()
 	end
 end
 
 function TI:Initialize()
 	if not E.db.enhanced.tooltip.tooltipIcon.enable then return end
 
-	self:ToggleItemsState()
-	self:ToggleSpellsState()
+	self:ToggleState()
 end
 
 local function InitializeCallback()

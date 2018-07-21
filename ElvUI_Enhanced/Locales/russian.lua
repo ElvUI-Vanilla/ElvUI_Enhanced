@@ -128,7 +128,7 @@ L["Item Border Color"] = "Цвет рамки предметов"
 L["Colorize the tooltip border based on item quality."] = "Окрашивать бордюр тултипа в цвет качества предмета"
 L["Show/Hides an Icon for Items on the Tooltip."] = true;
 L["Show/Hides an Icon for Spells on the Tooltip."] = true;
-L["Show/Hides an Icon for Spells and Items on the Tooltip."] = true;
+L["Show/Hides an Icon for Items on the Tooltip."] = true;
 L["Tooltip Icon"] = true;
 
 -- Misc

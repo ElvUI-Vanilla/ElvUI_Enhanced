@@ -11,23 +11,23 @@ local GetItemInfoByName = GetItemInfoByName
 local GetItemQualityColor = GetItemQualityColor
 
 function IBC:SetBorderColor(_, tt)
-	if GameTooltipTextRight1:IsShown() then return end
-	local itemName = GameTooltipTextLeft1:GetText()
-	if not itemName then return end
+	local tooltip = tt:GetName()
 
-	local _, link, quality = GetItemInfoByName(itemName)
-	if not link then return end
+	if not _G[tooltip.."TextRight1"]:IsShown() then
+		local itemName = _G[tooltip.."TextLeft1"]:GetText()
+		if itemName then
+			local _, _, quality = GetItemInfoByName(itemName)
 
-	local id = tonumber(match(link, "item:(%d+)"))
-
-	if quality then
-		tt:SetBackdropBorderColor(GetItemQualityColor(quality))
+			if quality then
+				tt:SetBackdropBorderColor(GetItemQualityColor(quality))
+			end
+		end
 	end
 end
 
 function IBC:ToggleState()
 	if E.db.enhanced.tooltip.itemQualityBorderColor then
-		if not self:IsHooked(TT, "SetStyle", "SetBorderColor") then
+		if not self:IsHooked(TT, "SetAction", "SetBorderColor") then
 			self:SecureHook(TT, "SetAction", "SetBorderColor")
 			self:SecureHook(TT, "SetAuctionItem", "SetBorderColor")
 			self:SecureHook(TT, "SetAuctionSellItem", "SetBorderColor")

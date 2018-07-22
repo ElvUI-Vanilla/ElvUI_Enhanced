@@ -94,25 +94,19 @@ PAPERDOLL_STATINFO = {
 		updateFunc = function(statFrame, unit) ECF:SetStat(statFrame, unit, 5) end
 	},
 
-	-- ["MELEE_DAMAGE"] = {
-	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetDamage(statFrame, unit) end,
-	-- 	updateFunc2 = function(statFrame) CharacterDamageFrame_OnEnter(statFrame) end
-	-- },
-	--["MELEE_DPS"] = {
-	--	updateFunc = function(statFrame, unit) ECF:SetMeleeDPS(statFrame, unit) end
-	--},
-	-- ["MELEE_AP"] = {
-	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetAttackPower(statFrame, unit) end
-	-- },
-	-- ["MELEE_ATTACKSPEED"] = {
-	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetAttackSpeed(statFrame, unit) end
-	-- },
-	-- ["HITCHANCE"] = {
-	-- 	updateFunc = function(statFrame) PaperDollFrame_SetRating(statFrame, CR_HIT_MELEE) end
-	-- },
-	-- ["CRITCHANCE"] = {
-	-- 	updateFunc = function(statFrame, unit) ECF:SetMeleeCritChance(statFrame, unit) end
-	-- },
+	["MELEE_AP"] = {
+		updateFunc = function(statFrame, unit) ECF:SetAttackPower(statFrame, unit) end
+	},
+	["MELEE_DAMAGE"] = {
+		updateFunc = function(statFrame, unit) ECF:SetDamage(statFrame, unit) end,
+		--updateFunc2 = function(statFrame) CharacterDamageFrame_OnEnter(statFrame) end
+	},
+	["MELEE_ATTACKSPEED"] = {
+		updateFunc = function(statFrame, unit) ECF:SetAttackSpeed(statFrame, unit) end
+	},
+	["MELEE_DPS"] = {
+		updateFunc = function(statFrame, unit) ECF:SetMeleeDPS(statFrame, unit) end
+	},
 
 	-- ["RANGED_COMBAT1"] = {
 	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetRangedDamage(statFrame, unit) end,
@@ -153,7 +147,7 @@ PAPERDOLL_STATINFO = {
 	-- },
 
 	["ARMOR"] = {
-		updateFunc = function(statFrame, unit) ECF:PaperDollFrame_SetArmor(statFrame, unit) end
+		updateFunc = function(statFrame, unit) ECF:SetArmor(statFrame, unit) end
 	},
 
 	-- ["ARCANE"] = {
@@ -190,17 +184,16 @@ PAPERDOLL_STATCATEGORIES = {
 			"SPIRIT"
 		}
 	},
---[[	["MELEE_COMBAT"] = {
+	["MELEE_COMBAT"] = {
 		id = 3,
 		stats = {
+			"MELEE_AP",
 			"MELEE_DAMAGE",
 			"MELEE_DPS",
-			"MELEE_AP",
-			"MELEE_ATTACKSPEED",
-			"HITCHANCE",
-			"CRITCHANCE",
+			"MELEE_ATTACKSPEED"
 		}
 	},
+	--[[
 	["RANGED_COMBAT"] = {
 		id = 4,
 		stats = {
@@ -243,7 +236,7 @@ PAPERDOLL_STATCATEGORIES = {
 PAPERDOLL_STATCATEGORY_DEFAULTORDER = {
 	"ITEM_LEVEL",
 	"BASE_STATS",
---	"MELEE_COMBAT",
+	"MELEE_COMBAT",
 --	"RANGED_COMBAT",
 --	"SPELL_COMBAT",
 	"DEFENSES",
@@ -252,7 +245,7 @@ PAPERDOLL_STATCATEGORY_DEFAULTORDER = {
 
 PETPAPERDOLL_STATCATEGORY_DEFAULTORDER = {
 	"BASE_STATS",
---	"MELEE_COMBAT",
+	"MELEE_COMBAT",
 --	"RANGED_COMBAT",
 --	"SPELL_COMBAT",
 --	"DEFENSES",
@@ -391,22 +384,6 @@ function ECF:SetStat(statFrame, unit, statIndex)
 	statFrame:Show()
 end
 
-function ECF:PaperDollFrame_SetArmor(statFrame, unit)
-	local base, effectiveArmor, armor, posBuff, negBuff = UnitArmor(unit)
-	local totalBufs = posBuff + negBuff
-
-	local label = _G[statFrame:GetName().."Label"]
-	local text = _G[statFrame:GetName().."StatText"]
-	label:SetText(ARMOR_COLON)
-
-	PaperDollFormatStat(ARMOR, base, posBuff, negBuff, statFrame, text)
-	local playerLevel = UnitLevel(unit)
-	local armorReduction = effectiveArmor/((85 * playerLevel) + 400)
-	armorReduction = 100 * (armorReduction/(armorReduction + 1))
-
-	statFrame.tooltip2 = format(ARMOR_TOOLTIP, playerLevel, armorReduction)
-end
-
 function ECF:SetResistance(statFrame, unit, resistanceIndex)
 	local base, resistance, positive, negative = UnitResistance(unit, resistanceIndex)
 	local petBonus = ComputePetBonus("PET_BONUS_RES", resistance)
@@ -453,66 +430,79 @@ function ECF:SetResistance(statFrame, unit, resistanceIndex)
 	end
 end
 
-function ECF:SetDodge(statFrame, unit)
-	if unit ~= "player" then statFrame:Hide() return end
+function ECF:SetArmor(statFrame, unit)
+	local base, effectiveArmor, armor, posBuff, negBuff = UnitArmor(unit)
+	local totalBufs = posBuff + negBuff
 
-	local chance = GetDodgeChance()
-	PaperDollFrame_SetLabelAndText(statFrame, STAT_DODGE, chance, 1)
-	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", DODGE_CHANCE).." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
-	statFrame.tooltip2 = format(CR_DODGE_TOOLTIP, GetCombatRating(CR_DODGE), GetCombatRatingBonus(CR_DODGE))
-	statFrame:Show()
+	local label = _G[statFrame:GetName().."Label"]
+	local text = _G[statFrame:GetName().."StatText"]
+	label:SetText(ARMOR_COLON)
+
+	PaperDollFormatStat(ARMOR, base, posBuff, negBuff, statFrame, text)
+	local playerLevel = UnitLevel(unit)
+	local armorReduction = effectiveArmor/((85 * playerLevel) + 400)
+	armorReduction = 100 * (armorReduction/(armorReduction + 1))
+
+	statFrame.tooltip2 = format(ARMOR_TOOLTIP, playerLevel, armorReduction)
 end
 
-function ECF:SetBlock(statFrame, unit)
-	if unit ~= "player" then statFrame:Hide() return end
+function ECF:SetDefense(statFrame, unit)
+	local base, modifier = UnitDefense(unit)
 
-	local chance = GetBlockChance()
-	PaperDollFrame_SetLabelAndText(statFrame, STAT_BLOCK, chance, 1)
-	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", BLOCK_CHANCE).." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
-	statFrame.tooltip2 = format(CR_BLOCK_TOOLTIP, GetCombatRating(CR_BLOCK), GetCombatRatingBonus(CR_BLOCK), GetShieldBlock())
-	statFrame:Show()
-end
+	local label = _G[statFrame:GetName().."Label"]
+	local text = _G[statFrame:GetName().."StatText"]
+	label:SetText(DEFENSE_COLON)
 
-function ECF:SetParry(statFrame, unit)
-	if unit ~= "player" then statFrame:Hide() return end
-
-	local chance = GetParryChance()
-	PaperDollFrame_SetLabelAndText(statFrame, STAT_PARRY, chance, 1)
-	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", PARRY_CHANCE).." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
-	statFrame.tooltip2 = format(CR_PARRY_TOOLTIP, GetCombatRating(CR_PARRY), GetCombatRatingBonus(CR_PARRY))
-	statFrame:Show()
-end
-
-function ECF:SetResilience(statFrame, unit)
-	if unit ~= "player" then statFrame:Hide() return end
-
-	local melee = GetCombatRating(CR_CRIT_TAKEN_MELEE)
-	local ranged = GetCombatRating(CR_CRIT_TAKEN_RANGED)
-	local spell = GetCombatRating(CR_CRIT_TAKEN_SPELL)
-
-	local minResilience = min(melee, ranged)
-	minResilience = min(minResilience, spell)
-
-	local lowestRating = CR_CRIT_TAKEN_MELEE
-	if melee == minResilience then
-		lowestRating = CR_CRIT_TAKEN_MELEE
-	elseif ranged == minResilience then
-		lowestRating = CR_CRIT_TAKEN_RANGED
-	else
-		lowestRating = CR_CRIT_TAKEN_SPELL
+	local posBuff = 0
+	local negBuff = 0
+	if modifier > 0 then
+		posBuff = modifier
+	elseif modifier < 0 then
+		negBuff = modifier
 	end
+	PaperDollFormatStat(DEFENSE_COLON, base, posBuff, negBuff, statFrame, text)
+end
 
-	local lowestRatingBonus = GetCombatRatingBonus(lowestRating)
+function ECF:SetDamage(statFrame, unit)
+	_G[statFrame:GetName().."Label"]:SetText(DAMAGE_COLON)
+	local text = _G[statFrame:GetName().."StatText"]
 
-	PaperDollFrame_SetLabelAndText(statFrame, STAT_RESILIENCE, minResilience)
-	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", STAT_RESILIENCE).." "..minResilience..FONT_COLOR_CODE_CLOSE
-	statFrame.tooltip2 = format(RESILIENCE_TOOLTIP, lowestRatingBonus, min(lowestRatingBonus * 2, 25.00), lowestRatingBonus)
+	local minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage(unit)
+	local displayMin = max(floor(minDamage),1)
+	local displayMax = max(ceil(maxDamage),1)
 
-	statFrame:Show()
+	minDamage = (minDamage / percent) - physicalBonusPos - physicalBonusNeg
+	maxDamage = (maxDamage / percent) - physicalBonusPos - physicalBonusNeg
+
+	local baseDamage = (minDamage + maxDamage) * 0.5
+	local fullDamage = (baseDamage + physicalBonusPos + physicalBonusNeg) * percent
+	local totalBonus = (fullDamage - baseDamage)
+	
+	local colorPos = "|cff20ff20"
+	local colorNeg = "|cffff2020"
+	if totalBonus == 0 then
+		if displayMin < 100 and displayMax < 100 then 
+			text:SetText(displayMin.." - "..displayMax)	
+		else
+			text:SetText(displayMin.."-"..displayMax)
+		end
+	else
+		local color
+		if totalBonus > 0 then
+			color = colorPos
+		else
+			color = colorNeg
+		end
+		if displayMin < 100 and displayMax < 100 then 
+			text:SetText(color..displayMin.." - "..displayMax.."|r")
+		else
+			text:SetText(color..displayMin.."-"..displayMax.."|r")
+		end
+	end
 end
 
 function ECF:SetMeleeDPS(statFrame, unit)
-	_G[statFrame:GetName().."Label"]:SetText(format("%s:", L["Damage Per Second"]))
+	_G[statFrame:GetName().."Label"]:SetText(DAMAGE_PER_SECOND)
 	local speed, offhandSpeed = UnitAttackSpeed(unit)
 	local minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage(unit)
 
@@ -578,19 +568,68 @@ function ECF:SetMeleeDPS(statFrame, unit)
 	statFrame:Show()
 end
 
-function ECF:SetMeleeCritChance(statFrame, unit)
-	if unit ~= "player" then statFrame:Hide() return end
+function ECF:SetAttackSpeed(statFrame, unit)
+	local speed, offhandSpeed = UnitAttackSpeed(unit)
+	speed = format("%.2f", speed)
+	if offhandSpeed then
+		offhandSpeed = format("%.2f", offhandSpeed)
+	end
+	local text;
+	if offhandSpeed then
+		text = speed.." / "..offhandSpeed
+	else
+		text = speed
+	end
 
-	_G[statFrame:GetName().."Label"]:SetText(format("%s:", MELEE_CRIT_CHANCE))
-	local text = _G[statFrame:GetName().."StatText"]
-	local critChance = GetCritChance()
-	critChance = format("%.2f%%", critChance)
-	text:SetText(critChance)
-	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", MELEE_CRIT_CHANCE).." "..critChance..FONT_COLOR_CODE_CLOSE
-	statFrame.tooltip2 = format(CR_CRIT_MELEE_TOOLTIP, GetCombatRating(CR_CRIT_MELEE), GetCombatRatingBonus(CR_CRIT_MELEE))
+	_G[statFrame:GetName().."Label"]:SetText(ATTACK_SPEED_COLON)
+	_G[statFrame:GetName().."StatText"]:SetText(text)
+
+	--statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, ATTACK_SPEED).." "..text..FONT_COLOR_CODE_CLOSE;
+	--statFrame.tooltip2 = format(CR_HASTE_RATING_TOOLTIP, GetCombatRating(CR_HASTE_MELEE), GetCombatRatingBonus(CR_HASTE_MELEE));
 end
 
-function ECF:PaperDollStatTooltip()
+function ECF:SetAttackPower(statFrame, unit)
+	local label = _G[statFrame:GetName().."Label"]
+	local text = _G[statFrame:GetName().."StatText"]
+	label:SetText(ATTACK_POWER_COLON)
+	local base, posBuff, negBuff = UnitAttackPower(unit)
+
+	PaperDollFormatStat(MELEE_ATTACK_POWER, base, posBuff, negBuff, statFrame, text)
+	statFrame.tooltip2 = format(MELEE_ATTACK_POWER_TOOLTIP, max((base+posBuff+negBuff), 0)/ATTACK_POWER_MAGIC_NUMBER)
+end
+--[[
+function ECF:SetDodge(statFrame, unit)
+	if unit ~= "player" then statFrame:Hide() return end
+
+	local chance = GetDodgeChance()
+	PaperDollFrame_SetLabelAndText(statFrame, STAT_DODGE, chance, 1)
+	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", DODGE_CHANCE).." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
+	statFrame.tooltip2 = format(CR_DODGE_TOOLTIP, GetCombatRating(CR_DODGE), GetCombatRatingBonus(CR_DODGE))
+	statFrame:Show()
+end
+
+function ECF:SetBlock(statFrame, unit)
+	if unit ~= "player" then statFrame:Hide() return end
+
+	local chance = GetBlockChance()
+	PaperDollFrame_SetLabelAndText(statFrame, STAT_BLOCK, chance, 1)
+	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", BLOCK_CHANCE).." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
+	statFrame.tooltip2 = format(CR_BLOCK_TOOLTIP, GetCombatRating(CR_BLOCK), GetCombatRatingBonus(CR_BLOCK), GetShieldBlock())
+	statFrame:Show()
+end
+
+function ECF:SetParry(statFrame, unit)
+	if unit ~= "player" then statFrame:Hide() return end
+
+	local chance = GetParryChance()
+	PaperDollFrame_SetLabelAndText(statFrame, STAT_PARRY, chance, 1)
+	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", PARRY_CHANCE).." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
+	statFrame.tooltip2 = format(CR_PARRY_TOOLTIP, GetCombatRating(CR_PARRY), GetCombatRatingBonus(CR_PARRY))
+	statFrame:Show()
+end
+]]
+
+local function OnEnter()
 	if not this.tooltip then return end
 
 	GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
@@ -692,16 +731,18 @@ function ECF:PaperDollFrame_UpdateStatCategory(categoryFrame)
 				end
 
 				if statInfo.updateFunc2 then
-					statFrame:SetScript("OnEnter", ECF.PaperDollStatTooltip)
+					statFrame:SetScript("OnEnter", OnEnter)
 					statFrame:SetScript("OnEnter", statInfo.updateFunc2)
 				else
-					statFrame:SetScript("OnEnter", ECF.PaperDollStatTooltip)
+					statFrame:SetScript("OnEnter", OnEnter)
 				end
 				statFrame.tooltip = nil
 				statFrame.tooltip2 = nil
 				statFrame.UpdateTooltip = nil
 				statFrame:SetScript("OnUpdate", nil)
+				if statInfo.updateFunc then
 				statInfo.updateFunc(statFrame, CharacterStatsPane.unit)
+				end
 				if statFrame:IsShown() then
 					numVisible = numVisible + 1
 					totalHeight = totalHeight + statFrame:GetHeight()
@@ -1230,7 +1271,7 @@ function GetItemLevelColor(unit)
 		if GetInventoryItemTexture(unit, slotID) then
 			local itemLink = GetInventoryItemLink(unit, slotID)
 			if itemLink then
-				local quality = select(3, GetItemInfo(itemLink))
+				local _, _, quality = GetItemInfo(tonumber(string.match(itemLink, "item:(%d+)")))
 				if quality then
 					i = i + 1
 					local r, g, b = GetItemQualityColor(quality)
@@ -1259,8 +1300,8 @@ function ECF:Initialize()
 		GearScore2:Hide()
 	end
 
-	E:Kill(CharacterAttributesFrame)
-	E:Kill(CharacterResistanceFrame)
+	--E:Kill(CharacterAttributesFrame)
+	--E:Kill(CharacterResistanceFrame)
 
 	CharacterNameFrame:ClearAllPoints()
 	CharacterNameFrame:SetPoint("TOP", CharacterFrame, -10, -25)
@@ -1395,24 +1436,19 @@ function ECF:Initialize()
 	self:PaperDoll_InitStatCategories(PAPERDOLL_STATCATEGORY_DEFAULTORDER, E.db.enhanced.character.player.orderName, E.db.enhanced.character.player.collapsedName, "player")
 
 	PaperDollFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
-	HookScript(PaperDollFrame, "OnEvent", function(...)
+	HookScript(PaperDollFrame, "OnEvent", function()
 		if not this:IsVisible() then return end
 
-		local unit = unpack(arg)
-
-		if unit == "player" then
+		if arg1 and arg1 == "player" then
 			if event == "UNIT_LEVEL" then
 				ECF:PaperDollFrame_SetLevel()
-			elseif event == "UNIT_DAMAGE" or event == "PLAYER_DAMAGE_DONE_MODS" or event == "UNIT_ATTACK_SPEED" or event == "UNIT_RANGEDDAMAGE" or event == "UNIT_ATTACK" or event == "UNIT_STATS" or event == "UNIT_RANGED_ATTACK_POWER" then
-				ECF:PaperDollFrame_UpdateStats()
-			elseif event == "UNIT_RESISTANCES" then
+			elseif event == "UNIT_DAMAGE" or event == "PLAYER_DAMAGE_DONE_MODS" or event == "UNIT_ATTACK_SPEED" or event == "UNIT_RANGEDDAMAGE" or event == "UNIT_ATTACK"
+				or event == "UNIT_RESISTANCES" or event == "UNIT_STATS" or event == "UNIT_ATTACK_POWER" or event == "UNIT_RANGED_ATTACK_POWER" then
 				ECF:PaperDollFrame_UpdateStats()
 			end
 		end
 
-		if event == "COMBAT_RATING_UPDATE" then
-			ECF:PaperDollFrame_UpdateStats()
-		elseif event == "PLAYER_TALENT_UPDATE" then
+		if event == "PLAYER_TALENT_UPDATE" then
 			ECF:PaperDollFrame_SetLevel()
 		end
 	end)

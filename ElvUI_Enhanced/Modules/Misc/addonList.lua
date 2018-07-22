@@ -3,11 +3,13 @@ local AL = E:NewModule("AddOnList", "AceHook-3.0");
 
 --Cache global variables
 --Lua functions
+local _G = _G
 local floor = math.floor
 --WoW API / Variables
 local CreateFrame = CreateFrame
 local DisableAddOn = DisableAddOn
 local EnableAddOn = EnableAddOn
+local FauxScrollFrame_Update = FauxScrollFrame_Update
 local GetAddOnDependencies = GetAddOnDependencies
 local GetAddOnInfo = GetAddOnInfo
 local GetNumAddOns = GetNumAddOns

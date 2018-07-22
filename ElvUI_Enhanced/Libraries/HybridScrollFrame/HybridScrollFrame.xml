@@ -60,7 +60,7 @@
 					</Anchors>
 					<TexCoords left="0" right="0.484375" top="0.1640625" bottom="1"/>
 				</Texture>
-			</Layer>	
+			</Layer>
 		</Layers>
 		<Frames>
 			<Button name="$parentScrollUpButton">
@@ -76,13 +76,13 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						self:GetParent():GetParent().scrollUp = self;
-						self:Disable();
-						self:RegisterForClicks("LeftButtonUp", "LeftButtonDown");
-						self.direction = 1;
+						this:GetParent():GetParent().scrollUp = this;
+						this:Disable();
+						this:RegisterForClicks("LeftButtonUp", "LeftButtonDown");
+						this.direction = 1;
 					</OnLoad>
 					<OnClick>
-						HybridScrollFrameScrollButton_OnClick(self, button, down);
+						HybridScrollFrameScrollButton_OnClick(this, button, down);
 					</OnClick>
 				</Scripts>
 				<NormalTexture inherits="HybridScrollBarButton" file="Interface\Buttons\UI-ScrollBar-ScrollUpButton-Up"/>
@@ -103,28 +103,28 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						self:GetParent():GetParent().scrollDown = self;
-						self:Disable();
-						self:RegisterForClicks("LeftButtonUp", "LeftButtonDown");
-						self.direction = -1;
+						this:GetParent():GetParent().scrollDown = this;
+						this:Disable();
+						this:RegisterForClicks("LeftButtonUp", "LeftButtonDown");
+						this.direction = -1;
 					</OnLoad>
 					<OnClick>
-						HybridScrollFrameScrollButton_OnClick(self, button, down);
+						HybridScrollFrameScrollButton_OnClick(this, button, down);
 					</OnClick>
 				</Scripts>
 				<NormalTexture inherits="HybridScrollBarButton" file="Interface\Buttons\UI-ScrollBar-ScrollDownButton-Up"/>
 				<PushedTexture inherits="HybridScrollBarButton" file="Interface\Buttons\UI-ScrollBar-ScrollDownButton-Down"/>
 				<DisabledTexture inherits="HybridScrollBarButton" file="Interface\Buttons\UI-ScrollBar-ScrollDownButton-Disabled"/>
-				<HighlightTexture inherits="HybridScrollBarButton" file="Interface\Buttons\UI-ScrollBar-ScrollDownButton-Highlight" alphaMode="ADD"/>				
+				<HighlightTexture inherits="HybridScrollBarButton" file="Interface\Buttons\UI-ScrollBar-ScrollDownButton-Highlight" alphaMode="ADD"/>
 			</Button>
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				self:GetParent().scrollBar = self;
-				self.thumbTexture = _G[self:GetName().."ThumbTexture"]
+				this:GetParent().scrollBar = this;
+				this.thumbTexture = _G[this:GetName().."ThumbTexture"]
 			</OnLoad>
-			<OnValueChanged> 
-				HybridScrollFrame_OnValueChanged(self:GetParent(), value);
+			<OnValueChanged>
+				HybridScrollFrame_OnValueChanged(this:GetParent(), value);
 			</OnValueChanged>
 		</Scripts>
 		<ThumbTexture name="$parentThumbTexture" inherits="HybridScrollBarButton" file="Interface\Buttons\UI-ScrollBar-Knob">
@@ -132,23 +132,23 @@
 				<AbsDimension x="16" y="24"/>
 			</Size>
 			<TexCoords left="0.25" right="0.75" top="0.125" bottom="0.875"/>
-		</ThumbTexture>		
+		</ThumbTexture>
 	</Slider>
 
-	<ScrollFrame name="HybridScrollFrameTemplate" virtual="true">			
+	<ScrollFrame name="HybridScrollFrameTemplate" virtual="true">
 		<Scripts>
 			<OnLoad>
-				HybridScrollFrame_OnLoad(self);
+				HybridScrollFrame_OnLoad(this);
 			</OnLoad>
 			<OnMouseWheel>
-				HybridScrollFrame_OnMouseWheel(self, delta);
+				HybridScrollFrame_OnMouseWheel(this, delta);
 			</OnMouseWheel>
 		</Scripts>
 		<ScrollChild>
 			<Frame name="$parentScrollChild">
 				<Scripts>
 					<OnLoad>
-						HybridScrollFrameScrollChild_OnLoad(self);
+						HybridScrollFrameScrollChild_OnLoad(this);
 					</OnLoad>
 				</Scripts>
 			</Frame>

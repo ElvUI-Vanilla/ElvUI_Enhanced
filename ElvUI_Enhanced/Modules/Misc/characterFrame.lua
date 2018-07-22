@@ -1,17 +1,17 @@
-local E, L, V, P, G = unpack(ElvUI)
-local module = E:NewModule("Enhanced_CharacterFrame", "AceHook-3.0", "AceEvent-3.0")
-local S = E:GetModule("Skins")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local ECF = E:NewModule("Enhanced_CharacterFrame", "AceHook-3.0", "AceEvent-3.0");
+local S = E:GetModule("Skins");
 
+--Cache global variables
+--Lua functions
 local _G = _G
 local next, pairs, tonumber, assert, getmetatable = next, pairs, tonumber, assert, getmetatable
+local find, format, sub, gsub, gmatch, lower, trim = string.find, string.format, string.sub, string.gsub, string.gmatch, string.lower, string.trim
+local abs, floor, max, min, modf = math.abs, math.floor, math.max, math.min, math.modf
+local wipe, sort, getn, tinsert, tremove = table.wipe, table.sort, table.getn, table.insert, table.remove
 
-local lower = string.lower
-local find, format, sub, gsub, gmatch, trim = string.find, string.format, string.sub, string.gsub, string.gmatch, string.trim
-local abs, floor, max, min = math.abs, math.floor, math.max, math.min
-local wipe, sort, tinsert, tremove = table.wipe, table.sort, table.insert, table.remove
-
+--WoW API / Variables
 local CharacterRangedDamageFrame_OnEnter = CharacterRangedDamageFrame_OnEnter
-local CharacterSpellCritChance_OnEnter = CharacterSpellCritChance_OnEnter
 local CreateFrame = CreateFrame
 local GetAttackPowerForStat = GetAttackPowerForStat
 local GetBlockChance = GetBlockChance
@@ -20,7 +20,7 @@ local GetCombatRatingBonus = GetCombatRatingBonus
 local GetContainerItemLink = GetContainerItemLink
 local GetContainerNumSlots = GetContainerNumSlots
 local GetCritChance = GetCritChance
-local GetCritChanceFromAgility = GetCritChanceFromAgility
+-- local GetCritChanceFromAgility = GetCritChanceFromAgility
 local GetCursorPosition = GetCursorPosition
 local GetDodgeChance = GetDodgeChance
 local GetInventoryItemLink = GetInventoryItemLink
@@ -28,8 +28,8 @@ local GetInventoryItemTexture = GetInventoryItemTexture
 local GetInventorySlotInfo = GetInventorySlotInfo
 local GetItemInfo = GetItemInfo
 local GetParryChance = GetParryChance
+local GetShieldBlock = GetShieldBlock
 local GetSpellCritChanceFromIntellect = GetSpellCritChanceFromIntellect
-local GetTitleName = GetTitleName
 local GetUnitHealthModifier = GetUnitHealthModifier
 local GetUnitHealthRegenRateFromSpirit = GetUnitHealthRegenRateFromSpirit
 local GetUnitManaRegenRateFromSpirit = GetUnitManaRegenRateFromSpirit
@@ -37,6 +37,7 @@ local GetUnitMaxHealthModifier = GetUnitMaxHealthModifier
 local GetUnitPowerModifier = GetUnitPowerModifier
 local PaperDollFrame_SetDefense = PaperDollFrame_SetDefense
 local PaperDollFrame_SetRangedAttackPower = PaperDollFrame_SetRangedAttackPower
+local PaperDollFrame_SetRangedAttackSpeed = PaperDollFrame_SetRangedAttackSpeed
 local PaperDollFrame_SetRangedCritChance = PaperDollFrame_SetRangedCritChance
 local PaperDollFrame_SetRangedDamage = PaperDollFrame_SetRangedDamage
 local PaperDollFrame_SetRating = PaperDollFrame_SetRating
@@ -78,124 +79,122 @@ PAPERDOLL_SIDEBARS = {
 		name = L["Character Stats"];
 		frame = "CharacterStatsPane";
 		icon = nil;
-		texCoords = {0.109375, 0.890625, 0.09375, 0.90625}
-	},
-	{
-		name = L["Titles"];
-		frame = "PaperDollTitlesPane";
-		icon = "Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PaperDollSidebarTabs";
-		texCoords = {0.01562500, 0.53125000, 0.32421875, 0.46093750};
+		texCoords = {0.109375, 0.890625, 0.09375, 0.90625};
 	}
 }
 
 PAPERDOLL_STATINFO = {
 	["ITEM_LEVEL"] = {
-		updateFunc = function(statFrame, unit) module:ItemLevel(statFrame, unit) end
+		updateFunc = function(statFrame, unit) ECF:ItemLevel(statFrame, unit) end
 	},
 	["STRENGTH"] = {
-		updateFunc = function(statFrame, unit) module:SetStat(statFrame, unit, 1) end
+		updateFunc = function(statFrame, unit) ECF:SetStat(statFrame, unit, 1) end
 	},
 	["AGILITY"] = {
-		updateFunc = function(statFrame, unit) module:SetStat(statFrame, unit, 2) end
+		updateFunc = function(statFrame, unit) ECF:SetStat(statFrame, unit, 2) end
 	},
 	["STAMINA"] = {
-		updateFunc = function(statFrame, unit) module:SetStat(statFrame, unit, 3) end
+		updateFunc = function(statFrame, unit) ECF:SetStat(statFrame, unit, 3) end
 	},
 	["INTELLECT"] = {
-		updateFunc = function(statFrame, unit) module:SetStat(statFrame, unit, 4) end
+		updateFunc = function(statFrame, unit) ECF:SetStat(statFrame, unit, 4) end
 	},
 	["SPIRIT"] = {
-		updateFunc = function(statFrame, unit) module:SetStat(statFrame, unit, 5) end
+		updateFunc = function(statFrame, unit) ECF:SetStat(statFrame, unit, 5) end
 	},
 
-	["MELEE_DAMAGE"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetDamage(statFrame, unit) end,
-		updateFunc2 = function(statFrame) CharacterDamageFrame_OnEnter(statFrame) end
-	},
+	-- ["MELEE_DAMAGE"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetDamage(statFrame, unit) end,
+	-- 	updateFunc2 = function(statFrame) CharacterDamageFrame_OnEnter(statFrame) end
+	-- },
 	["MELEE_DPS"] = {
-		updateFunc = function(statFrame, unit) module:SetMeleeDPS(statFrame, unit) end
+		updateFunc = function(statFrame, unit) ECF:SetMeleeDPS(statFrame, unit) end
 	},
-	["MELEE_AP"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetAttackPower(statFrame, unit) end
-	},
-	["MELEE_ATTACKSPEED"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetAttackSpeed(statFrame, unit) end
-	},
-	["HITCHANCE"] = {
-		updateFunc = function(statFrame) PaperDollFrame_SetRating(statFrame, CR_HIT_MELEE) end
-	},
-	["CRITCHANCE"] = {
-		updateFunc = function(statFrame, unit) module:SetMeleeCritChance(statFrame, unit) end
-	},
-	["RANGED_COMBAT1"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetRangedDamage(statFrame, unit) end,
-		updateFunc2 = function(statFrame) CharacterRangedDamageFrame_OnEnter(statFrame) end
-	},
-	["RANGED_COMBAT2"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetRangedAttackPower(statFrame, unit) end
-	},
-	["RANGED_COMBAT3"] = {
-		updateFunc = function(statFrame) PaperDollFrame_SetRating(statFrame, CR_HIT_RANGED) end
-	},
-	["RANGED_COMBAT4"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetRangedCritChance(statFrame, unit) end
-	},
+	-- ["MELEE_AP"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetAttackPower(statFrame, unit) end
+	-- },
+	-- ["MELEE_ATTACKSPEED"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetAttackSpeed(statFrame, unit) end
+	-- },
+	-- ["HITCHANCE"] = {
+	-- 	updateFunc = function(statFrame) PaperDollFrame_SetRating(statFrame, CR_HIT_MELEE) end
+	-- },
+	-- ["CRITCHANCE"] = {
+	-- 	updateFunc = function(statFrame, unit) ECF:SetMeleeCritChance(statFrame, unit) end
+	-- },
 
-	["SPELL_COMBAT1"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetSpellBonusDamage(statFrame, unit) end,
-		updateFunc2 = function(statFrame) CharacterSpellBonusDamage_OnEnter(statFrame) end
-	},
-	["SPELL_COMBAT2"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetSpellBonusHealing(statFrame, unit) end
-	},
-	["SPELL_COMBAT3"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetRating(statFrame, CR_HIT_SPELL) end
-	},
-	["SPELL_COMBAT4"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetSpellCritChance(statFrame, unit) end,
-		updateFunc2 = function(statFrame) CharacterSpellCritChance_OnEnter(statFrame) end
-	},
-	["SPELL_COMBAT5"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetSpellHaste(statFrame, unit) end
-	},
-	["SPELL_COMBAT6"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetManaRegen(statFrame, unit) end
-	},
+	-- ["RANGED_COMBAT1"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetRangedDamage(statFrame, unit) end,
+	-- 	updateFunc2 = function(statFrame) CharacterRangedDamageFrame_OnEnter(statFrame) end
+	-- },
+	-- ["RANGED_COMBAT2"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetRangedAttackSpeed(statFrame, unit) end
+	-- },
+	-- ["RANGED_COMBAT3"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetRangedAttackPower(statFrame, unit) end
+	-- },
+	-- ["RANGED_COMBAT4"] = {
+	-- 	updateFunc = function(statFrame) PaperDollFrame_SetRating(statFrame, CR_HIT_RANGED) end
+	-- },
+	-- ["RANGED_COMBAT5"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetRangedCritChance(statFrame, unit) end
+	-- },
 
-	["DEFENSES1"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetArmor(statFrame, unit) end
-	},
-	["DEFENSES2"] = {
-		updateFunc = function(statFrame, unit) PaperDollFrame_SetDefense(statFrame, unit) end
-	},
-	["DEFENSES3"] = {
-		updateFunc = function(statFrame, unit) module:SetDodge(statFrame, unit) end
-	},
-	["DEFENSES4"] = {
-		updateFunc = function(statFrame, unit) module:SetParry(statFrame, unit) end
-	},
-	["DEFENSES5"] = {
-		updateFunc = function(statFrame, unit) module:SetBlock(statFrame, unit) end
-	},
-	["DEFENSES6"] = {
-		updateFunc = function(statFrame, unit) module:SetResilience(statFrame, unit) end
-	},
+	-- ["SPELL_COMBAT1"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetSpellBonusDamage(statFrame, unit) end,
+	-- 	updateFunc2 = function(statFrame) CharacterSpellBonusDamage_OnEnter(statFrame) end
+	-- },
+	-- ["SPELL_COMBAT2"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetSpellBonusHealing(statFrame, unit) end
+	-- },
+	-- ["SPELL_COMBAT3"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetRating(statFrame, CR_HIT_SPELL) end
+	-- },
+	-- ["SPELL_COMBAT4"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetSpellCritChance(statFrame, unit) end,
+	-- 	updateFunc2 = function(statFrame) CharacterSpellCritChance_OnEnter(statFrame) end
+	-- },
+	-- ["SPELL_COMBAT5"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetSpellHaste(statFrame, unit) end
+	-- },
+	-- ["SPELL_COMBAT6"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetManaRegen(statFrame, unit) end
+	-- },
 
-	["ARCANE"] = {
-		updateFunc = function(statFrame, unit) module:SetResistance(statFrame, unit, 6) end
-	},
-	["FIRE"] = {
-		updateFunc = function(statFrame, unit) module:SetResistance(statFrame, unit, 2) end
-	},
-	["FROST"] = {
-		updateFunc = function(statFrame, unit) module:SetResistance(statFrame, unit, 4) end
-	},
-	["NATURE"] = {
-		updateFunc = function(statFrame, unit) module:SetResistance(statFrame, unit, 3) end
-	},
-	["SHADOW"] = {
-		updateFunc = function(statFrame, unit) module:SetResistance(statFrame, unit, 5) end
-	},
+	-- ["DEFENSES1"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetArmor(statFrame, unit) end
+	-- },
+	-- ["DEFENSES2"] = {
+	-- 	updateFunc = function(statFrame, unit) PaperDollFrame_SetDefense(statFrame, unit) end
+	-- },
+	-- ["DEFENSES3"] = {
+	-- 	updateFunc = function(statFrame, unit) ECF:SetDodge(statFrame, unit) end
+	-- },
+	-- ["DEFENSES4"] = {
+	-- 	updateFunc = function(statFrame, unit) ECF:SetParry(statFrame, unit) end
+	-- },
+	-- ["DEFENSES5"] = {
+	-- 	updateFunc = function(statFrame, unit) ECF:SetBlock(statFrame, unit) end
+	-- },
+	-- ["DEFENSES6"] = {
+	-- 	updateFunc = function(statFrame, unit) ECF:SetResilience(statFrame, unit) end
+	-- },
+
+	-- ["ARCANE"] = {
+	-- 	updateFunc = function(statFrame, unit) ECF:SetResistance(statFrame, unit, 6) end
+	-- },
+	-- ["FIRE"] = {
+	-- 	updateFunc = function(statFrame, unit) ECF:SetResistance(statFrame, unit, 2) end
+	-- },
+	-- ["FROST"] = {
+	-- 	updateFunc = function(statFrame, unit) ECF:SetResistance(statFrame, unit, 4) end
+	-- },
+	-- ["NATURE"] = {
+	-- 	updateFunc = function(statFrame, unit) ECF:SetResistance(statFrame, unit, 3) end
+	-- },
+	-- ["SHADOW"] = {
+	-- 	updateFunc = function(statFrame, unit) ECF:SetResistance(statFrame, unit, 5) end
+	-- },
 }
 
 PAPERDOLL_STATCATEGORIES = {
@@ -233,6 +232,7 @@ PAPERDOLL_STATCATEGORIES = {
 			"RANGED_COMBAT2",
 			"RANGED_COMBAT3",
 			"RANGED_COMBAT4",
+			"RANGED_COMBAT5",
 		}
 	},
 	["SPELL_COMBAT"] = {
@@ -246,27 +246,27 @@ PAPERDOLL_STATCATEGORIES = {
 			"SPELL_COMBAT6"
 		}
 	},
-	-- ["DEFENSES"] = {
-	-- 	id = 6,
-	-- 	stats = {
-	-- 		"DEFENSES1",
-	-- 		"DEFENSES2",
-	-- 		"DEFENSES3",
-	-- 		"DEFENSES4",
-	-- 		"DEFENSES5",
-	-- 		"DEFENSES6",
-	-- 	}
-	-- },
-	-- ["RESISTANCE"] = {
-	-- 	id = 7,
-	-- 	stats = {
-	-- 		"ARCANE",
-	-- 		"FIRE",
-	-- 		"FROST",
-	-- 		"NATURE",
-	-- 		"SHADOW",
-	-- 	}
-	-- },
+	["DEFENSES"] = {
+		id = 6,
+		stats = {
+			"DEFENSES1",
+			"DEFENSES2",
+			"DEFENSES3",
+			"DEFENSES4",
+			"DEFENSES5",
+			"DEFENSES6",
+		}
+	},
+	["RESISTANCE"] = {
+		id = 7,
+		stats = {
+			"ARCANE",
+			"FIRE",
+			"FROST",
+			"NATURE",
+			"SHADOW",
+		}
+	},
 }
 
 PAPERDOLL_STATCATEGORY_DEFAULTORDER = {
@@ -274,14 +274,18 @@ PAPERDOLL_STATCATEGORY_DEFAULTORDER = {
 	"BASE_STATS",
 	"MELEE_COMBAT",
 	"RANGED_COMBAT",
-	"SPELL_COMBAT"
+	"SPELL_COMBAT",
+	"DEFENSES",
+	"RESISTANCE",
 }
 
 PETPAPERDOLL_STATCATEGORY_DEFAULTORDER = {
 	"BASE_STATS",
 	"MELEE_COMBAT",
 	"RANGED_COMBAT",
-	"SPELL_COMBAT"
+	"SPELL_COMBAT",
+	"DEFENSES",
+	"RESISTANCE",
 }
 
 local locale = GetLocale()
@@ -296,25 +300,21 @@ locale == "esES" and "%2$s%4$s %3$s|r de nivel %1$s" or
 locale == "ptBR" and "%2$s%4$s (%3$s)|r Nível %1$s" or
 "Level %s %s%s %s|r"
 
-function module:PaperDollFrame_SetLevel()
-	local talentTree = E:GetTalentSpecInfo()
+function ECF:PaperDollFrame_SetLevel()
 	local classDisplayName, class = UnitClass("player")
 	local classColor = RAID_CLASS_COLORS[class]
 	local classColorString = format("|cFF%02x%02x%02x", classColor.r*255, classColor.g*255, classColor.b*255)
 	local specName
 
-	if talentTree then
-		specName = GetTalentTabInfo(talentTree)
-	end
 
 	if specName and specName ~= "" then
-		CharacterLevelText:SetFormattedText(classTextFormat, UnitLevel("player"), classColorString, specName, classDisplayName)
+		CharacterLevelText:SetText(format(classTextFormat, UnitLevel("player"), classColorString, specName, classDisplayName))
 	else
-		CharacterLevelText:SetFormattedText(PLAYER_LEVEL, UnitLevel("player"), classColorString, classDisplayName)
+		CharacterLevelText:SetText(format(PLAYER_LEVEL, UnitLevel("player"), classColorString, classDisplayName))
 	end
 
 	if CharacterLevelText:GetWidth() > 210 then
-		if PaperDollSidebarTab1:IsVisible() then
+		if PaperDollSidebarTab:IsVisible() then
 			CharacterLevelText:SetPoint("TOP", CharacterNameText, "BOTTOM", -10, -6)
 		else
 			CharacterLevelText:SetPoint("TOP", CharacterNameText, "BOTTOM", 10, -6)
@@ -324,7 +324,7 @@ function module:PaperDollFrame_SetLevel()
 	end
 end
 
-function module:PaperDollSidebarTab(button)
+function ECF:PaperDollSidebarTab(button)
 	E:Size(button, 33, 35)
 	E:SetTemplate(button, "Default")
 
@@ -343,7 +343,7 @@ function module:PaperDollSidebarTab(button)
 	E:SetInside(button.Highlight)
 
 	button:SetScript("OnClick", function()
-		module:PaperDollFrame_SetSidebar(this:GetID())
+		ECF:PaperDollFrame_SetSidebar(this:GetID())
 		PlaySound("igCharacterInfoTab")
 	end)
 
@@ -357,8 +357,8 @@ function module:PaperDollSidebarTab(button)
 	end)
 end
 
-function module:CharacterFrame_Collapse()
-	CharacterFrame:SetWidth(CHARACTERFRAME_COLLAPSED_WIDTH)
+function ECF:CharacterFrame_Collapse()
+	E:Width(CharacterFrame, CHARACTERFRAME_COLLAPSED_WIDTH)
 	CharacterFrame.Expanded = false
 
 	S:SquareButton_SetIcon(CharacterFrameExpandButton, "RIGHT")
@@ -367,12 +367,14 @@ function module:CharacterFrame_Collapse()
 	end
 	PaperDollSidebarTabs:Hide()
 
-	-- CharacterFrame:SetAttribute("UIPanelLayout-width", E:Scale(CHARACTERFRAME_COLLAPSED_WIDTH))
-	-- UpdateUIPanelPositions(CharacterFrame)
+	-- if not InCombatLockdown() then
+	-- 	CharacterFrame:SetAttribute("UIPanelLayout-width", E:Scale(CHARACTERFRAME_COLLAPSED_WIDTH))
+	-- 	UpdateUIPanelPositions(CharacterFrame)
+	-- end
 end
 
-function module:CharacterFrame_Expand()
-	CharacterFrame:SetWidth(CHARACTERFRAME_EXPANDED_WIDTH)
+function ECF:CharacterFrame_Expand()
+	E:Width(CharacterFrame, CHARACTERFRAME_EXPANDED_WIDTH)
 	CharacterFrame.Expanded = true
 
 	S:SquareButton_SetIcon(CharacterFrameExpandButton, "LEFT")
@@ -385,13 +387,15 @@ function module:CharacterFrame_Expand()
 	self:PaperDollFrame_UpdateSidebarTabs()
 	PaperDollSidebarTabs:Show()
 
-	-- CharacterFrame:SetAttribute("UIPanelLayout-width", E:Scale(CHARACTERFRAME_EXPANDED_WIDTH))
-	-- UpdateUIPanelPositions(CharacterFrame)
+	-- if not InCombatLockdown() then
+	-- 	CharacterFrame:SetAttribute("UIPanelLayout-width", E:Scale(CHARACTERFRAME_EXPANDED_WIDTH))
+	-- 	UpdateUIPanelPositions(CharacterFrame)
+	-- end
 end
 
 local StatCategoryFrames = {}
 
-function module:ItemLevel(statFrame, unit)
+function ECF:ItemLevel(statFrame, unit)
 	local label = _G[statFrame:GetName().."Label"]
 	if PersonalGearScore then
 		local myGearScore = GearScore_GetScore(UnitName("player"), "player")
@@ -409,37 +413,40 @@ function module:ItemLevel(statFrame, unit)
 	end
 end
 
-function module:SetStat(statFrame, unit, statIndex)
+function ECF:SetStat(statFrame, unit, statIndex)
 	local label = _G[statFrame:GetName().."Label"]
 	local text = _G[statFrame:GetName().."StatText"]
 	local stat, effectiveStat, posBuff, negBuff = UnitStat(unit, statIndex)
 	local statName = _G["SPELL_STAT"..statIndex.."_NAME"]
+
+	if statName then
 	label:SetText(format("%s:", statName))
 
-	local tooltipText = HIGHLIGHT_FONT_COLOR_CODE..format("%s", statName).." "
-	if (posBuff == 0) and (negBuff == 0) then
-		text:SetText(effectiveStat)
-		statFrame.tooltip = tooltipText..effectiveStat..FONT_COLOR_CODE_CLOSE
-	else
-		tooltipText = tooltipText..effectiveStat
-		if posBuff > 0 or negBuff < 0 then
-			tooltipText = tooltipText.." ("..(stat - posBuff - negBuff)..FONT_COLOR_CODE_CLOSE
-		end
-		if posBuff > 0 then
-			tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE..GREEN_FONT_COLOR_CODE.."+"..posBuff..FONT_COLOR_CODE_CLOSE
-		end
-		if negBuff < 0 then
-			tooltipText = tooltipText..RED_FONT_COLOR_CODE.." "..negBuff..FONT_COLOR_CODE_CLOSE
-		end
-		if posBuff > 0 or negBuff < 0 then
-			tooltipText = tooltipText..HIGHLIGHT_FONT_COLOR_CODE..")"..FONT_COLOR_CODE_CLOSE
-		end
-		statFrame.tooltip = tooltipText
-
-		if negBuff < 0 then
-			text:SetText(RED_FONT_COLOR_CODE..effectiveStat..FONT_COLOR_CODE_CLOSE)
+		local tooltipText = HIGHLIGHT_FONT_COLOR_CODE..format("%s", statName).." "
+		if (posBuff == 0) and (negBuff == 0) then
+			text:SetText(effectiveStat)
+			statFrame.tooltip = tooltipText..effectiveStat..FONT_COLOR_CODE_CLOSE
 		else
-			text:SetText(GREEN_FONT_COLOR_CODE..effectiveStat..FONT_COLOR_CODE_CLOSE)
+			tooltipText = tooltipText..effectiveStat
+			if posBuff > 0 or negBuff < 0 then
+				tooltipText = tooltipText.." ("..(stat - posBuff - negBuff)..FONT_COLOR_CODE_CLOSE
+			end
+			if posBuff > 0 then
+				tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE..GREEN_FONT_COLOR_CODE.."+"..posBuff..FONT_COLOR_CODE_CLOSE
+			end
+			if negBuff < 0 then
+				tooltipText = tooltipText..RED_FONT_COLOR_CODE.." "..negBuff..FONT_COLOR_CODE_CLOSE
+			end
+			if posBuff > 0 or negBuff < 0 then
+				tooltipText = tooltipText..HIGHLIGHT_FONT_COLOR_CODE..")"..FONT_COLOR_CODE_CLOSE
+			end
+			statFrame.tooltip = tooltipText
+
+			if negBuff < 0 then
+				text:SetText(RED_FONT_COLOR_CODE..effectiveStat..FONT_COLOR_CODE_CLOSE)
+			else
+				text:SetText(GREEN_FONT_COLOR_CODE..effectiveStat..FONT_COLOR_CODE_CLOSE)
+			end
 		end
 	end
 	statFrame.tooltip2 = _G["DEFAULT_STAT"..statIndex.."_TOOLTIP"]
@@ -447,82 +454,82 @@ function module:SetStat(statFrame, unit, statIndex)
 	if unit == "player" then
 		local _, unitClass = UnitClass("player")
 		if statIndex == 1 then
-			local attackPower = GetAttackPowerForStat(statIndex,effectiveStat)
-			statFrame.tooltip2 = format(statFrame.tooltip2, attackPower)
-			if unitClass == "WARRIOR" or unitClass == "SHAMAN" or unitClass == "PALADIN" then
-				statFrame.tooltip2 = statFrame.tooltip2.."\n"..format(STAT_BLOCK_TOOLTIP, max(0, effectiveStat * BLOCK_PER_STRENGTH - 10))
-			end
+			-- local attackPower = GetAttackPowerForStat(statIndex,effectiveStat)
+			-- statFrame.tooltip2 = format(statFrame.tooltip2, attackPower)
+			-- if unitClass == "WARRIOR" or unitClass == "SHAMAN" or unitClass == "PALADIN" then
+			-- 	statFrame.tooltip2 = statFrame.tooltip2.."\n"..format(STAT_BLOCK_TOOLTIP, max(0, effectiveStat * BLOCK_PER_STRENGTH - 10))
+			-- end
 		elseif statIndex == 3 then
-			local baseStam = min(20, effectiveStat)
-			local moreStam = effectiveStat - baseStam
-			statFrame.tooltip2 = format(statFrame.tooltip2, (baseStam + (moreStam * HEALTH_PER_STAMINA)) * GetUnitMaxHealthModifier("player"))
-			local petStam = ComputePetBonus("PET_BONUS_STAM", effectiveStat )
-			if petStam > 0 then
-				statFrame.tooltip2 = statFrame.tooltip2.."\n"..format(PET_BONUS_TOOLTIP_STAMINA,petStam)
-			end
+			-- local baseStam = min(20, effectiveStat)
+			-- local moreStam = effectiveStat - baseStam
+			-- statFrame.tooltip2 = format(statFrame.tooltip2, (baseStam + (moreStam * HEALTH_PER_STAMINA)) * GetUnitMaxHealthModifier("player"))
+			-- local petStam = ComputePetBonus("PET_BONUS_STAM", effectiveStat )
+			-- if petStam > 0 then
+			-- 	statFrame.tooltip2 = statFrame.tooltip2.."\n"..format(PET_BONUS_TOOLTIP_STAMINA,petStam)
+			-- end
 		elseif statIndex == 2 then
-			local attackPower = GetAttackPowerForStat(statIndex,effectiveStat)
-			if attackPower > 0 then
-				statFrame.tooltip2 = format(STAT_ATTACK_POWER, attackPower)..format(statFrame.tooltip2, GetCritChanceFromAgility("player"), effectiveStat * ARMOR_PER_AGILITY)
-			else
-				statFrame.tooltip2 = format(statFrame.tooltip2, GetCritChanceFromAgility("player"), effectiveStat * ARMOR_PER_AGILITY)
-			end
+			-- local attackPower = GetAttackPowerForStat(statIndex,effectiveStat)
+			-- if attackPower > 0 then
+			-- 	statFrame.tooltip2 = format(STAT_ATTACK_POWER, attackPower)..format(statFrame.tooltip2, GetCritChanceFromAgility("player"), effectiveStat * ARMOR_PER_AGILITY)
+			-- else
+				-- statFrame.tooltip2 = format(statFrame.tooltip2, GetCritChanceFromAgility("player"), effectiveStat * ARMOR_PER_AGILITY)
+			-- end
 		elseif statIndex == 4 then
-			local baseInt = min(20, effectiveStat)
-			local moreInt = effectiveStat - baseInt
-			if UnitHasMana("player") then
-				statFrame.tooltip2 = format(statFrame.tooltip2, baseInt + moreInt * MANA_PER_INTELLECT, GetSpellCritChanceFromIntellect("player"))
-			else
-				statFrame.tooltip2 = nil
-			end
-			local petInt = ComputePetBonus("PET_BONUS_INT", effectiveStat)
-			if petInt > 0 then
-				if not statFrame.tooltip2 then
-					statFrame.tooltip2 = ""
-				end
-				statFrame.tooltip2 = statFrame.tooltip2.."\n"..format(PET_BONUS_TOOLTIP_INTELLECT, petInt)
-			end
+			-- local baseInt = min(20, effectiveStat)
+			-- local moreInt = effectiveStat - baseInt
+			-- if UnitHasMana("player") then
+			-- 	statFrame.tooltip2 = format(statFrame.tooltip2, baseInt + moreInt * MANA_PER_INTELLECT, GetSpellCritChanceFromIntellect("player"))
+			-- else
+			-- 	statFrame.tooltip2 = nil
+			-- end
+			-- local petInt = ComputePetBonus("PET_BONUS_INT", effectiveStat)
+			-- if petInt > 0 then
+			-- 	if not statFrame.tooltip2 then
+			-- 		statFrame.tooltip2 = ""
+			-- 	end
+			-- 	statFrame.tooltip2 = statFrame.tooltip2.."\n"..format(PET_BONUS_TOOLTIP_INTELLECT, petInt)
+			-- end
 		elseif statIndex == 5 then
-			statFrame.tooltip2 = format(statFrame.tooltip2, GetUnitHealthRegenRateFromSpirit("player"))
-			if UnitHasMana("player") then
-				local regen = GetUnitManaRegenRateFromSpirit("player")
-				regen = floor(regen * 5.0)
-				statFrame.tooltip2 = statFrame.tooltip2.."\n"..format(MANA_REGEN_FROM_SPIRIT, regen)
-			end
+			-- statFrame.tooltip2 = format(statFrame.tooltip2, GetUnitHealthRegenRateFromSpirit("player"))
+			-- if UnitHasMana("player") then
+			-- 	local regen = GetUnitManaRegenRateFromSpirit("player")
+			-- 	regen = floor(regen * 5.0)
+			-- 	statFrame.tooltip2 = statFrame.tooltip2.."\n"..format(MANA_REGEN_FROM_SPIRIT, regen)
+			-- end
 		end
 	elseif unit == "pet" then
 		if statIndex == 1 then
-			local attackPower = effectiveStat - 20
-			statFrame.tooltip2 = format(statFrame.tooltip2, attackPower)
+			-- local attackPower = effectiveStat - 20
+			-- statFrame.tooltip2 = format(statFrame.tooltip2, attackPower)
 		elseif statIndex == 3 then
-			local expectedHealthGain = (((stat - posBuff - negBuff) - 20) * 10 + 20) * GetUnitHealthModifier("pet")
-			local realHealthGain = ((effectiveStat - 20) * 10 + 20) * GetUnitHealthModifier("pet")
-			local healthGain = (realHealthGain - expectedHealthGain) * GetUnitMaxHealthModifier("pet")
-			statFrame.tooltip2 = format(statFrame.tooltip2, healthGain)
+			-- local expectedHealthGain = (((stat - posBuff - negBuff) - 20) * 10 + 20) * GetUnitHealthModifier("pet")
+			-- local realHealthGain = ((effectiveStat - 20) * 10 + 20) * GetUnitHealthModifier("pet")
+			-- local healthGain = (realHealthGain - expectedHealthGain) * GetUnitMaxHealthModifier("pet")
+			-- statFrame.tooltip2 = format(statFrame.tooltip2, healthGain)
 		elseif statIndex == 2 then
-			local newLineIndex = find(statFrame.tooltip2, "|n") + 1
-			statFrame.tooltip2 = sub(statFrame.tooltip2, 1, newLineIndex)
-			statFrame.tooltip2 = format(statFrame.tooltip2, GetCritChanceFromAgility("pet"))
+			-- local newLineIndex = find(statFrame.tooltip2, "|n") + 1
+			-- statFrame.tooltip2 = sub(statFrame.tooltip2, 1, newLineIndex)
+			-- statFrame.tooltip2 = format(statFrame.tooltip2, GetCritChanceFromAgility("pet"))
 		elseif statIndex == 4 then
-			if UnitHasMana("pet") then
-				local manaGain = ((effectiveStat-20) * 15 + 20) * GetUnitPowerModifier("pet")
-				statFrame.tooltip2 = format(statFrame.tooltip2, manaGain, GetSpellCritChanceFromIntellect("pet"))
-			else
-				local newLineIndex = find(statFrame.tooltip2, "|n") + 2
-				statFrame.tooltip2 = sub(statFrame.tooltip2, newLineIndex)
-				statFrame.tooltip2 = format(statFrame.tooltip2, GetSpellCritChanceFromIntellect("pet"))
-			end
+			-- if UnitHasMana("pet") then
+			-- 	local manaGain = ((effectiveStat-20) * 15 + 20) * GetUnitPowerModifier("pet")
+			-- 	statFrame.tooltip2 = format(statFrame.tooltip2, manaGain, GetSpellCritChanceFromIntellect("pet"))
+			-- else
+			-- 	local newLineIndex = find(statFrame.tooltip2, "|n") + 2
+			-- 	statFrame.tooltip2 = sub(statFrame.tooltip2, newLineIndex)
+			-- 	statFrame.tooltip2 = format(statFrame.tooltip2, GetSpellCritChanceFromIntellect("pet"))
+			-- end
 		elseif statIndex == 5 then
-			statFrame.tooltip2 = format(statFrame.tooltip2, GetUnitHealthRegenRateFromSpirit("pet"))
-			if UnitHasMana("pet") then
-				statFrame.tooltip2 = statFrame.tooltip2.."\n"..format(MANA_REGEN_FROM_SPIRIT, GetUnitManaRegenRateFromSpirit("pet"))
-			end
+			-- statFrame.tooltip2 = format(statFrame.tooltip2, GetUnitHealthRegenRateFromSpirit("pet"))
+			-- if UnitHasMana("pet") then
+			-- 	statFrame.tooltip2 = statFrame.tooltip2.."\n"..format(MANA_REGEN_FROM_SPIRIT, GetUnitManaRegenRateFromSpirit("pet"))
+			-- end
 		end
 	end
 	statFrame:Show()
 end
 
-function module:SetResistance(statFrame, unit, resistanceIndex)
+function ECF:SetResistance(statFrame, unit, resistanceIndex)
 	local base, resistance, positive, negative = UnitResistance(unit, resistanceIndex)
 	local petBonus = ComputePetBonus("PET_BONUS_RES", resistance)
 	local resistanceNameShort = _G["SPELL_SCHOOL"..resistanceIndex.."_CAP"]
@@ -568,7 +575,7 @@ function module:SetResistance(statFrame, unit, resistanceIndex)
 	end
 end
 
-function module:SetDodge(statFrame, unit)
+function ECF:SetDodge(statFrame, unit)
 	if unit ~= "player" then statFrame:Hide() return end
 
 	local chance = GetDodgeChance()
@@ -578,17 +585,17 @@ function module:SetDodge(statFrame, unit)
 	statFrame:Show()
 end
 
-function module:SetBlock(statFrame, unit)
+function ECF:SetBlock(statFrame, unit)
 	if unit ~= "player" then statFrame:Hide() return end
 
 	local chance = GetBlockChance()
 	PaperDollFrame_SetLabelAndText(statFrame, STAT_BLOCK, chance, 1)
 	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", BLOCK_CHANCE).." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
-	statFrame.tooltip2 = format(CR_BLOCK_TOOLTIP, GetCombatRating(CR_BLOCK), GetCombatRatingBonus(CR_BLOCK))
+	statFrame.tooltip2 = format(CR_BLOCK_TOOLTIP, GetCombatRating(CR_BLOCK), GetCombatRatingBonus(CR_BLOCK), GetShieldBlock())
 	statFrame:Show()
 end
 
-function module:SetParry(statFrame, unit)
+function ECF:SetParry(statFrame, unit)
 	if unit ~= "player" then statFrame:Hide() return end
 
 	local chance = GetParryChance()
@@ -598,7 +605,7 @@ function module:SetParry(statFrame, unit)
 	statFrame:Show()
 end
 
-function module:SetResilience(statFrame, unit)
+function ECF:SetResilience(statFrame, unit)
 	if unit ~= "player" then statFrame:Hide() return end
 
 	local melee = GetCombatRating(CR_CRIT_TAKEN_MELEE)
@@ -626,7 +633,7 @@ function module:SetResilience(statFrame, unit)
 	statFrame:Show()
 end
 
-function module:SetMeleeDPS(statFrame, unit)
+function ECF:SetMeleeDPS(statFrame, unit)
 	_G[statFrame:GetName().."Label"]:SetText(format("%s:", L["Damage Per Second"]))
 	local speed, offhandSpeed = UnitAttackSpeed(unit)
 	local minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage(unit)
@@ -693,7 +700,7 @@ function module:SetMeleeDPS(statFrame, unit)
 	statFrame:Show()
 end
 
-function module:SetMeleeCritChance(statFrame, unit)
+function ECF:SetMeleeCritChance(statFrame, unit)
 	if unit ~= "player" then statFrame:Hide() return end
 
 	_G[statFrame:GetName().."Label"]:SetText(format("%s:", MELEE_CRIT_CHANCE))
@@ -715,7 +722,7 @@ function PaperDollFrame_CollapseStatCategory(categoryFrame)
 			index = index + 1
 		end
 		categoryFrame:SetHeight(18)
-		module:PaperDollFrame_UpdateStatScrollChildHeight()
+		ECF:PaperDollFrame_UpdateStatScrollChildHeight()
 	end
 end
 
@@ -723,16 +730,18 @@ function PaperDollFrame_ExpandStatCategory(categoryFrame)
 	if categoryFrame.collapsed then
 		categoryFrame.collapsed = false
 		E:SetTemplate(_G[categoryFrame:GetName().."Toolbar"], "Default", true)
-		module:PaperDollFrame_UpdateStatCategory(categoryFrame)
-		module:PaperDollFrame_UpdateStatScrollChildHeight()
+		ECF:PaperDollFrame_UpdateStatCategory(categoryFrame)
+		ECF:PaperDollFrame_UpdateStatScrollChildHeight()
 	end
 end
 
-function module:PaperDollFrame_UpdateStatCategory(categoryFrame)
+function ECF:PaperDollFrame_UpdateStatCategory(categoryFrame)
 	if not categoryFrame.Category then categoryFrame:Hide() return end
 
 	local categoryInfo = PAPERDOLL_STATCATEGORIES[categoryFrame.Category]
-	if categoryInfo == PAPERDOLL_STATCATEGORIES["ITEM_LEVEL"] then
+	if categoryInfo == PAPERDOLL_STATCATEGORIES["RESISTANCE"] then
+		categoryFrame.NameText:SetText(L["Resistance"])
+	elseif categoryInfo == PAPERDOLL_STATCATEGORIES["ITEM_LEVEL"] then
 		if PersonalGearScore then
 			categoryFrame.NameText:SetText("Gear Score")
 		else
@@ -762,12 +771,11 @@ function module:PaperDollFrame_UpdateStatCategory(categoryFrame)
 				statFrame:Show()
 
 				if stat == "ITEM_LEVEL" then
-					statFrame:SetHeight(30)
+					E:Height(statFrame, 30)
 					local label = _G[statFrame:GetName().."Label"]
 					label:ClearAllPoints()
 					label:SetPoint("CENTER", 0, 0)
-					label:SetWidth(187)
-					label:SetHeight(30)
+					E:Size(label, 187, 30)
 					E:FontTemplate(label, nil, 20)
 					label:SetJustifyH("CENTER")
 					_G[statFrame:GetName().."StatText"]:SetText("")
@@ -778,13 +786,12 @@ function module:PaperDollFrame_UpdateStatCategory(categoryFrame)
 					end
 				else
 					if statFrame:GetHeight() == 30 then
-						statFrame:SetHeight(15)
+						E:Height(statFrame, 15)
 						local label = _G[statFrame:GetName().."Label"]
 						label:ClearAllPoints()
 						label:SetPoint("LEFT", 7, 0)
-						label:SetWidth(122)
-						label:SetHeight(15)
-						E:FontTmeplate(label)
+						E:Size(label, 122, 15)
+						E:FontTemplate(label)
 						label:SetJustifyH("LEFT")
 						label:SetTextColor(1, 0.82, 0)
 
@@ -811,7 +818,7 @@ function module:PaperDollFrame_UpdateStatCategory(categoryFrame)
 					totalHeight = totalHeight + statFrame:GetHeight()
 					prevStatFrame = statFrame
 
-					if GameTooltip:GetOwner() == statFrame then
+					if GameTooltip:GetParent() == statFrame then
 						statFrame:GetScript("OnEnter")(statFrame)
 					end
 				end
@@ -820,7 +827,7 @@ function module:PaperDollFrame_UpdateStatCategory(categoryFrame)
 	end
 
 	for index = 1, numVisible do
-		if math.mod(index, 2) == 0 or categoryInfo == PAPERDOLL_STATCATEGORIES["ITEM_LEVEL"] then
+		if modf(index, 2) == 0 or categoryInfo == PAPERDOLL_STATCATEGORIES["ITEM_LEVEL"] then
 			local statFrame = _G[categoryFrame:GetName().."Stat"..index]
 			if not statFrame.leftGrad then
 				statFrame.leftGrad = statFrame:CreateTexture(nil, "BACKGROUND")
@@ -849,28 +856,28 @@ function module:PaperDollFrame_UpdateStatCategory(categoryFrame)
 	categoryFrame:SetHeight(totalHeight)
 end
 
-function module:PaperDollFrame_UpdateStats()
+function ECF:PaperDollFrame_UpdateStats()
 	local index = 1
-	while _G["CharacterStatFrame"..index] do
-		self:PaperDollFrame_UpdateStatCategory(_G["CharacterStatFrame"..index])
+	while _G["CharacterStatsPaneCategory"..index] do
+		self:PaperDollFrame_UpdateStatCategory(_G["CharacterStatsPaneCategory"..index])
 		index = index + 1
 	end
 	self:PaperDollFrame_UpdateStatScrollChildHeight()
 end
 
-function module:PaperDollFrame_UpdateStatScrollChildHeight()
+function ECF:PaperDollFrame_UpdateStatScrollChildHeight()
 	local index = 1
 	local totalHeight = 0
-	while _G["CharacterStatFrame"..index] do
-		if _G["CharacterStatFrame"..index]:IsShown() then
-			totalHeight = totalHeight + _G["CharacterStatFrame"..index]:GetHeight() + 6
+	while _G["CharacterStatsPaneCategory"..index] do
+		if _G["CharacterStatsPaneCategory"..index]:IsShown() then
+			totalHeight = totalHeight + _G["CharacterStatsPaneCategory"..index]:GetHeight() + 6
 		end
 		index = index + 1
 	end
 	CharacterStatsPaneScrollChild:SetHeight(totalHeight + 10 -(CharacterStatsPane.initialOffsetY or 0))
 end
 
-function module:PaperDoll_FindCategoryById(id)
+function ECF:PaperDoll_FindCategoryById(id)
 	for categoryName, category in pairs(PAPERDOLL_STATCATEGORIES) do
 		if category.id == id then
 			return categoryName
@@ -879,7 +886,7 @@ function module:PaperDoll_FindCategoryById(id)
 	return nil
 end
 
-function module:PaperDoll_InitStatCategories(defaultOrder, orderData, collapsedData, unit)
+function ECF:PaperDoll_InitStatCategories(defaultOrder, orderData, collapsedData, unit)
 	local order = defaultOrder
 
 	local orderString = orderData
@@ -924,7 +931,7 @@ function module:PaperDoll_InitStatCategories(defaultOrder, orderData, collapsedD
 
 	wipe(StatCategoryFrames)
 	for index = 1, getn(order) do
-		local frame = _G["CharacterStatFrame"..index]
+		local frame = _G["CharacterStatsPaneCategory"..index]
 		assert(frame)
 		tinsert(StatCategoryFrames, frame)
 		frame.Category = order[index]
@@ -939,9 +946,9 @@ function module:PaperDoll_InitStatCategories(defaultOrder, orderData, collapsedD
 	end
 
 	local index = getn(order) + 1
-	while _G["CharacterStatFrame"..index] do
-		_G["CharacterStatFrame"..index]:Hide()
-		_G["CharacterStatFrame"..index].Category = nil
+	while _G["CharacterStatsPaneCategory"..index] do
+		_G["CharacterStatsPaneCategory"..index]:Hide()
+		_G["CharacterStatsPaneCategory"..index].Category = nil
 		index = index + 1
 	end
 
@@ -955,7 +962,7 @@ function module:PaperDoll_InitStatCategories(defaultOrder, orderData, collapsedD
 end
 
 function PaperDoll_SaveStatCategoryOrder()
-	if CharacterStatsPane.defaultOrder and getn(CharacterStatsPane.defaultOrder) == getn(StatCategoryFrames) then
+	if CharacterStatsPane.defaultOrder and getn(CharacterStatsPane).defaultOrder == getn(StatCategoryFrames) then
 		local same = true
 		for index = 1, getn(StatCategoryFrames) do
 			if StatCategoryFrames[index].Category ~= CharacterStatsPane.defaultOrder[index] then
@@ -980,7 +987,7 @@ function PaperDoll_SaveStatCategoryOrder()
 	E.db.enhanced.character[CharacterStatsPane.unit].orderName = string
 end
 
-function module:PaperDoll_UpdateCategoryPositions()
+function ECF:PaperDoll_UpdateCategoryPositions()
 	local prevFrame = nil
 	for index = 1, getn(StatCategoryFrames) do
 		local frame = StatCategoryFrames[index]
@@ -1015,7 +1022,7 @@ function PaperDoll_MoveCategoryUp(self)
 		end
 	end
 
-	module:PaperDoll_UpdateCategoryPositions()
+	ECF:PaperDoll_UpdateCategoryPositions()
 	PaperDoll_SaveStatCategoryOrder()
 end
 
@@ -1027,7 +1034,7 @@ function PaperDoll_MoveCategoryDown(self)
 			break
 		end
 	end
-	module:PaperDoll_UpdateCategoryPositions()
+	ECF:PaperDoll_UpdateCategoryPositions()
 	PaperDoll_SaveStatCategoryOrder()
 end
 
@@ -1067,13 +1074,13 @@ function PaperDollStatCategory_OnDragUpdate(self)
 	if myIndex ~= insertIndex then
 		tremove(StatCategoryFrames, myIndex)
 		tinsert(StatCategoryFrames, insertIndex, self)
-		module:PaperDoll_UpdateCategoryPositions()
+		ECF:PaperDoll_UpdateCategoryPositions()
 	end
 end
 
 function PaperDollStatCategory_OnDragStart(self)
 	MOVING_STAT_CATEGORY = self
-	module:PaperDoll_UpdateCategoryPositions()
+	ECF:PaperDoll_UpdateCategoryPositions()
 	GameTooltip:Hide()
 	self:SetScript("OnUpdate", PaperDollStatCategory_OnDragUpdate)
 
@@ -1086,7 +1093,7 @@ end
 
 function PaperDollStatCategory_OnDragStop(self)
 	MOVING_STAT_CATEGORY = nil
-	module:PaperDoll_UpdateCategoryPositions()
+	ECF:PaperDoll_UpdateCategoryPositions()
 	self:SetScript("OnUpdate", nil)
 
 	for i, frame in next, StatCategoryFrames do
@@ -1097,7 +1104,7 @@ function PaperDollStatCategory_OnDragStop(self)
 	PaperDoll_SaveStatCategoryOrder()
 end
 
-function module:PaperDollFrame_UpdateSidebarTabs()
+function ECF:PaperDollFrame_UpdateSidebarTabs()
 	for i = 1, getn(PAPERDOLL_SIDEBARS) do
 		local tab = _G["PaperDollSidebarTab"..i]
 		if tab then
@@ -1112,7 +1119,7 @@ function module:PaperDollFrame_UpdateSidebarTabs()
 	end
 end
 
-function module:PaperDollFrame_SetSidebar(index)
+function ECF:PaperDollFrame_SetSidebar(index)
 	if not _G[PAPERDOLL_SIDEBARS[index].frame]:IsShown() then
 		for i = 1, getn(PAPERDOLL_SIDEBARS) do
 			_G[PAPERDOLL_SIDEBARS[i].frame]:Hide()
@@ -1123,7 +1130,7 @@ function module:PaperDollFrame_SetSidebar(index)
 	end
 end
 
-function module:UpdateCharacterModelFrame()
+function ECF:UpdateCharacterModelFrame()
 	if E.db.enhanced.character.background then
 		CharacterModelFrame.backdrop:Show()
 
@@ -1164,7 +1171,7 @@ function module:UpdateCharacterModelFrame()
 	end
 end
 
-function module:UpdateInspectModelFrame()
+function ECF:UpdateInspectModelFrame()
 	if E.db.enhanced.character.inspectBackground then
 		InspectModelFrame.backdrop:Show()
 
@@ -1205,7 +1212,7 @@ function module:UpdateInspectModelFrame()
 	end
 end
 
-function module:UpdatePetModelFrame()
+function ECF:UpdatePetModelFrame()
 	if E.db.enhanced.character.petBackground then
 		PetModelFrame.backdrop:Show()
 
@@ -1232,14 +1239,13 @@ function module:UpdatePetModelFrame()
 	end
 end
 
-function module:ADDON_LOADED(_, addon)
-	if addon ~= "Blizzard_InspectUI" then return end
+function ECF:ADDON_LOADED()
+	if arg1 ~= "Blizzard_InspectUI" then return end
 	self:UnregisterEvent("ADDON_LOADED")
 
 	E:CreateBackdrop(InspectModelFrame, "Default")
-	InspectModelFrame:SetWidth(231)
-	InspectModelFrame:SetHeight(320)
-	InspectModelFrame:SetPoint("TOPLEFT", InspectPaperDollFrame, "TOPLEFT", 66, -78)
+	E:Size(InspectModelFrame, 231, 320)
+	E:Point(InspectModelFrame, "TOPLEFT", InspectPaperDollFrame, "TOPLEFT", 66, -78)
 
 	local inspectSlots = {"Head", "Neck", "Shoulder", "Back", "Chest", "Shirt", "Tabard", "Wrist", "Waist", "Legs", "Feet", "Finger0", "Finger1", "Trinket0", "Trinket1", "MainHand", "SecondaryHand", "Ranged"}
 	for _, name in ipairs(inspectSlots) do
@@ -1247,34 +1253,30 @@ function module:ADDON_LOADED(_, addon)
 	end
 
 	InspectModelFrame.textureTopLeft = InspectModelFrame:CreateTexture("$parentTextureTopLeft", "BACKGROUND")
-	InspectModelFrame.textureTopLeft:SetPoint("TOPLEFT")
-	InspectModelFrame.textureTopLeft:SetWidth(244)
-	InspectModelFrame.textureTopLeft:SetHeight(212)
+	E:Point(InspectModelFrame.textureTopLeft, "TOPLEFT")
+	E:Size(InspectModelFrame.textureTopLeft, 212, 244)
 	InspectModelFrame.textureTopLeft:SetTexCoord(0.171875, 1, 0.0392156862745098, 1)
 
 	InspectModelFrame.textureTopRight = InspectModelFrame:CreateTexture("$parentTextureTopRight", "BACKGROUND")
-	InspectModelFrame.textureTopRight:SetPoint("TOPLEFT", InspectModelFrame.textureTopLeft, "TOPRIGHT")
-	InspectModelFrame.textureTopRight:SetWidth(19)
-	InspectModelFrame.textureTopRight:SetHeight(244)
+	E:Point(InspectModelFrame.textureTopRight, "TOPLEFT", InspectModelFrame.textureTopLeft, "TOPRIGHT")
+	E:Size(InspectModelFrame.textureTopRight, 19, 244)
 	InspectModelFrame.textureTopRight:SetTexCoord(0, 0.296875, 0.0392156862745098, 1)
 
 	InspectModelFrame.textureBotLeft = InspectModelFrame:CreateTexture("$parentTextureBotLeft", "BACKGROUND")
-	InspectModelFrame.textureBotLeft:SetPoint("TOPLEFT", InspectModelFrame.textureTopLeft, "BOTTOMLEFT")
-	InspectModelFrame.textureBotLeft:SetWidth(212)
-	InspectModelFrame.textureBotLeft:SetHeight(128)
+	E:Point(InspectModelFrame.textureBotLeft, "TOPLEFT", InspectModelFrame.textureTopLeft, "BOTTOMLEFT")
+	E:Size(InspectModelFrame.textureBotLeft, 212, 128)
 	InspectModelFrame.textureBotLeft:SetTexCoord(0.171875, 1, 0, 1)
 
 	InspectModelFrame.textureBotRight = InspectModelFrame:CreateTexture("$parentTextureBotRight", "BACKGROUND")
-	InspectModelFrame.textureBotRight:SetPoint("TOPLEFT", InspectModelFrame.textureTopLeft, "BOTTOMRIGHT")
-	InspectModelFrame.textureBotRight:SetWidth(19)
-	InspectModelFrame.textureBotRight:SetHeight(128)
+	E:Point(InspectModelFrame.textureBotRight, "TOPLEFT", InspectModelFrame.textureTopLeft, "BOTTOMRIGHT")
+	E:Size(InspectModelFrame.textureBotRight, 19, 128)
 	InspectModelFrame.textureBotRight:SetTexCoord(0, 0.296875, 0, 1)
 
 	InspectModelFrame.backgroundOverlay = InspectModelFrame:CreateTexture("$parentBackgroundOverlay", "BORDER")
-	InspectModelFrame.backgroundOverlay:SetPoint("TOPLEFT", InspectModelFrame.textureTopLeft)
-	InspectModelFrame.backgroundOverlay:SetPoint("BOTTOMRIGHT", InspectModelFrame.textureBotRight, 0, 52)
+	E:Point(InspectModelFrame.backgroundOverlay, "TOPLEFT", InspectModelFrame.textureTopLeft)
+	E:Point(InspectModelFrame.backgroundOverlay, "BOTTOMRIGHT", InspectModelFrame.textureBotRight, 0, 52)
 
-	self:SecureHook("InspectFrame_UpdateTalentTab", "UpdateInspectModelFrame")
+	self:SecureHook("InspectPaperDollFrame_OnShow", "UpdateInspectModelFrame")
 end
 
 local slots = {
@@ -1384,7 +1386,7 @@ function GetItemLevelColor(unit)
 	end
 end
 
-function module:Initialize()
+function ECF:Initialize()
 	if not E.private.enhanced.character.enable then return end
 
 	if PersonalGearScore then
@@ -1399,17 +1401,16 @@ function module:Initialize()
 
 		if not frame.fixed then
 			if _G[name.."ScrollUpButton"] and _G[name.."ScrollDownButton"] then
-				_G[name.."ScrollUpButton"]:SetWidth(_G[name.."ScrollUpButton"]:GetWidth() + 2)
-				_G[name.."ScrollDownButton"]:SetWidth(_G[name.."ScrollDownButton"]:GetWidth() + 2)
+				E:Width(_G[name.."ScrollUpButton"], _G[name.."ScrollUpButton"]:GetWidth() + 2)
+				E:Width(_G[name.."ScrollDownButton"], _G[name.."ScrollDownButton"]:GetWidth() + 2)
 			end
 			frame.fixed = true
 		end
 
 		if frame.thumbbg then
-			frame.thumbTexture:SetWidth(16)
-			frame.thumbTexture:SetHeight(28)
-			frame.thumbbg:SetPoint("TOPLEFT", frame:GetThumbTexture(), "TOPLEFT", w1, h1)
-			frame.thumbbg:SetPoint("BOTTOMRIGHT", frame:GetThumbTexture(), "BOTTOMRIGHT", w2, h2)
+			E:Size(frame.thumbTexture, 16, 28)
+			E:Point(frame.thumbbg, "TOPLEFT", frame:GetThumbTexture(), "TOPLEFT", w1, h1)
+			E:Point(frame.thumbbg, "BOTTOMRIGHT", frame:GetThumbTexture(), "BOTTOMRIGHT", w2, h2)
 		end
 	end
 
@@ -1420,8 +1421,7 @@ function module:Initialize()
 	CharacterNameFrame:SetPoint("TOP", CharacterFrame, -10, -25)
 
 	local expandButton = CreateFrame("Button", "CharacterFrameExpandButton", CharacterFrame)
-	expandButton:SetWidth(25)
-	expandButton:SetHeight(25)
+	E:Size(expandButton, 25)
 	expandButton:SetPoint("BOTTOMLEFT", CharacterFrame, 315, 84)
 	expandButton:SetFrameLevel(CharacterFrame:GetFrameLevel() + 5)
 	S:HandleNextPrevButton(CharacterFrameExpandButton)
@@ -1429,25 +1429,26 @@ function module:Initialize()
 	expandButton:SetScript("OnClick", function()
 		if CharacterFrame.Expanded then
 			E.db.enhanced.character.collapsed = true
-			module:CharacterFrame_Collapse()
+			ECF:CharacterFrame_Collapse()
 			PlaySound("igCharacterInfoClose")
 		else
 			E.db.enhanced.character.collapsed = false
-			module:CharacterFrame_Expand()
+			ECF:CharacterFrame_Expand()
 			PlaySound("igCharacterInfoOpen")
 		end
-		-- if GameTooltip:GetOwner() == self then
-		-- 	self:GetScript("OnEnter")(self)
-		-- end
+
+		if GameTooltip:GetParent() == this then
+			this:GetScript("OnEnter")(this)
+		end
 	end)
 
 	expandButton:SetScript("OnEnter", function()
 		GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
-		-- if CharacterFrame.Expanded then
-		-- 	GameTooltip:SetText(this.collapseTooltip)
-		-- else
-		-- 	GameTooltip:SetText(this.expandTooltip)
-		-- end
+		if CharacterFrame.Expanded then
+			GameTooltip:SetText(this.collapseTooltip)
+		else
+			GameTooltip:SetText(this.expandTooltip)
+		end
 	end)
 
 	expandButton:SetScript("OnLeave", function()
@@ -1456,39 +1457,33 @@ function module:Initialize()
 
 	local sidebarTabs = CreateFrame("Frame", "PaperDollSidebarTabs", PaperDollFrame)
 	sidebarTabs:Hide()
-	sidebarTabs:SetWidth(112)
-	sidebarTabs:SetHeight(35)
+	E:Size(sidebarTabs, 112, 35)
 	sidebarTabs:SetPoint("BOTTOMRIGHT", CharacterFrame, "TOPRIGHT", -75,-73)
 
-	local sidebarTabs2 = CreateFrame("Button", "PaperDollSidebarTab2", sidebarTabs)
-	sidebarTabs2:SetID(2)
-	sidebarTabs2:SetPoint("BOTTOMRIGHT", -30, 0)
-	self:PaperDollSidebarTab(sidebarTabs2)
-
-	local sidebarTabs1 = CreateFrame("Button", "PaperDollSidebarTab1", sidebarTabs)
-	sidebarTabs1:SetID(1)
-	sidebarTabs1:SetPoint("RIGHT", "PaperDollSidebarTab2", "LEFT", -4, 0)
-	self:PaperDollSidebarTab(sidebarTabs1)
+	local sidebarTabs = CreateFrame("Button", "PaperDollSidebarTab", sidebarTabs)
+	sidebarTabs:SetID(1)
+	sidebarTabs:SetPoint("BOTTOMRIGHT", -30, 0)
+	self:PaperDollSidebarTab(sidebarTabs)
 
 	local tcoords = PAPERDOLL_SIDEBARS[1].texCoords
-	sidebarTabs1.Icon:SetTexCoord(tcoords[1], tcoords[2], tcoords[3], tcoords[4])
+	sidebarTabs.Icon:SetTexCoord(tcoords[1], tcoords[2], tcoords[3], tcoords[4])
 
-	sidebarTabs1:RegisterEvent("UNIT_PORTRAIT_UPDATE")
-	sidebarTabs1:RegisterEvent("PLAYER_ENTERING_WORLD")
-	sidebarTabs1:SetScript("OnEvent", function(self, event, ...)
+	sidebarTabs:RegisterEvent("UNIT_PORTRAIT_UPDATE")
+	sidebarTabs:RegisterEvent("PLAYER_ENTERING_WORLD")
+	sidebarTabs:SetScript("OnEvent", function(...)
 		if event == "UNIT_PORTRAIT_UPDATE" then
 			local unit = unpack(arg)
 			if not unit or unit == "player" then
-				SetPortraitTexture(self.Icon, "player")
+				SetPortraitTexture(this.Icon, "player")
 			end
 		elseif event == "PLAYER_ENTERING_WORLD" then
-			SetPortraitTexture(self.Icon, "player")
+			SetPortraitTexture(this.Icon, "player")
 		end
 	end)
 
 	local statsPane = CreateFrame("ScrollFrame", "CharacterStatsPane", CharacterFrame, "UIPanelScrollFrameTemplate")
 	statsPane:Hide()
-	statsPane:SetHeight(354)
+	E:Height(statsPane, 354)
 	statsPane.buttons = {}
 
 	CharacterStatsPaneScrollBar:ClearAllPoints()
@@ -1501,85 +1496,78 @@ function module:Initialize()
 	statsPane.offset = 0
 
 	local statsPaneScrollChild = CreateFrame("Frame", "CharacterStatsPaneScrollChild", statsPane)
-	statsPaneScrollChild:SetWidth(170)
-	statsPaneScrollChild:SetHeight(0)
-	E:Point(statsPaneScrollChild, "TOPLEFT", 0, 0)
+	E:Size(statsPaneScrollChild, 170, 0)
+	statsPaneScrollChild:SetPoint("TOPLEFT", 0, 0)
 
-	-- for i = 1, 5 do
-	-- 	local button = CreateFrame("Frame", "CharacterStatFrame"..i, statsPaneScrollChild)
-	-- 	print(button:GetName())
-	-- 	E:SetTemplate(button.Toolbar, "Default", true)
-	-- 	button.NameText:SetParent(button.Toolbar)
-	-- 	button.NameText:ClearAllPoints()
-	-- 	button.NameText:SetPoint("CENTER", button.Toolbar)
-	-- 	statsPane.buttons[i] = button
-	-- end
+	for i = 1, 8 do
+		local button = CreateFrame("Frame", "CharacterStatsPaneCategory"..i, statsPaneScrollChild, "StatGroupTemplate")
+		E:SetTemplate(button.Toolbar, "Default", true)
+		button.NameText:SetParent(button.Toolbar)
+		button.NameText:ClearAllPoints()
+		button.NameText:SetPoint("CENTER", button.Toolbar)
+		statsPane.buttons[i] = button
+	end
 
 	statsPane:SetScrollChild(statsPaneScrollChild)
 
-	CharacterStatsPaneScrollBar.Show = function()
-		statsPane:SetWidth(177)
-		statsPane:SetPoint("TOPRIGHT", -57, -75)
+	CharacterStatsPaneScrollBar.Show = function(self)
+		E:Width(statsPane, 177)
+		E:Point(statsPane, "TOPRIGHT", -57, -75)
 		for _, button in next, statsPane.buttons do
-			button:SetWidth(177)
-			button.Toolbar:SetWidth(150 - 18)
+			E:Width(button, 177)
+			E:Width(button.Toolbar, 150 - 18)
 		end
-		getmetatable(this).__index.Show(this)
+		getmetatable(self).__index.Show(self)
 	end
 
-	CharacterStatsPaneScrollBar.Hide = function()
-		statsPane:SetWidth(177 + 18)
-		statsPane:SetPoint("TOPRIGHT", -39, -75)
+	CharacterStatsPaneScrollBar.Hide = function(self)
+		E:Width(statsPane, 177 + 18)
+		E:Point(statsPane, "TOPRIGHT", -39, -75)
 		for _, button in next, statsPane.buttons do
-			button:SetWidth(177 + 18)
-			button.Toolbar:SetWidth(150)
+			E:Width(button, 177 + 18)
+			E:Width(button.Toolbar, 150)
 		end
-		getmetatable(this).__index.Hide(this)
+		getmetatable(self).__index.Hide(self)
 	end
 
-	statsPane:SetWidth(177)
-	statsPane:SetPoint("TOPRIGHT", -39, -75)
+	E:Width(statsPane, 177)
+	E:Point(statsPane, "TOPRIGHT", -39, -75)
 	for _, button in next, statsPane.buttons do
-		button:SetWidth(177)
-		button.Toolbar:SetWidth(150 - 18)
+		E:Width(button, 177)
+		E:Width(button.Toolbar, 150 - 18)
 	end
 
 	E:CreateBackdrop(CharacterModelFrame, "Default")
-	CharacterModelFrame:SetWidth(231)
-	CharacterModelFrame:SetHeight(320)
-	CharacterModelFrame:SetPoint("TOPLEFT", PaperDollFrame, "TOPLEFT", 66, -78)
+	E:Size(CharacterModelFrame, 231, 320)
+	E:Point(CharacterModelFrame, "TOPLEFT", PaperDollFrame, "TOPLEFT", 66, -78)
 
 	for _, name in ipairs(slotName) do
 		_G[format("Character%sSlot", name)]:SetFrameLevel(CharacterModelFrame:GetFrameLevel() + 3)
 	end
 
 	CharacterModelFrame.textureTopLeft = CharacterModelFrame:CreateTexture("$parentTextureTopLeft", "BACKGROUND")
-	CharacterModelFrame.textureTopLeft:SetWidth(212)
-	CharacterModelFrame.textureTopLeft:SetHeight(244)
-	CharacterModelFrame.textureTopLeft:SetPoint("TOPLEFT", 0, 0)
+	E:Size(CharacterModelFrame.textureTopLeft, 212, 244)
+	E:Point(CharacterModelFrame.textureTopLeft, "TOPLEFT")
 	CharacterModelFrame.textureTopLeft:SetTexCoord(0.171875, 1, 0.0392156862745098, 1)
 
 	CharacterModelFrame.textureTopRight = CharacterModelFrame:CreateTexture("$parentTextureTopRight", "BACKGROUND")
-	CharacterModelFrame.textureTopRight:SetWidth(19)
-	CharacterModelFrame.textureTopRight:SetHeight(244)
-	CharacterModelFrame.textureTopRight:SetPoint("TOPLEFT", CharacterModelFrame.textureTopLeft, "TOPRIGHT")
+	E:Size(CharacterModelFrame.textureTopRight, 19, 244)
+	E:Point(CharacterModelFrame.textureTopRight, "TOPLEFT", CharacterModelFrame.textureTopLeft, "TOPRIGHT")
 	CharacterModelFrame.textureTopRight:SetTexCoord(0, 0.296875, 0.0392156862745098, 1)
 
 	CharacterModelFrame.textureBotLeft = CharacterModelFrame:CreateTexture("$parentTextureBotLeft", "BACKGROUND")
-	CharacterModelFrame.textureBotLeft:SetWidth(212)
-	CharacterModelFrame.textureBotLeft:SetHeight(128)
-	CharacterModelFrame.textureBotLeft:SetPoint("TOPLEFT", CharacterModelFrame.textureTopLeft, "BOTTOMLEFT")
+	E:Size(CharacterModelFrame.textureBotLeft, 212, 128)
+	E:Point(CharacterModelFrame.textureBotLeft, "TOPLEFT", CharacterModelFrame.textureTopLeft, "BOTTOMLEFT")
 	CharacterModelFrame.textureBotLeft:SetTexCoord(0.171875, 1, 0, 1)
 
 	CharacterModelFrame.textureBotRight = CharacterModelFrame:CreateTexture("$parentTextureBotRight", "BACKGROUND")
-	CharacterModelFrame.textureBotRight:SetWidth(19)
-	CharacterModelFrame.textureBotRight:SetHeight(128)
-	CharacterModelFrame.textureBotRight:SetPoint("TOPLEFT", CharacterModelFrame.textureTopLeft, "BOTTOMRIGHT")
+	E:Size(CharacterModelFrame.textureBotRight, 19, 128)
+	E:Point(CharacterModelFrame.textureBotRight, "TOPLEFT", CharacterModelFrame.textureTopLeft, "BOTTOMRIGHT")
 	CharacterModelFrame.textureBotRight:SetTexCoord(0, 0.296875, 0, 1)
 
 	CharacterModelFrame.backgroundOverlay = CharacterModelFrame:CreateTexture("$parentBackgroundOverlay", "BORDER")
-	CharacterModelFrame.backgroundOverlay:SetPoint("TOPLEFT", CharacterModelFrame.textureTopLeft)
-	CharacterModelFrame.backgroundOverlay:SetPoint("BOTTOMRIGHT", CharacterModelFrame.textureBotRight, 0, 52)
+	E:Point(CharacterModelFrame.backgroundOverlay, "TOPLEFT", CharacterModelFrame.textureTopLeft)
+	E:Point(CharacterModelFrame.backgroundOverlay, "BOTTOMRIGHT", CharacterModelFrame.textureBotRight, 0, 52)
 
 	self:UpdateCharacterModelFrame()
 
@@ -1590,40 +1578,41 @@ function module:Initialize()
 		if not this:IsVisible() then return end
 
 		local unit = unpack(arg)
+
 		if unit == "player" then
 			if event == "UNIT_LEVEL" then
-				module:PaperDollFrame_SetLevel()
+				ECF:PaperDollFrame_SetLevel()
 			elseif event == "UNIT_DAMAGE" or event == "PLAYER_DAMAGE_DONE_MODS" or event == "UNIT_ATTACK_SPEED" or event == "UNIT_RANGEDDAMAGE" or event == "UNIT_ATTACK" or event == "UNIT_STATS" or event == "UNIT_RANGED_ATTACK_POWER" then
-				module:PaperDollFrame_UpdateStats()
+				ECF:PaperDollFrame_UpdateStats()
 			elseif event == "UNIT_RESISTANCES" then
-				module:PaperDollFrame_UpdateStats()
+				ECF:PaperDollFrame_UpdateStats()
 			end
 		end
 
 		if event == "COMBAT_RATING_UPDATE" then
-			module:PaperDollFrame_UpdateStats()
+			ECF:PaperDollFrame_UpdateStats()
 		elseif event == "PLAYER_TALENT_UPDATE" then
-			module:PaperDollFrame_SetLevel()
+			ECF:PaperDollFrame_SetLevel()
 		end
 	end)
 
 	HookScript(PaperDollFrame, "OnShow", function()
 		if E.db.enhanced.character.collapsed then
-			module:CharacterFrame_Collapse()
+			ECF:CharacterFrame_Collapse()
 		else
-			module:CharacterFrame_Expand()
+			ECF:CharacterFrame_Expand()
 		end
 
-		module:PaperDoll_InitStatCategories(PAPERDOLL_STATCATEGORY_DEFAULTORDER, E.db.enhanced.character.player.orderName, E.db.enhanced.character.player.collapsedName, "player")
+		ECF:PaperDoll_InitStatCategories(PAPERDOLL_STATCATEGORY_DEFAULTORDER, E.db.enhanced.character.player.orderName, E.db.enhanced.character.player.collapsedName, "player")
 		CharacterFrameExpandButton:Show()
 		CharacterFrameExpandButton.collapseTooltip = L["Hide Character Information"]
 		CharacterFrameExpandButton.expandTooltip = L["Show Character Information"]
-		module:PaperDollFrame_SetLevel()
+		ECF:PaperDollFrame_SetLevel()
 	end)
 
 	HookScript(PaperDollFrame, "OnHide", function()
 		if not this:IsShown() then
-			module:CharacterFrame_Collapse()
+			ECF:CharacterFrame_Collapse()
 		end
 		CharacterFrameExpandButton:Hide()
 	end)
@@ -1647,13 +1636,11 @@ function module:Initialize()
 	E:Kill(PetResistanceFrame)
 
 	E:CreateBackdrop(PetModelFrame, "Default")
-	PetModelFrame:SetWidth(310)
-	PetModelFrame:SetHeight(320)
+	E:Size(PetModelFrame, 310, 320)
 
 	PetModelFrame.petPaperDollPetModelBg = PetModelFrame:CreateTexture("$parentPetPaperDollPetModelBg", "BACKGROUND")
-	PetModelFrame.petPaperDollPetModelBg:SetWidth(494)
-	PetModelFrame.petPaperDollPetModelBg:SetHeight(461)
-	PetModelFrame.petPaperDollPetModelBg:SetPoint("TOPLEFT")
+	E:Size(PetModelFrame.petPaperDollPetModelBg, 494, 461)
+	E:Point(PetModelFrame.petPaperDollPetModelBg, "TOPLEFT")
 
 	PetModelFrame.backgroundOverlay = PetModelFrame:CreateTexture("$parentBackgroundOverlay", "BORDER")
 	PetModelFrame.backgroundOverlay:SetAllPoints()
@@ -1662,23 +1649,23 @@ function module:Initialize()
 
 	HookScript(PetPaperDollFrame, "OnShow", function()
 		if E.db.enhanced.character.collapsed then
-			module:CharacterFrame_Collapse()
+			ECF:CharacterFrame_Collapse()
 		else
-			module:CharacterFrame_Expand()
+			ECF:CharacterFrame_Expand()
 		end
 
-		module:PaperDoll_InitStatCategories(PETPAPERDOLL_STATCATEGORY_DEFAULTORDER, E.db.enhanced.character.pet.orderName, E.db.enhanced.character.pet.collapsedName, "pet")
+		ECF:PaperDoll_InitStatCategories(PETPAPERDOLL_STATCATEGORY_DEFAULTORDER, E.db.enhanced.character.pet.orderName, E.db.enhanced.character.pet.collapsedName, "pet")
 
 		CharacterFrameExpandButton:Show()
 		CharacterFrameExpandButton.collapseTooltip = L["Hide Pet Information"]
 		CharacterFrameExpandButton.expandTooltip = L["Show Pet Information"]
 
-		module:PaperDollFrame_UpdateStats()
+		ECF:PaperDollFrame_UpdateStats()
 	end)
 
 	HookScript(PetPaperDollFrame, "OnHide", function()
 		if PaperDollFrame:IsShown() then return end
-		module:CharacterFrame_Collapse()
+		ECF:CharacterFrame_Collapse()
 
 		CharacterFrameExpandButton:Hide()
 	end)
@@ -1689,7 +1676,7 @@ function module:Initialize()
 end
 
 local function InitializeCallback()
-	module:Initialize()
+	ECF:Initialize()
 end
 
-E:RegisterModule(module:GetName(), InitializeCallback)
+E:RegisterModule(ECF:GetName(), InitializeCallback)

@@ -255,7 +255,7 @@ local function CharacterFrameOptions()
 		name = L["Character Frame"],
 		childGroups = "tab",
 		args = {
-			--[[
+
 			characterFrame = {
 				order = 1,
 				type = "group",
@@ -307,7 +307,7 @@ local function CharacterFrameOptions()
 					}
 				}
 			},
-			--]]
+
 			equipment = {
 				order = 2,
 				type = "group",

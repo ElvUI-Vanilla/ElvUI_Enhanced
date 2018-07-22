@@ -740,9 +740,7 @@ function ECF:PaperDollFrame_UpdateStatCategory(categoryFrame)
 				statFrame.tooltip2 = nil
 				statFrame.UpdateTooltip = nil
 				statFrame:SetScript("OnUpdate", nil)
-				if statInfo.updateFunc then
 				statInfo.updateFunc(statFrame, CharacterStatsPane.unit)
-				end
 				if statFrame:IsShown() then
 					numVisible = numVisible + 1
 					totalHeight = totalHeight + statFrame:GetHeight()
@@ -1300,8 +1298,8 @@ function ECF:Initialize()
 		GearScore2:Hide()
 	end
 
-	--E:Kill(CharacterAttributesFrame)
-	--E:Kill(CharacterResistanceFrame)
+	E:Kill(CharacterAttributesFrame)
+	E:Kill(CharacterResistanceFrame)
 
 	CharacterNameFrame:ClearAllPoints()
 	CharacterNameFrame:SetPoint("TOP", CharacterFrame, -10, -25)

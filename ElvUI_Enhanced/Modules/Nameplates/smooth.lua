@@ -1,8 +1,13 @@
-local E, L, V, P, G = unpack(ElvUI)
-local ENP = E:GetModule("Enhanced_NamePlates")
-local mod = E:GetModule("NamePlates")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local ENP = E:GetModule("Enhanced_NamePlates");
+local NP = E:GetModule("NamePlates");
 
+--Cache global variables
+--Lua functions
+local pairs = pairs
 local min, max = math.min, math.max
+--WoW API / Variables
+local GetFramerate = GetFramerate
 
 local smoothing = {}
 local function SetSmooth(self, value)
@@ -18,8 +23,8 @@ end
 
 local function Smooth(bar)
 	if not bar.SetValue_ then
-		bar.SetValue_ = bar.SetValue;
-		bar.SetValue = SetSmooth;
+		bar.SetValue_ = bar.SetValue
+		bar.SetValue = SetSmooth
 	end
 	bar.Smooth = E.db.enhanced.nameplates.smooth
 	bar.SmoothSpeed = E.db.enhanced.nameplates.smoothSpeed * 10
@@ -36,10 +41,10 @@ end
 
 local f = CreateFrame("Frame")
 f:SetScript("OnUpdate", function()
-	local limit = 30/GetFramerate()
+	local limit = 30 / GetFramerate()
 	for bar, value in pairs(smoothing) do
 		local cur = bar:GetValue()
-		local new = cur + min((value-cur)/(bar.SmoothSpeed or 3), max(value-cur, limit))
+		local new = cur + min((value - cur) / (bar.SmoothSpeed or 3), max(value - cur, limit))
 		if new ~= new then
 			-- Mad hax to prevent QNAN.
 			new = value
@@ -56,6 +61,6 @@ f:SetScript("OnUpdate", function()
 end)
 
 function ENP:Smooth()
-	self:SecureHook(mod, "UpdateAllFrame")
-	self:SecureHook(mod, "OnCreated")
+	self:SecureHook(NP, "UpdateAllFrame")
+	self:SecureHook(NP, "OnCreated")
 end

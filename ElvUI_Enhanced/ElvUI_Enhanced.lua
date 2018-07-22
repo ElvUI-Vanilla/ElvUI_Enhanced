@@ -1,7 +1,12 @@
-local E, L, V, P, G = unpack(ElvUI)
-local addon = E:NewModule("ElvUI_Enhanced")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local addon = E:NewModule("ElvUI_Enhanced");
+local LEP = LibStub("LibElvUIPlugin-1.0");
 
-local LEP = LibStub("LibElvUIPlugin-1.0")
+--Cache global variables
+--Lua functions
+local format = string.format
+--WoW API / Variables
+local GetAddOnMetadata = GetAddOnMetadata
 
 function addon:Initialize()
 	self.version = GetAddOnMetadata("ElvUI_Enhanced", "Version")
@@ -15,6 +20,7 @@ function addon:Initialize()
 	if E.db.general.showQuestLevel then
 		E.db.enhanced.general.showQuestLevel = true
 	end
+
 	E.db.general.showQuestLevel = nil
 end
 

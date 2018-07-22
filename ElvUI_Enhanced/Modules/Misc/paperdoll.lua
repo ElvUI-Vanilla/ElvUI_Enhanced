@@ -51,7 +51,7 @@ function PD:UpdatePaperDoll(unit)
 	local baseName = unit == "player" and "Character" or "Inspect"
 	local frame, slotID, hasItem
 	local itemLink
-	local _, rarity, itemLevel
+	local _, quality, itemLevel
 	local current, maximum, r, g, b
 
 	for slotName, durability in pairs(slots) do
@@ -65,14 +65,14 @@ function PD:UpdatePaperDoll(unit)
 					itemLink = GetInventoryItemLink(unit, slotID)
 
 					if itemLink then
-						_, _, rarity, itemLevel = GetItemInfo(match(itemLink, "item:(%d+)"))
+						_, _, quality, itemLevel = GetItemInfo(match(itemLink, "item:(%d+)"))
 						if itemLevel then
 							frame.ItemLevel:SetText(itemLevel)
 
 							if E.db.enhanced.equipment.itemlevel.qualityColor then
 								frame.ItemLevel:SetTextColor()
-								if rarity and rarity > 1 then
-									frame.ItemLevel:SetTextColor(GetItemQualityColor(rarity))
+								if quality then
+									frame.ItemLevel:SetTextColor(GetItemQualityColor(quality))
 								else
 									frame.ItemLevel:SetTextColor(1, 1, 1)
 								end
@@ -132,7 +132,7 @@ function PD:BuildInfoText(name)
 	self:UpdateInfoText(name)
 end
 
-function PD:OnEvent()
+function PD:OnEvent(event)
 	if event == "ADDON_LOADED" and arg1 == "Blizzard_InspectUI" then
 		self:BuildInfoText("Inspect")
 

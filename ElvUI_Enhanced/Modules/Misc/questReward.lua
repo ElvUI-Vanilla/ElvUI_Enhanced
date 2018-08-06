@@ -1,6 +1,6 @@
 local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local M = E:GetModule("Enhanced_Misc");
-local LIP = LibStub("ItemPrice-1.1", true);
+local LIP = LibStub("ItemPrice-1.1");
 
 --Cache global variables
 --Lua functions

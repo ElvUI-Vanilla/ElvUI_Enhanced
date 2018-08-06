@@ -67,7 +67,6 @@
 				<Scripts>
 					<OnLoad>
 						this:RegisterForDrag("LeftButton")
-						<!-- E:SetTemplate(this, "Default", true) -->
 					</OnLoad>
 					<OnClick>
 						if this:GetParent().collapsed then

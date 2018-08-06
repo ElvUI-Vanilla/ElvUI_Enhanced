@@ -7,7 +7,7 @@ local S = E:GetModule("Skins");
 local _G = _G
 local next, pairs, tonumber, assert, getmetatable = next, pairs, tonumber, assert, getmetatable
 local find, format, sub, gsub, gmatch, lower, trim = string.find, string.format, string.sub, string.gsub, string.gmatch, string.lower, string.trim
-local abs, floor, max, min, modf = math.abs, math.floor, math.max, math.min, math.modf
+local abs, floor, max, min, mod = math.abs, math.floor, math.max, math.min, math.mod
 local wipe, sort, getn, tinsert, tremove = table.wipe, table.sort, table.getn, table.insert, table.remove
 
 --WoW API / Variables
@@ -149,6 +149,12 @@ PAPERDOLL_STATINFO = {
 	["ARMOR"] = {
 		updateFunc = function(statFrame, unit) ECF:SetArmor(statFrame, unit) end
 	},
+	["DODGE"] = {
+		updateFunc = function(statFrame, unit) ECF:SetDodge(statFrame, unit) end
+	},
+	["BLOCK"] = {
+		updateFunc = function(statFrame, unit) ECF:SetBlock(statFrame, unit) end
+	},
 
 	-- ["ARCANE"] = {
 	-- 	updateFunc = function(statFrame, unit) ECF:SetResistance(statFrame, unit, 6) end
@@ -219,6 +225,8 @@ PAPERDOLL_STATCATEGORIES = {
 		id = 6,
 		stats = {
 			"ARMOR",
+			"DODGE",
+			"BLOCK"
 		}
 	},
 --[[	["RESISTANCE"] = {
@@ -464,10 +472,13 @@ function ECF:SetDefense(statFrame, unit)
 end
 
 function ECF:SetDamage(statFrame, unit)
-	_G[statFrame:GetName().."Label"]:SetText(DAMAGE_COLON)
+	local minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage(unit)
+
+	local label = _G[statFrame:GetName().."Label"]
 	local text = _G[statFrame:GetName().."StatText"]
 
-	local minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage(unit)
+	label:SetText(DAMAGE_COLON)
+
 	local displayMin = max(floor(minDamage),1)
 	local displayMax = max(ceil(maxDamage),1)
 
@@ -477,12 +488,12 @@ function ECF:SetDamage(statFrame, unit)
 	local baseDamage = (minDamage + maxDamage) * 0.5
 	local fullDamage = (baseDamage + physicalBonusPos + physicalBonusNeg) * percent
 	local totalBonus = (fullDamage - baseDamage)
-	
+
 	local colorPos = "|cff20ff20"
 	local colorNeg = "|cffff2020"
 	if totalBonus == 0 then
-		if displayMin < 100 and displayMax < 100 then 
-			text:SetText(displayMin.." - "..displayMax)	
+		if displayMin < 100 and displayMax < 100 then
+			text:SetText(displayMin.." - "..displayMax)
 		else
 			text:SetText(displayMin.."-"..displayMax)
 		end
@@ -493,7 +504,7 @@ function ECF:SetDamage(statFrame, unit)
 		else
 			color = colorNeg
 		end
-		if displayMin < 100 and displayMax < 100 then 
+		if displayMin < 100 and displayMax < 100 then
 			text:SetText(color..displayMin.." - "..displayMax.."|r")
 		else
 			text:SetText(color..displayMin.."-"..displayMax.."|r")
@@ -502,9 +513,12 @@ function ECF:SetDamage(statFrame, unit)
 end
 
 function ECF:SetMeleeDPS(statFrame, unit)
-	_G[statFrame:GetName().."Label"]:SetText(DAMAGE_PER_SECOND)
 	local speed, offhandSpeed = UnitAttackSpeed(unit)
 	local minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage(unit)
+
+	local label = _G[statFrame:GetName().."Label"]
+	local text = _G[statFrame:GetName().."StatText"]
+	label:SetText(L["Damage Per Second"]..":")
 
 	minDamage = (minDamage / percent) - physicalBonusPos - physicalBonusNeg
 	maxDamage = (maxDamage / percent) - physicalBonusPos - physicalBonusNeg
@@ -581,42 +595,49 @@ function ECF:SetAttackSpeed(statFrame, unit)
 		text = speed
 	end
 
-	_G[statFrame:GetName().."Label"]:SetText(ATTACK_SPEED_COLON)
+	_G[statFrame:GetName().."Label"]:SetText(SPEED..":")
 	_G[statFrame:GetName().."StatText"]:SetText(text)
 
-	--statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, ATTACK_SPEED).." "..text..FONT_COLOR_CODE_CLOSE;
-	--statFrame.tooltip2 = format(CR_HASTE_RATING_TOOLTIP, GetCombatRating(CR_HASTE_MELEE), GetCombatRatingBonus(CR_HASTE_MELEE));
+	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..ATTACK_SPEED_COLON.." "..text..FONT_COLOR_CODE_CLOSE;
+	-- statFrame.tooltip2 = format(CR_HASTE_RATING_TOOLTIP, GetCombatRating(CR_HASTE_MELEE), GetCombatRatingBonus(CR_HASTE_MELEE));
+	statFrame:Show()
 end
 
 function ECF:SetAttackPower(statFrame, unit)
+	local base, posBuff, negBuff = UnitAttackPower(unit)
+
 	local label = _G[statFrame:GetName().."Label"]
 	local text = _G[statFrame:GetName().."StatText"]
+
 	label:SetText(ATTACK_POWER_COLON)
-	local base, posBuff, negBuff = UnitAttackPower(unit)
 
 	PaperDollFormatStat(MELEE_ATTACK_POWER, base, posBuff, negBuff, statFrame, text)
 	statFrame.tooltip2 = format(MELEE_ATTACK_POWER_TOOLTIP, max((base+posBuff+negBuff), 0)/ATTACK_POWER_MAGIC_NUMBER)
 end
---[[
+
 function ECF:SetDodge(statFrame, unit)
-	if unit ~= "player" then statFrame:Hide() return end
+	local label = _G[statFrame:GetName().."Label"]
+	local text = _G[statFrame:GetName().."StatText"]
+	label:SetText(DODGE)
 
 	local chance = GetDodgeChance()
-	PaperDollFrame_SetLabelAndText(statFrame, STAT_DODGE, chance, 1)
-	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", DODGE_CHANCE).." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
-	statFrame.tooltip2 = format(CR_DODGE_TOOLTIP, GetCombatRating(CR_DODGE), GetCombatRatingBonus(CR_DODGE))
+	-- PaperDollFormatStat(CHANCE_TO_DODGE, nil, nil, nil, statFrame, text)
+	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..DODGE.." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
+	-- statFrame.tooltip2 = format(CR_DODGE_TOOLTIP, GetCombatRating(CR_DODGE), GetCombatRatingBonus(CR_DODGE))
 	statFrame:Show()
 end
 
 function ECF:SetBlock(statFrame, unit)
-	if unit ~= "player" then statFrame:Hide() return end
+	local label = _G[statFrame:GetName().."Label"]
+	local text = _G[statFrame:GetName().."StatText"]
+	label:SetText(BLOCK)
 
 	local chance = GetBlockChance()
-	PaperDollFrame_SetLabelAndText(statFrame, STAT_BLOCK, chance, 1)
-	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..format("%s", BLOCK_CHANCE).." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
-	statFrame.tooltip2 = format(CR_BLOCK_TOOLTIP, GetCombatRating(CR_BLOCK), GetCombatRatingBonus(CR_BLOCK), GetShieldBlock())
+	statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE..BLOCK.." "..format("%.02f", chance).."%"..FONT_COLOR_CODE_CLOSE
+	-- statFrame.tooltip2 = format(CR_BLOCK_TOOLTIP, GetCombatRating(CR_BLOCK), GetCombatRatingBonus(CR_BLOCK), GetShieldBlock())
 	statFrame:Show()
 end
+--[[
 
 function ECF:SetParry(statFrame, unit)
 	if unit ~= "player" then statFrame:Hide() return end
@@ -675,6 +696,14 @@ function ECF:PaperDollFrame_UpdateStatCategory(categoryFrame)
 		else
 			categoryFrame.NameText:SetText(L["Item Level"])
 		end
+	elseif categoryInfo == PAPERDOLL_STATCATEGORIES["BASE_STATS"] then
+		categoryFrame.NameText:SetText(L["Base Stats"])
+	elseif categoryInfo == PAPERDOLL_STATCATEGORIES["MELEE_COMBAT"] then
+		categoryFrame.NameText:SetText(L["Melee"])
+	elseif categoryInfo == PAPERDOLL_STATCATEGORIES["DEFENSES"] then
+		categoryFrame.NameText:SetText(L["Defenses"])
+	elseif categoryInfo == PAPERDOLL_STATCATEGORIES["RANGED_COMBAT"] then
+		categoryFrame.NameText:SetText(INVTYPE_RANGED)
 	else
 		categoryFrame.NameText:SetText(L[categoryFrame.Category])
 	end
@@ -755,7 +784,7 @@ function ECF:PaperDollFrame_UpdateStatCategory(categoryFrame)
 	end
 
 	for index = 1, numVisible do
-		if modf(index, 2) == 0 or categoryInfo == PAPERDOLL_STATCATEGORIES["ITEM_LEVEL"] then
+		if mod(index, 2) == 0 or categoryInfo == PAPERDOLL_STATCATEGORIES["ITEM_LEVEL"] then
 			local statFrame = _G[categoryFrame:GetName().."Stat"..index]
 			if not statFrame.leftGrad then
 				statFrame.leftGrad = statFrame:CreateTexture(nil, "BACKGROUND")
@@ -890,7 +919,7 @@ function ECF:PaperDoll_InitStatCategories(defaultOrder, orderData, collapsedData
 end
 
 function PaperDoll_SaveStatCategoryOrder()
-	if CharacterStatsPane.defaultOrder and getn(CharacterStatsPane).defaultOrder == getn(StatCategoryFrames) then
+	if CharacterStatsPane.defaultOrder and getn(CharacterStatsPane.defaultOrder) == getn(StatCategoryFrames) then
 		local same = true
 		for index = 1, getn(StatCategoryFrames) do
 			if StatCategoryFrames[index].Category ~= CharacterStatsPane.defaultOrder[index] then
@@ -1290,6 +1319,8 @@ end
 
 function ECF:Initialize()
 	if not E.private.enhanced.character.enable then return end
+
+	UIPanelWindows["CharacterFrame"] = { area = "doublewide",	pushable = 0 , whileDead = 1}
 
 	if PersonalGearScore then
 		PersonalGearScore:Hide()

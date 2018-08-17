@@ -326,12 +326,12 @@ function AL:Initialize()
 
 	local addonListEntry = {}
 	for i = 1, 20 do
-		addonListEntry[i] = CreateFrame("Button", "ElvUI_AddonListEntry"..i, scrollFrame)
+		addonListEntry[i] = CreateFrame("Button", "ElvUI_AddonListEntry"..i, addonList)
 		E:Size(addonListEntry[i], scrollFrame:GetWidth() - 8, 16)
 		addonListEntry[i]:SetID(i)
 
 		if i == 1 then
-			E:Point(addonListEntry[i], "TOPLEFT", 4, -4)
+			E:Point(addonListEntry[i], "TOPLEFT", 4, -30)
 		else
 			E:Point(addonListEntry[i], "TOP", addonListEntry[i - 1], "BOTTOM", 0, -4)
 		end

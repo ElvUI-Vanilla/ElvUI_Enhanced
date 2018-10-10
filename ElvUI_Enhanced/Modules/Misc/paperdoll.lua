@@ -14,7 +14,6 @@ local GetInventoryItemTexture = GetInventoryItemTexture
 local GetInventorySlotInfo = GetInventorySlotInfo
 local GetItemQualityColor = GetItemQualityColor
 local GetItemInfo = GetItemInfo
-local UnitAffectingCombat = UnitAffectingCombat
 
 local slots = {
 	["HeadSlot"] = true,
@@ -39,11 +38,6 @@ local slots = {
 function PD:UpdatePaperDoll(unit)
 	if not self.initialized then return end
 
-	if UnitAffectingCombat("player") then
-		self:RegisterEvent("PLAYER_REGEN_ENABLED", function(event) self:OnEvent(event, unit) end)
-		return
-	end
-
 	unit = (unit ~= "player" and InspectFrame) and InspectFrame.unit or unit
 	if not unit then return end
 	if unit and not CanInspect(unit, false) then return end
@@ -51,34 +45,33 @@ function PD:UpdatePaperDoll(unit)
 	local baseName = unit == "player" and "Character" or "Inspect"
 	local frame, slotID, hasItem
 	local itemLink
-	local _, quality, itemLevel
+	local _, rarity, itemLevel
 	local current, maximum, r, g, b
 
 	for slotName, durability in pairs(slots) do
 		frame = _G[format("%s%s", baseName, slotName)]
 		slotID = GetInventorySlotInfo(slotName)
 		hasItem = GetInventoryItemTexture(unit, slotID)
-		if frame then
-			if frame.ItemLevel then
-				frame.ItemLevel:SetText()
-				if E.db.enhanced.equipment.itemlevel.enable and (unit == "player" or (unit ~= "player" and hasItem)) then
-					itemLink = GetInventoryItemLink(unit, slotID)
 
-					if itemLink then
-						_, _, quality, itemLevel = GetItemInfo(match(itemLink, "item:(%d+)"))
-						if itemLevel then
-							frame.ItemLevel:SetText(itemLevel)
+		if frame.ItemLevel then
+			frame.ItemLevel:SetText()
+			if E.db.enhanced.equipment.itemlevel.enable and (unit == "player" or (unit ~= "player" and hasItem)) then
+				itemLink = GetInventoryItemLink(unit, slotID)
 
-							if E.db.enhanced.equipment.itemlevel.qualityColor then
-								frame.ItemLevel:SetTextColor()
-								if quality then
-									frame.ItemLevel:SetTextColor(GetItemQualityColor(quality))
-								else
-									frame.ItemLevel:SetTextColor(1, 1, 1)
-								end
+				if itemLink then
+					_, _, rarity, itemLevel = GetItemInfo(match(itemLink, "item:(%d+)"))
+					if itemLevel then
+						frame.ItemLevel:SetText(itemLevel)
+
+						if E.db.enhanced.equipment.itemlevel.qualityColor then
+							frame.ItemLevel:SetTextColor()
+							if rarity then
+								frame.ItemLevel:SetTextColor(GetItemQualityColor(rarity))
 							else
 								frame.ItemLevel:SetTextColor(1, 1, 1)
 							end
+						else
+							frame.ItemLevel:SetTextColor(1, 1, 1)
 						end
 					end
 				end
@@ -103,17 +96,18 @@ function PD:UpdateInfoText(name)
 	local frame
 	for slotName, durability in pairs(slots) do
 		frame = _G[format("%s%s", name, slotName)]
+		if frame then
+			if frame.ItemLevel then
+				frame.ItemLevel:ClearAllPoints()
+				E:Point(frame.ItemLevel, db.itemlevel.position, frame, db.itemlevel.xOffset, db.itemlevel.yOffset)
+				E:FontTemplate(frame.ItemLevel, E.LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
+			end
 
-		if frame.ItemLevel then
-			frame.ItemLevel:ClearAllPoints()
-			E:Point(frame.ItemLevel, db.itemlevel.position, frame, db.itemlevel.xOffset, db.itemlevel.yOffset)
-			E:FontTemplate(frame.ItemLevel, E.LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
-		end
-
-		if name == "Character" and durability then
-			frame.DurabilityInfo:ClearAllPoints()
-			E:Point(frame.DurabilityInfo, db.durability.position, frame, db.durability.xOffset, db.durability.yOffset)
-			E:FontTemplate(frame.DurabilityInfo, E.LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
+			if name == "Character" and durability then
+				frame.DurabilityInfo:ClearAllPoints()
+				E:Point(frame.DurabilityInfo, db.durability.position, frame, db.durability.xOffset, db.durability.yOffset)
+				E:FontTemplate(frame.DurabilityInfo, E.LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
+			end
 		end
 	end
 end
@@ -135,7 +129,6 @@ end
 function PD:OnEvent(event)
 	if event == "ADDON_LOADED" and arg1 == "Blizzard_InspectUI" then
 		self:BuildInfoText("Inspect")
-
 		self:UnregisterEvent("ADDON_LOADED")
 	elseif event == "UPDATE_INVENTORY_ALERTS" then
 		self:UpdatePaperDoll("player")

@@ -77,6 +77,10 @@ P.enhanced = {
 	},
 	datatexts = {
 		timeColorEnch = false,
+		datatextColor = {
+			color = "CUSTOM",
+			custom = {r = 1, g = 1, b = 1, a = 1}
+		}
 	},
 	equipment = {
 		enable = false,

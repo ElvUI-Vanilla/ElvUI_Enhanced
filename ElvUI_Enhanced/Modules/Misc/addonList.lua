@@ -1,4 +1,4 @@
-local E, L, V, P, G = unpack(ElvUI) --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local AL = E:NewModule("AddOnList", "AceHook-3.0");
 
 --Cache global variables

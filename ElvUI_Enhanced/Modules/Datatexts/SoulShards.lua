@@ -1,11 +1,13 @@
-local E, L, V, P, G = unpack(ElvUI)
-local DT = E:GetModule("DataTexts")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local DT = E:GetModule("DataTexts");
 
 if E.myclass ~= "WARLOCK" then return end
 
+--Cache global variables
+--Lua functions
 local select = select
-local join = string.join
-
+local format, join, match = string.format, string.join, string.match
+--WoW API / Variables
 local ContainerIDToInventoryID = ContainerIDToInventoryID
 local GetContainerItemInfo = GetContainerItemInfo
 local GetContainerItemLink = GetContainerItemLink
@@ -15,17 +17,21 @@ local GetInventoryItemLink = GetInventoryItemLink
 local GetItemInfo = GetItemInfo
 
 local displayNumberString = ""
-local lastPanel;
+local lastPanel
 
 local _, soulBagType = GetAuctionItemSubClasses(3)
 local _, shardLink = GetItemInfo(6265)
 
-local function IsShardBag(bag)
-	local itemLink = GetInventoryItemLink("player", ContainerIDToInventoryID(bag))
-	return itemLink and select(7, GetItemInfo(itemLink)) == soulBagType
+local function ColorizeSettingName(settingName)
+	return format("|cffff8000%s|r", settingName)
 end
 
-local function OnEvent(self, event, ...)
+local function IsShardBag(bag)
+	local itemLink = GetInventoryItemLink("player", ContainerIDToInventoryID(bag))
+	return itemLink and select(6, GetItemInfo(match(itemLink, "item:(%d+)"))) == soulBagType
+end
+
+local function OnEvent(self)
 	local soulShards, soulBagSpace, soulBagSize = 0, 0, 0
 	local numSlots, itemLink
 
@@ -48,7 +54,7 @@ local function OnEvent(self, event, ...)
 		end
 	end
 
-	self.text:SetFormattedText(displayNumberString, L["Shards"], soulShards, soulBagSpace, soulBagSize)
+	self.text:SetText(format(displayNumberString, L["Shards"], soulShards, soulBagSpace, soulBagSize))
 
 	lastPanel = self
 end
@@ -62,4 +68,4 @@ local function ValueColorUpdate(hex)
 end
 E["valueColorUpdateFuncs"][ValueColorUpdate] = true
 
-DT:RegisterDatatext("Soul Shards", {"BAG_UPDATE"}, OnEvent, nil, nil, nil, nil, L["Soul Shards"])
+DT:RegisterDatatext("Soul Shards", {"BAG_UPDATE"}, OnEvent, nil, nil, nil, nil, ColorizeSettingName(L["Soul Shards"]))

@@ -9,7 +9,6 @@ local next, pairs, tonumber, assert, getmetatable = next, pairs, tonumber, asser
 local find, format, sub, gsub, gmatch, lower, trim = string.find, string.format, string.sub, string.gsub, string.gmatch, string.lower, string.trim
 local abs, floor, max, min, mod = math.abs, math.floor, math.max, math.min, math.mod
 local wipe, sort, getn, tinsert, tremove = table.wipe, table.sort, table.getn, table.insert, table.remove
-
 --WoW API / Variables
 local CharacterRangedDamageFrame_OnEnter = CharacterRangedDamageFrame_OnEnter
 local CreateFrame = CreateFrame
@@ -226,7 +225,7 @@ PAPERDOLL_STATCATEGORIES = {
 		stats = {
 			"ARMOR",
 			"DODGE",
-			"BLOCK"
+			"BLOCK",
 		}
 	},
 --[[	["RESISTANCE"] = {
@@ -273,15 +272,18 @@ locale == "ptBR" and "%2$s%4$s (%3$s)|r Nível %1$s" or
 "Level %s %s%s %s|r"
 
 function ECF:PaperDollFrame_SetLevel()
-	local _, specName = E:GetTalentSpecInfo()
-	local classDisplayName, class = UnitClass("player")
-	local classColor = RAID_CLASS_COLORS[class]
+	local talentTree = E:GetTalentSpecInfo()
+	local classColor = RAID_CLASS_COLORS[E.myclass]
 	local classColorString = format("|cFF%02x%02x%02x", classColor.r*255, classColor.g*255, classColor.b*255)
 
-	if specName == "None" then
-		CharacterLevelText:SetText(format(PLAYER_LEVEL, UnitLevel("player"), classColorString, classDisplayName))
+	if talentTree then
+		specName = GetTalentTabInfo(talentTree)
+	end
+
+	if specName and specName ~= "" then
+		CharacterLevelText:SetText(format(classTextFormat, UnitLevel("player"), classColorString, specName, E.myLocalizedClass))
 	else
-		CharacterLevelText:SetText(format(classTextFormat, UnitLevel("player"), classColorString, specName, classDisplayName))
+		CharacterLevelText:SetText(format(PLAYER_LEVEL, UnitLevel("player"), classColorString, E.myLocalizedClass))
 	end
 
 	if CharacterLevelText:GetWidth() > 210 then
@@ -298,11 +300,6 @@ function ECF:CharacterFrame_Collapse()
 	S:SquareButton_SetIcon(CharacterFrameExpandButton, "RIGHT")
 
 	CharacterStatsPane:Hide()
-
-	-- if not InCombatLockdown() then
-	-- 	CharacterFrame:SetAttribute("UIPanelLayout-width", E:Scale(CHARACTERFRAME_COLLAPSED_WIDTH))
-	-- 	UpdateUIPanelPositions(CharacterFrame)
-	-- end
 end
 
 function ECF:CharacterFrame_Expand()
@@ -312,11 +309,6 @@ function ECF:CharacterFrame_Expand()
 	S:SquareButton_SetIcon(CharacterFrameExpandButton, "LEFT")
 
 	CharacterStatsPane:Show()
-
-	-- if not InCombatLockdown() then
-	-- 	CharacterFrame:SetAttribute("UIPanelLayout-width", E:Scale(CHARACTERFRAME_EXPANDED_WIDTH))
-	-- 	UpdateUIPanelPositions(CharacterFrame)
-	-- end
 end
 
 local StatCategoryFrames = {}
@@ -1065,29 +1057,32 @@ function ECF:UpdateCharacterModelFrame()
 	if E.db.enhanced.character.background then
 		CharacterModelFrame.backdrop:Show()
 
-		local _, fileName = UnitRace("player")
+		local desaturate = E.db.enhanced.character.desaturateCharacter and true or false
 
 		CharacterModelFrame.textureTopLeft:Show()
-		CharacterModelFrame.textureTopLeft:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\backgrounds\\"..lower(fileName).."_1.blp")
-		CharacterModelFrame.textureTopLeft:SetDesaturated(true)
+		CharacterModelFrame.textureTopLeft:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PaperDoll\\"..lower(E.myrace).."_1")
+		CharacterModelFrame.textureTopLeft:SetDesaturated(desaturate)
+
 		CharacterModelFrame.textureTopRight:Show()
-		CharacterModelFrame.textureTopRight:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\backgrounds\\"..lower(fileName).."_2.blp")
-		CharacterModelFrame.textureTopRight:SetDesaturated(true)
+		CharacterModelFrame.textureTopRight:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PaperDoll\\"..lower(E.myrace).."_2")
+		CharacterModelFrame.textureTopRight:SetDesaturated(desaturate)
+
 		CharacterModelFrame.textureBotLeft:Show()
-		CharacterModelFrame.textureBotLeft:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\backgrounds\\"..lower(fileName).."_3.blp")
-		CharacterModelFrame.textureBotLeft:SetDesaturated(true)
+		CharacterModelFrame.textureBotLeft:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PaperDoll\\"..lower(E.myrace).."_3")
+		CharacterModelFrame.textureBotLeft:SetDesaturated(desaturate)
+
 		CharacterModelFrame.textureBotRight:Show()
-		CharacterModelFrame.textureBotRight:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\backgrounds\\"..lower(fileName).."_4.blp")
-		CharacterModelFrame.textureBotRight:SetDesaturated(true)
+		CharacterModelFrame.textureBotRight:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PaperDoll\\"..lower(E.myrace).."_4")
+		CharacterModelFrame.textureBotRight:SetDesaturated(desaturate)
 
 		CharacterModelFrame.backgroundOverlay:Show()
 		CharacterModelFrame.backgroundOverlay:SetTexture(0, 0, 0)
 
-		if strupper(fileName) == "SCOURGE" then
+		if strupper(E.myrace) == "SCOURGE" then
 			CharacterModelFrame.backgroundOverlay:SetAlpha(0.1)
-		elseif strupper(fileName) == "BLOODELF" or strupper(fileName) == "NIGHTELF" then
+		elseif strupper(E.myrace) == "BLOODELF" or strupper(E.myrace) == "NIGHTELF" then
 			CharacterModelFrame.backgroundOverlay:SetAlpha(0.3)
-		elseif strupper(fileName) == "TROLL" or strupper(fileName) == "ORC" then
+		elseif strupper(E.myrace) == "TROLL" or strupper(E.myrace) == "ORC" then
 			CharacterModelFrame.backgroundOverlay:SetAlpha(0.4)
 		else
 			CharacterModelFrame.backgroundOverlay:SetAlpha(0.5)
@@ -1107,19 +1102,23 @@ function ECF:UpdateInspectModelFrame()
 		InspectModelFrame.backdrop:Show()
 
 		local _, fileName = UnitRace(InspectFrame.unit)
+		local desaturate = E.db.enhanced.character.desaturateInspect and true or false
 
 		InspectModelFrame.textureTopLeft:Show()
-		InspectModelFrame.textureTopLeft:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\backgrounds\\"..lower(fileName).."_1.blp")
-		InspectModelFrame.textureTopLeft:SetDesaturated(true)
+		InspectModelFrame.textureTopLeft:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PaperDoll\\"..lower(fileName).."_1")
+		InspectModelFrame.textureTopLeft:SetDesaturated(desaturate)
+
 		InspectModelFrame.textureTopRight:Show()
-		InspectModelFrame.textureTopRight:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\backgrounds\\"..lower(fileName).."_2.blp")
-		InspectModelFrame.textureTopRight:SetDesaturated(true)
+		InspectModelFrame.textureTopRight:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PaperDoll\\"..lower(fileName).."_2")
+		InspectModelFrame.textureTopRight:SetDesaturated(desaturate)
+
 		InspectModelFrame.textureBotLeft:Show()
-		InspectModelFrame.textureBotLeft:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\backgrounds\\"..lower(fileName).."_3.blp")
-		InspectModelFrame.textureBotLeft:SetDesaturated(true)
+		InspectModelFrame.textureBotLeft:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PaperDoll\\"..lower(fileName).."_3")
+		InspectModelFrame.textureBotLeft:SetDesaturated(desaturate)
+
 		InspectModelFrame.textureBotRight:Show()
-		InspectModelFrame.textureBotRight:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\backgrounds\\"..lower(fileName).."_4.blp")
-		InspectModelFrame.textureBotRight:SetDesaturated(true)
+		InspectModelFrame.textureBotRight:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PaperDoll\\"..lower(fileName).."_4")
+		InspectModelFrame.textureBotRight:SetDesaturated(desaturate)
 
 		InspectModelFrame.backgroundOverlay:Show()
 		InspectModelFrame.backgroundOverlay:SetTexture(0, 0, 0)
@@ -1147,19 +1146,22 @@ function ECF:UpdatePetModelFrame()
 	if E.db.enhanced.character.petBackground then
 		PetModelFrame.backdrop:Show()
 
-		local _, playerClass = UnitClass("player")
-
 		PetModelFrame.petPaperDollPetModelBg:Show()
-		if playerClass == "HUNTER" then
-			PetModelFrame.petPaperDollPetModelBg:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\backgrounds\\petHunter.blp")
+		if E.myclass == "HUNTER" then
+			PetModelFrame.petPaperDollPetModelBg:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PetPaperDoll\\petHunter")
 			PetModelFrame.backgroundOverlay:SetAlpha(0.3)
-		elseif playerClass == "WARLOCK" then
-			PetModelFrame.petPaperDollPetModelBg:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\backgrounds\\petWarlock.blp")
+		elseif E.myclass == "WARLOCK" then
+			PetModelFrame.petPaperDollPetModelBg:SetTexture("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\PetPaperDoll\\petWarlock")
 			PetModelFrame.backgroundOverlay:SetAlpha(0.1)
 		else
 			PetModelFrame.petPaperDollPetModelBg:Hide()
 		end
-		PetModelFrame.petPaperDollPetModelBg:SetDesaturated(true)
+
+		if E.db.enhanced.character.desaturatePet then
+			PetModelFrame.petPaperDollPetModelBg:SetDesaturated(true)
+		else
+			PetModelFrame.petPaperDollPetModelBg:SetDesaturated(false)
+		end
 
 		PetModelFrame.backgroundOverlay:Show()
 		PetModelFrame.backgroundOverlay:SetTexture(0, 0, 0)
@@ -1208,113 +1210,6 @@ function ECF:ADDON_LOADED()
 	E:Point(InspectModelFrame.backgroundOverlay, "BOTTOMRIGHT", InspectModelFrame.textureBotRight, 0, 52)
 
 	self:SecureHook("InspectPaperDollFrame_OnShow", "UpdateInspectModelFrame")
-end
-
-local slots = {
-	["HeadSlot"] = "INVTYPE_HEAD",
-	["NeckSlot"] = "INVTYPE_NECK",
-	["ShoulderSlot"] = "INVTYPE_SHOULDER",
-	["BackSlot"] = "INVTYPE_CLOAK",
-	["ChestSlot"] = "INVTYPE_ROBE",
-	["WristSlot"] = "INVTYPE_WRIST",
-	["HandsSlot"] = "INVTYPE_HAND",
-	["WaistSlot"] = "INVTYPE_WAIST",
-	["LegsSlot"] = "INVTYPE_LEGS",
-	["FeetSlot"] = "INVTYPE_FEET",
-	["Finger0Slot"] = "INVTYPE_FINGER",
-	["Finger1Slot"] = "INVTYPE_FINGER",
-	["Trinket0Slot"] = "INVTYPE_TRINKET",
-	["Trinket1Slot"] = "INVTYPE_TRINKET",
-	["MainHandSlot"] = "INVTYPE_WEAPONMAINHAND",
-	["SecondaryHandSlot"] = "INVTYPE_HOLDABLE",
-	["RangedSlot"] = "INVTYPE_RANGEDRIGHT",
-}
-
-local bagsTable = {}
-function GetAverageItemLevel()
-	local itemLink, itemLevel, itemEquipLoc
-	local total, totalBag, item, bagItem, isBagItemLevel = 0, 0, 0, 0
-
-	for bag = 0, 4 do
-		for slot = 1, GetContainerNumSlots(bag) do
-			itemLink = GetContainerItemLink(bag, slot)
-			if itemLink then
-				_, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(tonumber(string.match(itemLink, "item:(%d+)")))
-				if itemEquipLoc and itemEquipLoc ~= "" then
-					if not bagsTable[itemEquipLoc] then
-						bagsTable[itemEquipLoc] = itemLevel
-					else
-						if itemLevel > bagsTable[itemEquipLoc] then
-							bagsTable[itemEquipLoc] = itemLevel
-						end
-					end
-				end
-			end
-		end
-	end
-
-	for slotName, itemLoc in pairs(slots) do
-		itemLink = GetInventoryItemLink("player", GetInventorySlotInfo(slotName))
-		if itemLink then
-			_, _, _, itemLevel, _, _, _, _, itemEquipLoc = GetItemInfo(tonumber(string.match(itemLink, "item:(%d+)")))
-			if itemLevel and itemLevel > 0 then
-				item = item + 1
-				bagItem = bagItem + 1
-
-				isBagItemLevel = bagsTable[itemEquipLoc]
-				if isBagItemLevel and isBagItemLevel > itemLevel then
-					totalBag = totalBag + isBagItemLevel
-				else
-					totalBag = totalBag + itemLevel
-				end
-
-				total = total + itemLevel
-			end
-		else
-			isBagItemLevel = bagsTable[itemLoc]
-			if isBagItemLevel then
-				bagItem = bagItem + 1
-				totalBag = totalBag + isBagItemLevel
-			end
-		end
-	end
-
-	wipe(bagsTable)
-
-	if total < 1 then
-		return 0, 0
-	end
-
-	return (totalBag / bagItem), (total / item)
-end
-
-function GetItemLevelColor(unit)
-	if not unit then unit = "player" end
-
-	local i = 0
-	local sumR, sumG, sumB = 0, 0, 0
-	for slotName, _ in pairs(slots) do
-		local slotID = GetInventorySlotInfo(slotName)
-		if GetInventoryItemTexture(unit, slotID) then
-			local itemLink = GetInventoryItemLink(unit, slotID)
-			if itemLink then
-				local _, _, quality = GetItemInfo(tonumber(string.match(itemLink, "item:(%d+)")))
-				if quality then
-					i = i + 1
-					local r, g, b = GetItemQualityColor(quality)
-					sumR = sumR + r
-					sumG = sumG + g
-					sumB = sumB + b
-				end
-			end
-		end
-	end
-
-	if i > 0 then
-		return (sumR / i), (sumG / i), (sumB / i)
-	else
-		return 1, 1, 1
-	end
 end
 
 function ECF:Initialize()

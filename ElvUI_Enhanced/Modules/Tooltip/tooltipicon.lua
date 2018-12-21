@@ -39,7 +39,7 @@ function TI:SetIcon(_, tt)
 end
 
 function TI:ToggleState()
-	if E.db.enhanced.tooltip.tooltipIcon.enable then
+	if E.db.enhanced.tooltip.tooltipIcon then
 		if not self.icon then
 			self.icon = CreateFrame("Frame", "Enhanced_TooltipIcon", GameTooltip)
 			E:Point(self.icon, "TOPRIGHT", GameTooltip, "TOPLEFT", -3, 0)
@@ -80,7 +80,7 @@ function TI:ToggleState()
 end
 
 function TI:Initialize()
-	if not E.db.enhanced.tooltip.tooltipIcon.enable then return end
+	if not E.db.enhanced.tooltip.tooltipIcon then return end
 
 	self:ToggleState()
 end

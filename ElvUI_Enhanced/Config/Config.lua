@@ -4,11 +4,13 @@ local addon = E:GetModule("ElvUI_Enhanced");
 --Cache global variables
 --Lua functions
 local format = string.format
-local getn, sort = table.getn, table.sort
+local getn = table.getn
 --WoW API / Variables
-local ACTIONBAR_LABEL, CHAT_LABEL, FONT_SIZE = ACTIONBAR_LABEL, CHAT_LABEL, FONT_SIZE
-local GENERAL, HELPFRAME_HOME_ISSUE3_HEADER = GENERAL, HELPFRAME_HOME_ISSUE3_HEADER
-local HIDE, ITEMS, NONE, PARTY, RAID, SKILLS = HIDE, ITEMS, NONE, PARTY, RAID, SKILLS
+local ALWAYS, HIDE, FONT_SIZE, NONE = ALWAYS, HIDE, FONT_SIZE, NONE
+local CHARACTER, PET, INSPECT = CHARACTER, PET, INSPECT
+local SPELLS, ITEMS = SPELLS, ITEMS
+local DRESSUP_FRAME = DRESSUP_FRAME
+local MISCELLANEOUS = MISCELLANEOUS
 
 local function ColorizeSettingName(settingName)
 	return format("|cffff8000%s|r", settingName)
@@ -21,15 +23,15 @@ local function GeneralOptions()
 	local config = {
 		order = 1,
 		type = "group",
-		name = GENERAL,
+		name = L["General"],
 		args = {
 			header = {
-				order = 0,
+				order = 1,
 				type = "header",
-				name = ColorizeSettingName(FONT_SIZE)
+				name = ColorizeSettingName(L["General"])
 			},
 			pvpAutoRelease = {
-				order = 1,
+				order = 2,
 				type = "toggle",
 				name = L["PvP Autorelease"],
 				desc = L["Automatically release body when killed inside a battleground."],
@@ -37,7 +39,7 @@ local function GeneralOptions()
 				set = function(info, value) E.db.enhanced.general.pvpAutoRelease = value M:AutoRelease() end
 			},
 			autoRepChange = {
-				order = 2,
+				order = 3,
 				type = "toggle",
 				name = L["Track Reputation"],
 				desc = L["Automatically change your watched faction on the reputation bar to the faction you got reputation points for."],
@@ -45,7 +47,7 @@ local function GeneralOptions()
 				set = function(info, value) E.db.enhanced.general.autoRepChange = value M:WatchedFaction() end
 			},
 			showQuestLevel = {
-				order = 3,
+				order = 4,
 				type = "toggle",
 				name = L["Show Quest Level"],
 				desc = L["Display quest levels at Quest Log."],
@@ -56,15 +58,15 @@ local function GeneralOptions()
 				end
 			},
 			selectQuestReward = {
-				order = 4,
+				order = 5,
 				type = "toggle",
 				name = L["Select Quest Reward"],
 				desc = L["Automatically select the quest reward with the highest vendor sell value."],
-				get = function(info) return E.private.general.selectQuestReward end,
-				set = function(info, value) E.private.general.selectQuestReward = value; end
+				get = function(info) return E.db.enhanced.general.selectQuestReward end,
+				set = function(info, value) E.db.enhanced.general.selectQuestReward = value end
 			},
 			declineduel = {
-				order = 5,
+				order = 6,
 				type = "toggle",
 				name = L["Decline Duel"],
 				desc = L["Auto decline all duels"],
@@ -72,14 +74,24 @@ local function GeneralOptions()
 				set = function(info, value) E.db.enhanced.general.declineduel = value M:DeclineDuel() end
 			},
 			hideZoneText = {
-				order = 6,
+				order = 7,
 				type = "toggle",
 				name = L["Hide Zone Text"],
 				get = function(info) return E.db.enhanced.general.hideZoneText end,
 				set = function(info, value) E.db.enhanced.general.hideZoneText = value M:HideZone() end
 			},
+			originalCloseButton = {
+				order = 8,
+				type = "toggle",
+				name = L["Original Close Button"],
+				get = function(info) return E.db.enhanced.general.originalCloseButton end,
+				set = function(info, value)
+					E.db.enhanced.general.originalCloseButton = value
+					M:UpdateCloseButtons()
+				end
+			},
 			trainAllButton = {
-				order = 7,
+				order = 9,
 				type = "toggle",
 				name = L["Train All Button"],
 				desc = L["Add button to Trainer frame with ability to train all available skills in one click."],
@@ -90,7 +102,7 @@ local function GeneralOptions()
 				end
 			},
 			undressButton = {
-				order = 8,
+				order = 10,
 				type = "toggle",
 				name = L["Undress Button"],
 				desc = L["Add button to Dressing Room frame with ability to undress model."],
@@ -101,14 +113,14 @@ local function GeneralOptions()
 				end
 			},
 			model = {
-				order = 9,
+				order = 11,
 				type = "toggle",
 				name = L["Model Frames"],
 				get = function(info) return E.private.enhanced.model.enable end,
 				set = function(info, value) E.private.enhanced.model.enable = value E:StaticPopup_Show("PRIVATE_RL") end
 			},
 			alreadyKnown = {
-				order = 10,
+				order = 12,
 				type = "toggle",
 				name = L["Already Known"],
 				desc = L["Change color of item icons which already known."],
@@ -119,7 +131,7 @@ local function GeneralOptions()
 				end
 			},
 			altBuyMaxStack = {
-				order = 11,
+				order = 13,
 				type = "toggle",
 				name = L["Alt-Click Merchant"],
 				desc = L["Holding Alt key while buying something from vendor will now buy an entire stack."],
@@ -130,7 +142,7 @@ local function GeneralOptions()
 				end
 			},
 			moverTransparancy = {
-				order = 12,
+				order = 14,
 				type = "range",
 				isPercent = true,
 				name = L["Mover Transparency"],
@@ -138,7 +150,7 @@ local function GeneralOptions()
 				min = 0, max = 1, step = 0.01,
 				get = function(info) return E.db.enhanced.general.moverTransparancy end,
 				set = function(info, value) E.db.enhanced.general.moverTransparancy = value M:UpdateMoverTransparancy() end
-			},
+			}
 		}
 	}
 	return config
@@ -152,15 +164,15 @@ local function ActionbarOptions()
 	local config = {
 		order = 2,
 		type = "group",
-		name = ACTIONBAR_LABEL,
+		name = L["ActionBars"],
 		args = {
 			header = {
-				order = 0,
+				order = 1,
 				type = "header",
-				name = ColorizeSettingName(ACTIONBAR_LABEL)
+				name = ColorizeSettingName(L["ActionBars"])
 			},
 			equipped = {
-				order = 1,
+				order = 2,
 				type = "group",
 				name = L["Equipped Item Border"],
 				guiInline = true,
@@ -191,7 +203,7 @@ local function ActionbarOptions()
 				}
 			},
 			transparentActionbars = {
-				order = 2,
+				order = 3,
 				type = "group",
 				name = L["Transparent ActionBars"],
 				guiInline = true,
@@ -202,14 +214,14 @@ local function ActionbarOptions()
 						order = 1,
 						type = "toggle",
 						name = L["Transparent Backdrop"],
-						desc = L["Sets actionbars' backgrounds to transparent template."],
+						desc = L["Sets actionbars backgrounds to transparent template."],
 						set = function(info, value) E.db.enhanced.actionbars.transparentActionbars[ info[getn(info)] ] = value ETAB:StyleBackdrops() end
 					},
 					transparentButtons = {
 						order = 2,
 						type = "toggle",
 						name = L["Transparent Buttons"],
-						desc = L["Sets actionbars buttons' backgrounds to transparent template."],
+						desc = L["Sets actionbars buttons backgrounds to transparent template."],
 						set = function(info, value) E.db.enhanced.actionbars.transparentActionbars[ info[getn(info)] ] = value ETAB:StyleBackdrops() end
 					}
 				},
@@ -225,15 +237,15 @@ local function ChatOptions()
 	local config = {
 		order = 3,
 		type = "group",
-		name = CHAT_LABEL,
+		name = L["Chat"],
 		args = {
 			header = {
-				order = 0,
+				order = 1,
 				type = "header",
-				name = ColorizeSettingName(CHAT_LABEL)
+				name = ColorizeSettingName(L["Chat"])
 			},
 			dpsLinks = {
-				order = 1,
+				order = 2,
 				type = "toggle",
 				name = L["Filter DPS meters Spam"],
 				desc = L["Replaces long reports from damage meters with a clickable hyperlink to reduce chat spam.\nWorks correctly only with general reports such as DPS or HPS. May fail to filter te report of other things"],
@@ -245,299 +257,56 @@ local function ChatOptions()
 	return config
 end
 
--- Character Frame
-local function CharacterFrameOptions()
-	local PD = E:GetModule("Enhanced_PaperDoll")
-
-	local config = {
-		order = 4,
-		type = "group",
-		name = L["Character Frame"],
-		childGroups = "tab",
-		args = {
-
-			characterFrame = {
-				order = 1,
-				type = "group",
-				name = L["Enhanced Character Frame"],
-				args = {
-					header = {
-						order = 0,
-						type = "header",
-						name = ColorizeSettingName(L["Enhanced Character Frame"])
-					},
-					enable = {
-						order = 1,
-						type = "toggle",
-						name = L["Enable"],
-						get = function(info) return E.private.enhanced.character.enable end,
-						set = function(info, value) E.private.enhanced.character.enable = value E:StaticPopup_Show("PRIVATE_RL") end
-					},
-					paperdollBackgrounds = {
-						order = 2,
-						type = "group",
-						name = L["Paperdoll Backgrounds"],
-						guiInline = true,
-						args = {
-							background = {
-								order = 1,
-								type = "toggle",
-								name = L["Character Background"],
-								get = function(info) return E.db.enhanced.character.background end,
-								set = function(info, value) E.db.enhanced.character.background = value E:GetModule("Enhanced_CharacterFrame"):UpdateCharacterModelFrame() end,
-								disabled = function() return not E.private.enhanced.character.enable end
-							},
-							petBackground = {
-								order = 2,
-								type = "toggle",
-								name = L["Pet Background"],
-								get = function(info) return E.db.enhanced.character.petBackground end,
-								set = function(info, value) E.db.enhanced.character.petBackground = value E:GetModule("Enhanced_CharacterFrame"):UpdatePetModelFrame() end,
-								disabled = function() return not E.private.enhanced.character.enable end
-							},
-							inspectBackground = {
-								order = 3,
-								type = "toggle",
-								name = L["Inspect Background"],
-								get = function(info) return E.db.enhanced.character.inspectBackground end,
-								set = function(info, value) E.db.enhanced.character.inspectBackground = value end,
-								disabled = function() return not E.private.enhanced.character.enable end
-							}
-						}
-					}
-				}
-			},
-
-			equipment = {
-				order = 2,
-				type = "group",
-				name = L["Equipment"],
-				get = function(info) return E.db.enhanced.equipment[info[getn(info)]] end,
-				set = function(info, value) E.db.enhanced.equipment[info[getn(info)]] = value end,
-				args = {
-					header = {
-						order = 0,
-						type = "header",
-						name = ColorizeSettingName(L["Equipment"])
-					},
-					enable = {
-						order = 1,
-						type = "toggle",
-						name = L["Enable"],
-  						set = function(info, value)
- 							E.db.enhanced.equipment[info[getn(info)]] = value
- 							PD:ToggleState()
-  						end
-					},
-					durability = {
-						order = 2,
-						type = "group",
-						name = L["Durability"],
-						guiInline = true,
-						get = function(info) return E.db.enhanced.equipment.durability[info[getn(info)]] end,
-						set = function(info, value) E.db.enhanced.equipment.durability[info[getn(info)]] = value PD:UpdatePaperDoll("player") PD:UpdateInfoText("Character") PD:UpdateInfoText("Inspect") end,
-						disabled = function() return not E.db.enhanced.equipment.enable end,
-						args = {
-							info = {
-								order = 1,
-								type = "description",
-								name = L["ITEMLEVEL_DESC"]
-							},
-							enable = {
-								order = 2,
-								type = "toggle",
-								name = L["Enable"],
-								desc = L["Enable/Disable the display of durability information on the character screen."]
-							},
-							onlydamaged = {
-								order = 3,
-								type = "toggle",
-								name = L["Damaged Only"],
-								desc = L["Only show durabitlity information for items that are damaged."],
-								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
-							},
-							spacer = {
-								order = 4,
-								type = "description",
-								name = " "
-							},
-							position = {
-								order = 5,
-								type = "select",
-								name = L["Position"],
-								values = {
-									["TOP"] = "TOP",
-									["TOPLEFT"] = "TOPLEFT",
-									["TOPRIGHT"] = "TOPRIGHT",
-									["BOTTOM"] = "BOTTOM",
-									["BOTTOMLEFT"] = "BOTTOMLEFT",
-									["BOTTOMRIGHT"] = "BOTTOMRIGHT"
-								},
-								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
-							},
-							xOffset = {
-								order = 6,
-								type = "range",
-								name = L["X-Offset"],
-								min = -50, max = 50, step = 1,
-								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
-							},
-							yOffset = {
-								order = 7,
-								type = "range",
-								name = L["Y-Offset"],
-								min = -50, max = 50, step = 1,
-								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
-							}
-						}
-					},
-					itemlevel = {
-						order = 3,
-						type = "group",
-						name = L["Item Level"],
-						guiInline = true,
-						get = function(info) return E.db.enhanced.equipment.itemlevel[info[getn(info)]] end,
-						set = function(info, value) E.db.enhanced.equipment.itemlevel[info[getn(info)]] = value PD:UpdatePaperDoll("player") PD:UpdateInfoText("Character") PD:UpdateInfoText("Inspect") end,
-						disabled = function() return not E.db.enhanced.equipment.enable end,
-						args = {
-							info = {
-								order = 1,
-								type = "description",
-								name = L["ITEMLEVEL_DESC"]
-							},
-							enable = {
-								order = 2,
-								type = "toggle",
-								name = L["Enable"],
-								desc = L["Enable/Disable the display of item levels on the character screen."]
-							},
-							qualityColor = {
-								order = 3,
-								type = "toggle",
-								name = L["Quality Color"],
-								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
-							},
-							spacer = {
-								order = 4,
-								type = "description",
-								name = " "
-							},
-							position = {
-								order = 5,
-								type = "select",
-								name = L["Position"],
-								values = {
-									["TOP"] = "TOP",
-									["TOPLEFT"] = "TOPLEFT",
-									["TOPRIGHT"] = "TOPRIGHT",
-									["BOTTOM"] = "BOTTOM",
-									["BOTTOMLEFT"] = "BOTTOMLEFT",
-									["BOTTOMRIGHT"] = "BOTTOMRIGHT"
-								},
-								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
-							},
-							xOffset = {
-								order = 6,
-								type = "range",
-								name = L["X-Offset"],
-								min = -50, max = 50, step = 1,
-								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
-							},
-							yOffset = {
-								order = 7,
-								type = "range",
-								name = L["Y-Offset"],
-								min = -50, max = 50, step = 1,
-								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
-							}
-						}
-					},
-					fontGroup = {
-						order = 4,
-						type = "group",
-						name = L["Font"],
-						guiInline = true,
-						get = function(info) return E.db.enhanced.equipment[info[getn(info)]] end,
-						set = function(info, value) E.db.enhanced.equipment[info[getn(info)]] = value PD:UpdateInfoText("Character") PD:UpdateInfoText("Inspect") end,
-						disabled = function() return not E.db.enhanced.equipment.enable end,
-						args = {
-							font = {
-								order = 2,
-								type = "select",
-								dialogControl = "LSM30_Font",
-								name = L["Font"],
-								values = AceGUIWidgetLSMlists.font
-							},
-							fontSize = {
-								order = 3,
-								type = "range",
-								name = FONT_SIZE,
-								min = 6, max = 36, step = 1
-							},
-							fontOutline = {
-								order = 4,
-								type = "select",
-								name = L["Font Outline"],
-								values = {
-									["NONE"] = NONE,
-									["OUTLINE"] = "OUTLINE",
-									["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
-									["THICKOUTLINE"] = "THICKOUTLINE"
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return config
-end
-
 -- Datatext
 local function DataTextsOptions()
 	local DTC = E:GetModule("DataTextColors")
 
 	local config = {
-		order = 5,
+		order = 4,
 		type = "group",
 		name = L["DataTexts"],
 		args = {
 			header = {
-				order = 0,
+				order = 1,
 				type = "header",
 				name = ColorizeSettingName(L["DataTexts"])
 			},
 			timeColorEnch = {
-				order = 1,
+				order = 2,
 				type = "toggle",
 				name = L["Enhanced Time Color"],
 				get = function(info) return E.db.enhanced.datatexts.timeColorEnch end,
 				set = function(info, value) E.db.enhanced.datatexts.timeColorEnch = value E:GetModule("Enhanced_DatatextTime"):UpdateSettings() end
 			},
 			datatextColor = {
-				order = 10,
+				order = 3,
 				type = "group",
-				name = L["Text Color"],
+				name = L["DataText Color"],
 				guiInline = true,
 				args = {
-					color = {
+					enable = {
 						order = 1,
+						type = "toggle",
+						name = L["Enable"],
+						get = function(info) return E.db.enhanced.datatexts.datatextColor.enable end,
+						set = function(info, value) E.db.enhanced.datatexts.datatextColor.enable = value DTC:ColorFont() end
+					},
+					color = {
+						order = 2,
 						type = "select",
-						name = COLOR,
+						name = L["DataText Color"],
 						values = {
 							["CLASS"] = CLASS,
 							["CUSTOM"] = L["Custom"],
-							["VALUE"] = L["Value Color"],
+							["VALUE"] = L["Value Color"]
 						},
 						get = function(info) return E.db.enhanced.datatexts.datatextColor.color end,
-						set = function(info, value) E.db.enhanced.datatexts.datatextColor.color = value DTC:ColorFont() end,
+						set = function(info, value) E.db.enhanced.datatexts.datatextColor.color = value DTC:ColorFont() end
 					},
 					custom = {
-						order = 2,
+						order = 3,
 						type = "color",
-						name = COLOR_PICKER,
+						name = COLOR,
 						disabled = function() return E.db.enhanced.datatexts.datatextColor.color == "CLASS" or E.db.enhanced.datatexts.datatextColor.color == "VALUE" end,
 						get = function(info)
 							local t = E.db.enhanced.datatexts.datatextColor.custom
@@ -560,7 +329,7 @@ end
 -- Minimap
 local function MinimapOptions()
 	local config = {
-		order = 6,
+		order = 5,
 		type = "group",
 		name = L["Minimap"],
 		get = function(info) return E.db.enhanced.minimap[info[getn(info)]] end,
@@ -619,52 +388,61 @@ end
 -- Nameplates
 local function NamePlatesOptions()
 	local config = {
-		order = 7,
+		order = 6,
 		type = "group",
-		name = L["Nameplates"],
-		get = function(info) return E.db.enhanced.nameplates[info[getn(info)]] end,
+		name = L["NamePlates"],
 		args = {
 			header = {
-				order = 0,
-				type = "header",
-				name = ColorizeSettingName(L["Nameplates"])
-			},
-			smooth = {
-				type = "toggle",
 				order = 1,
-				name = L["Smooth Bars"],
-				desc = L["Bars will transition smoothly."],
-				set = function(info, value) E.db.enhanced.nameplates[ info[getn(info)] ] = value E:GetModule("NamePlates"):ConfigureAll() end
+				type = "header",
+				name = ColorizeSettingName(L["NamePlates"])
 			},
-			smoothSpeed = {
-				type = "range",
+			smoothBars = {
 				order = 2,
-				name = L["Animation Speed"],
-				desc = L["Speed in seconds"],
-				min = 0.1, max = 3, step = 0.01,
-				disabled = function() return not E.db.enhanced.nameplates.smooth end,
-				set = function(info, value) E.db.enhanced.nameplates[ info[getn(info)] ] = value E:GetModule("NamePlates"):ConfigureAll() end
-			},
+				type = "group",
+				name = L["Smooth Bars"],
+				get = function(info) return E.db.enhanced.nameplates.smoothBars[info[getn(info)]] end,
+				guiInline = true,
+				args = {
+					enable = {
+						order = 1,
+						type = "toggle",
+						name = L["Enable"],
+						desc = L["Bars will transition smoothly."],
+						set = function(info, value) E.db.enhanced.nameplates.smoothBars[ info[getn(info)] ] = value E:GetModule("NamePlates"):ConfigureAll() end
+					},
+					smoothSpeed = {
+						order = 2,
+						type = "range",
+						name = L["Animation Speed"],
+						desc = L["Speed in seconds"],
+						min = 0.1, max = 3, step = 0.10,
+						disabled = function() return not E.db.enhanced.nameplates.smoothBars.enable end,
+						set = function(info, value) E.db.enhanced.nameplates.smoothBars[ info[getn(info)] ] = value E:GetModule("NamePlates"):ConfigureAll() end
+					}
+				}
+			}
 		}
 	}
+
 	return config
 end
 
 -- Tooltip
 local function TooltipOptions()
 	local config = {
-		order = 8,
+		order = 7,
 		type = "group",
 		name = L["Tooltip"],
 		get = function(info) return E.db.enhanced.tooltip[info[getn(info)]] end,
 		args = {
 			header = {
-				order = 0,
+				order = 1,
 				type = "header",
 				name = ColorizeSettingName(L["Tooltip"])
 			},
 			itemQualityBorderColor = {
-				order = 1,
+				order = 2,
 				type = "toggle",
 				name = L["Item Border Color"],
 				desc = L["Colorize the tooltip border based on item quality."],
@@ -672,143 +450,12 @@ local function TooltipOptions()
 				set = function(info, value) E.db.enhanced.tooltip.itemQualityBorderColor = value E:GetModule("Enhanced_ItemBorderColor"):ToggleState() end
 			},
 			tooltipIcon = {
-				order = 2,
+				order = 3,
 				type = "toggle",
 				name = L["Tooltip Icon"],
 				desc = L["Show/Hides an Icon for Items on the Tooltip."],
-				get = function(info) return E.db.enhanced.tooltip.tooltipIcon.enable end,
-				set = function(info, value) E.db.enhanced.tooltip.tooltipIcon.enable = value E:GetModule("Enhanced_TooltipIcon"):ToggleState() end
-			}
-		}
-	}
-	return config
-end
-
--- WatchFrame
-local function WatchFrameOptions()
-	local WF = E:GetModule("Enhanced_WatchFrame")
-
-	local choices = {
-		["NONE"] = NONE,
-		["HIDDEN"] = L["Hidden"]
-	}
-
-	local config = {
-		order = 9,
-		type = "group",
-		name = L["Watch Frame"],
-		get = function(info) return E.db.enhanced.watchframe[info[getn(info)]] end,
-		set = function(info, value) E.db.enhanced.watchframe[info[getn(info)]] = value WF:UpdateSettings() end,
-		args = {
-			header = {
-				order = 0,
-				type = "header",
-				name = ColorizeSettingName(L["Watch Frame"])
-			},
-			intro = {
-				order = 1,
-				type = "description",
-				name = L["WATCHFRAME_DESC"]
-			},
-			enable = {
-				order = 2,
-				type = "toggle",
-				name = L["Enable"]
-			},
-			settings = {
-				order = 3,
-				type = "group",
-				name = L["Visibility State"],
-				guiInline = true,
-				get = function(info) return E.db.enhanced.watchframe[info[getn(info)]] end,
-				set = function(info, value) E.db.enhanced.watchframe[info[getn(info)]] = value WF:ChangeState() end,
-				disabled = function() return not E.db.enhanced.watchframe.enable end,
-				args = {
-					city = {
-						order = 1,
-						type = "select",
-						name = L["City (Resting)"],
-						values = choices
-					},
-					pvp = {
-						order = 2,
-						type = "select",
-						name = HELPFRAME_HOME_ISSUE3_HEADER,
-						values = choices
-					},
-					party = {
-						order = 3,
-						type = "select",
-						name = PARTY,
-						values = choices
-					},
-					raid = {
-						order = 4,
-						type = "select",
-						name = RAID,
-						values = choices
-					}
-				}
-			}
-		}
-	}
-	return config
-end
-
--- Loss Control
-local function LoseControlOptions()
-	local config = {
-		order = 10,
-		type = "group",
-		name = L["Lose Control"],
-		get = function(info) return E.db.enhanced.tooltip[info[getn(info)]] end,
-		args = {
-			header = {
-				order = 0,
-				type = "header",
-				name = ColorizeSettingName(L["Lose Control"])
-			},
-			enable = {
-				order = 1,
-				type = "toggle",
-				name = L["Enable"],
-				get = function(info) return E.private.loseofcontrol.enable end,
-				set = function(info, value) E.private.loseofcontrol.enable = value E:StaticPopup_Show("PRIVATE_RL") end
-			},
-			typeGroup = {
-				order = 2,
-				type = "group",
-				name = TYPE,
-				guiInline = true,
-				get = function(info) return E.db.enhanced.loseofcontrol[ info[getn(info)] ] end,
-				set = function(info, value) E.db.enhanced.loseofcontrol[ info[getn(info)] ] = value end,
-				disabled = function() return not E.private.loseofcontrol.enable end,
-				args = {
-					CC = {
-						type = "toggle",
-						name = L["CC"]
-					},
-					PvE = {
-						type = "toggle",
-						name = L["PvE"]
-					},
-					Silence = {
-						type = "toggle",
-						name = L["Silence"]
-					},
-					Disarm = {
-						type = "toggle",
-						name = L["Disarm"]
-					},
-					Root = {
-						type = "toggle",
-						name = L["Root"]
-					},
-					Snare = {
-						type = "toggle",
-						name = L["Snare"]
-					}
-				}
+				get = function(info) return E.db.enhanced.tooltip.tooltipIcon end,
+				set = function(info, value) E.db.enhanced.tooltip.tooltipIcon = value E:GetModule("Enhanced_TooltipIcon"):ToggleState() end
 			}
 		}
 	}
@@ -819,43 +466,32 @@ local function UnitFrameOptions()
 	local TC = E:GetModule("Enhanced_TargetClass")
 
 	local config = {
-		order = 11,
+		order = 8,
 		type = "group",
-		name = L["Unitframes"],
+		name = L["UnitFrames"],
 		childGroups = "tab",
 		args = {
 			header = {
-				order = 0,
-				type = "header",
-				name = ColorizeSettingName(L["Unitframes"])
-			},
-			general = {
 				order = 1,
-				type = "group",
-				name = GENERAL,
-				guiInline = true,
-				args = {
-					hideRoleInCombat = {
-						order = 1,
-						type = "toggle",
-						name = L["Hide Role Icon in combat"],
-						desc = L["All role icons (Damage/Healer/Tank) on the unit frames are hidden when you go into combat."],
-						get = function(info) return E.db.enhanced.unitframe.hideRoleInCombat end,
-						set = function(info, value) E.db.enhanced.unitframe.hideRoleInCombat = value E:StaticPopup_Show("PRIVATE_RL") end
-					}
-				}
+				type = "header",
+				name = ColorizeSettingName(L["UnitFrames"])
 			},
 			player = {
 				order = 2,
 				type = "group",
 				name = L["Player"],
 				args = {
-					animatedLoss = {
+					header = {
 						order = 1,
+						type = "header",
+						name = L["Player"]
+					},
+					animatedLoss = {
+						order = 2,
 						type = "group",
 						name = L["Animated Loss"],
-						get = function(info) return E.db.unitframe.units["player"]["animatedLoss"][ info[getn(info)] ] end,
-						set = function(info, value) E.db.unitframe.units["player"]["animatedLoss"][ info[getn(info)] ] = value E:GetModule("UnitFrames"):CreateAndUpdateUF("player") end,
+						get = function(info) return E.db.unitframe.units.player.animatedLoss[ info[getn(info)] ] end,
+						set = function(info, value) E.db.unitframe.units.player.animatedLoss[ info[getn(info)] ] = value E:GetModule("UnitFrames"):CreateAndUpdateUF("player") end,
 						args = {
 							header = {
 								order = 1,
@@ -903,7 +539,7 @@ local function UnitFrameOptions()
 						}
 					},
 					detachPortrait = {
-						order = 2,
+						order = 3,
 						type = "group",
 						name = L["Portrait"],
 						get = function(info) return E.db.unitframe.units["player"]["portrait"][ info[getn(info)] ] end,
@@ -940,6 +576,42 @@ local function UnitFrameOptions()
 								disabled = function() return not E.db.unitframe.units.player.portrait.enable end
 							}
 						}
+					},
+					energyTick = {
+						order = 4,
+						type = "group",
+						name = L["Energy Tick"],
+						get = function(info) return E.db.unitframe.units["player"]["power"][ info[getn(info)] ] end,
+						set = function(info, value) E.db.unitframe.units["player"]["power"][ info[getn(info)] ] = value E:GetModule("UnitFrames"):CreateAndUpdateUF("player") end,
+						args = {
+							header = {
+								order = 1,
+								type = "header",
+								name = L["Energy Tick"]
+							},
+							energyTickEnable = {
+								order = 2,
+								type = "toggle",
+								name = L["Enable"],
+								disabled = function() return not E.db.unitframe.units.player.power.enable end
+							},
+							energyTickColor = {
+								order = 3,
+								type = "color",
+								name = COLOR,
+								get = function(info)
+									local t = E.db.unitframe.units["player"]["power"][ info[getn(info)] ]
+									local d = P.unitframe.units["player"]["power"][ info[getn(info)] ]
+									return t.r, t.g, t.b, t.a, d.r, d.g, d.b
+								end,
+								set = function(info, r, g, b)
+									local t = E.db.unitframe.units["player"]["power"][ info[getn(info)] ]
+									t.r, t.g, t.b = r, g, b
+									E:GetModule("UnitFrames"):CreateAndUpdateUF("player")
+								end,
+								disabled = function() return not E.db.unitframe.units.player.power.enable or not E.db.unitframe.units.player.power.energyTickEnable end
+							}
+						}
 					}
 				}
 			},
@@ -948,8 +620,13 @@ local function UnitFrameOptions()
 				type = "group",
 				name = L["Target"],
 				args = {
-					classIcon = {
+					header = {
 						order = 1,
+						type = "header",
+						name = L["Target"]
+					},
+					classIcon = {
+						order = 2,
 						type = "group",
 						name = L["Class Icons"],
 						args = {
@@ -1002,7 +679,7 @@ local function UnitFrameOptions()
 						}
 					},
 					detachPortrait = {
-						order = 2,
+						order = 3,
 						type = "group",
 						name = L["Portrait"],
 						get = function(info) return E.db.unitframe.units["target"]["portrait"][ info[getn(info)] ] end,
@@ -1047,24 +724,717 @@ local function UnitFrameOptions()
 	return config
 end
 
-function addon:GetOptions()
-	E.Options.args.enhanced = {
-		order = 50,
+-- Misc
+local function MiscOptions()
+	local PD = E:GetModule("Enhanced_PaperDoll")
+	-- local RM = E:GetModule("RaidMarkerBar")
+	local WF = E:GetModule("Enhanced_WatchFrame")
+	local B = E:GetModule("Enhanced_Blizzard")
+
+	local choices = {
+		["NONE"] = NONE,
+		["HIDDEN"] = L["Hidden"]
+	}
+
+	local config = {
+		order = 9,
 		type = "group",
+		name = MISCELLANEOUS,
 		childGroups = "tab",
-		name = ColorizeSettingName("Enhanced"),
 		args = {
+			header = {
+				order = 1,
+				type = "header",
+				name = ColorizeSettingName(MISCELLANEOUS)
+			},
+			enhancedFrames = {
+				order = 2,
+				type = "group",
+				name = L["Enhanced Frames"],
+				args = {
+					header = {
+						order = 1,
+						type = "header",
+						name = L["Enhanced Frames"]
+					},
+					characterFrame = {
+						order = 2,
+						type = "group",
+						name = L["Character Frame"],
+						disabled = function() return not E.private.skins.blizzard.enable or not E.private.skins.blizzard.character end,
+						args = {
+							header = {
+								order = 1,
+								type = "header",
+								name = L["Character Frame"]
+							},
+							enable = {
+								order = 2,
+								type = "toggle",
+								name = L["Enhanced Character Frame"],
+								get = function(info) return E.private.enhanced.character.enable end,
+								set = function(info, value) E.private.enhanced.character.enable = value E:StaticPopup_Show("PRIVATE_RL") end
+							},
+							paperdollBackgrounds = {
+								order = 3,
+								type = "group",
+								name = L["Paperdoll Backgrounds"],
+								guiInline = true,
+								args = {
+									characterBackground = {
+										order = 1,
+										type = "toggle",
+										name = CHARACTER,
+										get = function(info) return E.db.enhanced.character.characterBackground end,
+										set = function(info, value) E.db.enhanced.character.characterBackground = value E:GetModule("Enhanced_CharacterFrame"):UpdateCharacterModelFrame() end,
+										disabled = function() return not E.private.enhanced.character.enable end
+									},
+									desaturateCharacter = {
+										order = 2,
+										type = "toggle",
+										name = L["Desaturate"],
+										get = function(info) return E.db.enhanced.character.desaturateCharacter end,
+										set = function(info, value) E.db.enhanced.character.desaturateCharacter = value E:GetModule("Enhanced_CharacterFrame"):UpdateCharacterModelFrame() end,
+										disabled = function() return not E.private.enhanced.character.enable or not E.db.enhanced.character.characterBackground end
+									},
+									spacer = {
+										order = 3,
+										type = "description",
+										name = " "
+									},
+									petBackground = {
+										order = 4,
+										type = "toggle",
+										name = PET,
+										get = function(info) return E.db.enhanced.character.petBackground end,
+										set = function(info, value) E.db.enhanced.character.petBackground = value E:GetModule("Enhanced_CharacterFrame"):UpdatePetModelFrame() end,
+										disabled = function() return not E.private.enhanced.character.enable end
+									},
+									desaturatePet = {
+										order = 5,
+										type = "toggle",
+										name = L["Desaturate"],
+										get = function(info) return E.db.enhanced.character.desaturatePet end,
+										set = function(info, value) E.db.enhanced.character.desaturatePet = value E:GetModule("Enhanced_CharacterFrame"):UpdatePetModelFrame() end,
+										disabled = function() return not E.private.enhanced.character.enable or not E.db.enhanced.character.petBackground end
+									},
+									spacer2 = {
+										order = 6,
+										type = "description",
+										name = " "
+									},
+									inspectBackground = {
+										order = 7,
+										type = "toggle",
+										name = INSPECT,
+										get = function(info) return E.db.enhanced.character.inspectBackground end,
+										set = function(info, value) E.db.enhanced.character.inspectBackground = value end,
+										disabled = function() return not E.private.enhanced.character.enable end
+									},
+									desaturateInspect = {
+										order = 8,
+										type = "toggle",
+										name = L["Desaturate"],
+										get = function(info) return E.db.enhanced.character.desaturateInspect end,
+										set = function(info, value) E.db.enhanced.character.desaturateInspect = value end,
+										disabled = function() return not E.private.enhanced.character.enable or not E.db.enhanced.character.inspectBackground end
+									}
+								}
+							}
+						}
+					},
+					dressingRoom = {
+						order = 3,
+						type = "group",
+						name = DRESSUP_FRAME,
+						get = function(info) return E.db.enhanced.blizzard.dressUpFrame[ info[getn(info)] ] end,
+						set = function(info, value) E.db.enhanced.blizzard.dressUpFrame[ info[getn(info)] ] = value B:UpdateDressUpFrame() end,
+						disabled = function() return not E.private.skins.blizzard.enable or not E.private.skins.blizzard.dressingroom end,
+						args = {
+							header = {
+								order = 1,
+								type = "header",
+								name = DRESSUP_FRAME
+							},
+							enable = {
+								order = 2,
+								type = "toggle",
+								name = L["Enhanced Dressing Room"]
+							},
+							multiplier = {
+								order = 3,
+								type = "range",
+								name = L["Scale"],
+								min = 1.1, max = 2, step = 0.01,
+								isPercent = true,
+								disabled = function() return not E.db.enhanced.blizzard.dressUpFrame.enable end
+							},
+							background = {
+								order = 4,
+								type = "toggle",
+								name = L["Background"]
+							},
+							desaturate = {
+								order = 5,
+								type = "toggle",
+								name = L["Desaturate"],
+								disabled = function() return not E.db.enhanced.blizzard.dressUpFrame.background end
+							}
+						}
+					}
+				}
+			},
+			equipment = {
+				order = 3,
+				type = "group",
+				name = L["Equipment"],
+				childGroups = "tab",
+				get = function(info) return E.db.enhanced.equipment[info[getn(info)]] end,
+				set = function(info, value) E.db.enhanced.equipment[info[getn(info)]] = value end,
+				args = {
+					header = {
+						order = 1,
+						type = "header",
+						name = L["Equipment"]
+					},
+					enable = {
+						order = 2,
+						type = "toggle",
+						name = L["Enable"],
+						set = function(info, value)
+							E.db.enhanced.equipment[info[getn(info)]] = value
+							PD:ToggleState()
+						end
+					},
+					durability = {
+						order = 3,
+						type = "group",
+						name = L["Durability"],
+						get = function(info) return E.db.enhanced.equipment.durability[info[getn(info)]] end,
+						set = function(info, value) E.db.enhanced.equipment.durability[info[getn(info)]] = value PD:UpdatePaperDoll("player") PD:UpdateInfoText("Character") PD:UpdateInfoText("Inspect") end,
+						args = {
+							header = {
+								order = 1,
+								type = "header",
+								name = L["Durability"]
+							},
+							info = {
+								order = 2,
+								type = "description",
+								name = L["DURABILITY_DESC"]
+							},
+							enable = {
+								order = 3,
+								type = "toggle",
+								name = L["Enable"],
+								desc = L["Enable/Disable the display of durability information on the character screen."],
+								disabled = function() return not E.db.enhanced.equipment.enable end
+							},
+							onlydamaged = {
+								order = 4,
+								type = "toggle",
+								name = L["Damaged Only"],
+								desc = L["Only show durabitlity information for items that are damaged."],
+								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
+							},
+							spacer = {
+								order = 5,
+								type = "description",
+								name = " "
+							},
+							position = {
+								order = 6,
+								type = "select",
+								name = L["Position"],
+								values = {
+									["TOP"] = "TOP",
+									["TOPLEFT"] = "TOPLEFT",
+									["TOPRIGHT"] = "TOPRIGHT",
+									["BOTTOM"] = "BOTTOM",
+									["BOTTOMLEFT"] = "BOTTOMLEFT",
+									["BOTTOMRIGHT"] = "BOTTOMRIGHT"
+								},
+								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
+							},
+							xOffset = {
+								order = 7,
+								type = "range",
+								name = L["X-Offset"],
+								min = -50, max = 50, step = 1,
+								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
+							},
+							yOffset = {
+								order = 8,
+								type = "range",
+								name = L["Y-Offset"],
+								min = -50, max = 50, step = 1,
+								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
+							},
+							font = {
+								order = 9,
+								type = "select",
+								dialogControl = "LSM30_Font",
+								name = L["Font"],
+								values = AceGUIWidgetLSMlists.font,
+								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
+							},
+							fontSize = {
+								order = 10,
+								type = "range",
+								name = FONT_SIZE,
+								min = 6, max = 36, step = 1,
+								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
+							},
+							fontOutline = {
+								order = 11,
+								type = "select",
+								name = L["Font Outline"],
+								values = {
+									["NONE"] = NONE,
+									["OUTLINE"] = "OUTLINE",
+									["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
+									["THICKOUTLINE"] = "THICKOUTLINE"
+								},
+								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
+							}
+						}
+					},
+					itemlevel = {
+						order = 4,
+						type = "group",
+						name = L["Item Level"],
+						get = function(info) return E.db.enhanced.equipment.itemlevel[info[getn(info)]] end,
+						set = function(info, value) E.db.enhanced.equipment.itemlevel[info[getn(info)]] = value PD:UpdatePaperDoll("player") PD:UpdateInfoText("Character") PD:UpdateInfoText("Inspect") end,
+						args = {
+							header = {
+								order = 1,
+								type = "header",
+								name = L["Item Level"]
+							},
+							info = {
+								order = 2,
+								type = "description",
+								name = L["ITEMLEVEL_DESC"]
+							},
+							enable = {
+								order = 3,
+								type = "toggle",
+								name = L["Enable"],
+								desc = L["Enable/Disable the display of item levels on the character screen."],
+								disabled = function() return not E.db.enhanced.equipment.enable end
+							},
+							qualityColor = {
+								order = 4,
+								type = "toggle",
+								name = L["Quality Color"],
+								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
+							},
+							spacer = {
+								order = 5,
+								type = "description",
+								name = " "
+							},
+							position = {
+								order = 6,
+								type = "select",
+								name = L["Position"],
+								values = {
+									["TOP"] = "TOP",
+									["TOPLEFT"] = "TOPLEFT",
+									["TOPRIGHT"] = "TOPRIGHT",
+									["BOTTOM"] = "BOTTOM",
+									["BOTTOMLEFT"] = "BOTTOMLEFT",
+									["BOTTOMRIGHT"] = "BOTTOMRIGHT"
+								},
+								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
+							},
+							xOffset = {
+								order = 7,
+								type = "range",
+								name = L["X-Offset"],
+								min = -50, max = 50, step = 1,
+								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
+							},
+							yOffset = {
+								order = 8,
+								type = "range",
+								name = L["Y-Offset"],
+								min = -50, max = 50, step = 1,
+								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
+							},
+							font = {
+								order = 9,
+								type = "select",
+								dialogControl = "LSM30_Font",
+								name = L["Font"],
+								values = AceGUIWidgetLSMlists.font,
+								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
+							},
+							fontSize = {
+								order = 10,
+								type = "range",
+								name = FONT_SIZE,
+								min = 6, max = 36, step = 1,
+								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
+							},
+							fontOutline = {
+								order = 11,
+								type = "select",
+								name = L["Font Outline"],
+								values = {
+									["NONE"] = NONE,
+									["OUTLINE"] = "OUTLINE",
+									["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
+									["THICKOUTLINE"] = "THICKOUTLINE"
+								},
+								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
+							}
+						}
+					}
+				}
+			},
+			errorFrame = {
+				order = 4,
+				type = "group",
+				name = L["Error Frame"],
+				args = {
+					header = {
+						order = 1,
+						type = "header",
+						name = L["Error Frame"]
+					},
+					font = {
+						order = 1,
+						type = "select",
+						dialogControl = "LSM30_Font",
+						name = L["Font"],
+						values = AceGUIWidgetLSMlists.font,
+						get = function(info) return E.db.enhanced.blizzard.errorFrame.font end,
+						set = function(info, value) E.db.enhanced.blizzard.errorFrame.font = value B:ErrorFrameSize() end
+					},
+					fontSize = {
+						order = 2,
+						type = "range",
+						name = L["Font Size"],
+						min = 6, max = 36, step = 1,
+						get = function(info) return E.db.enhanced.blizzard.errorFrame.fontSize end,
+						set = function(info, value) E.db.enhanced.blizzard.errorFrame.fontSize = value B:ErrorFrameSize() end
+					},
+					fontOutline = {
+						order = 3,
+						type = "select",
+						name = L["Font Outline"],
+						values = {
+							["NONE"] = L["None"],
+							["OUTLINE"] = "OUTLINE",
+							["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
+							["THICKOUTLINE"] = "THICKOUTLINE"
+						},
+						get = function(info) return E.db.enhanced.blizzard.errorFrame.fontOutline end,
+						set = function(info, value) E.db.enhanced.blizzard.errorFrame.fontOutline = value B:ErrorFrameSize() end
+					},
+					width = {
+						order = 4,
+						type = "range",
+						name = L["Width"],
+						desc = L["Set the width of Error Frame. Too narrow frame may cause messages to be split in several lines"],
+						min = 100, max = 1000, step = 1,
+						get = function(info) return E.db.enhanced.blizzard.errorFrame.width end,
+						set = function(info, value) E.db.enhanced.blizzard.errorFrame.width = value B:ErrorFrameSize() end
+					},
+					height = {
+						order = 5,
+						type = "range",
+						name = L["Height"],
+						desc = L["Set the height of Error Frame. Higher frame can show more lines at once."],
+						min = 30, max = 300, step = 1,
+						get = function(info) return E.db.enhanced.blizzard.errorFrame.height end,
+						set = function(info, value) E.db.enhanced.blizzard.errorFrame.height = value B:ErrorFrameSize() end
+					}
+				}
+			},
+			--[[loseOfControl = {
+				order = 5,
+				type = "group",
+				name = L["Lose Control"],
+				args = {
+					header = {
+						order = 1,
+						type = "header",
+						name = L["Lose Control"]
+					},
+					enable = {
+						order = 2,
+						type = "toggle",
+						name = L["Enable"],
+						get = function(info) return E.private.loseofcontrol.enable end,
+						set = function(info, value) E.private.loseofcontrol.enable = value E:StaticPopup_Show("PRIVATE_RL") end
+					},
+					typeGroup = {
+						order = 3,
+						type = "group",
+						name = L["Type"],
+						guiInline = true,
+						get = function(info) return E.db.enhanced.loseofcontrol[ info[getn(info)] ] end,
+						set = function(info, value) E.db.enhanced.loseofcontrol[ info[getn(info)] ] = value end,
+						disabled = function() return not E.private.loseofcontrol.enable end,
+						args = {
+							CC = {
+								type = "toggle",
+								name = L["CC"]
+							},
+							PvE = {
+								type = "toggle",
+								name = L["PvE"]
+							},
+							Silence = {
+								type = "toggle",
+								name = L["Silence"]
+							},
+							Disarm = {
+								type = "toggle",
+								name = L["Disarm"]
+							},
+							Root = {
+								type = "toggle",
+								name = L["Root"]
+							},
+							Snare = {
+								type = "toggle",
+								name = L["Snare"]
+							}
+						}
+					}
+				}
+			},--]]
+			--[[raidMarkerBar = {
+				order = 6,
+				type = "group",
+				name = L["Raid Markers"],
+				get = function(info) return E.db.enhanced.raidmarkerbar[ info[getn(info)] ] end,
+				args = {
+					header = {
+						order = 1,
+						type = "header",
+						name = L["Raid Markers"]
+					},
+					enable = {
+						order = 2,
+						type = "toggle",
+						name = L["Enable"],
+						desc = L["Display a quick action bar for raid targets and world markers."],
+						set = function(info, value) E.db.enhanced.raidmarkerbar.enable = value RM:Visibility() end
+					},
+					reverse = {
+						order = 3,
+						type = "toggle",
+						name = L["Reverse"],
+						disabled = function() return not E.db.enhanced.raidmarkerbar.enable end,
+						set = function(info, value) E.db.enhanced.raidmarkerbar.reverse = value RM:UpdateBar() end
+					},
+					backdrop = {
+						order = 4,
+						type = "toggle",
+						name = L["Backdrop"],
+						disabled = function() return not E.db.enhanced.raidmarkerbar.enable end,
+						set = function(info, value) E.db.enhanced.raidmarkerbar.backdrop = value RM:Backdrop() end
+					},
+					transparentButtons = {
+						order = 5,
+						type = "toggle",
+						name = L["Transparent Buttons"],
+						disabled = function() return not E.db.enhanced.raidmarkerbar.enable end,
+						set = function(info, value) E.db.enhanced.raidmarkerbar.transparentButtons = value RM:ButtonBackdrop() end
+					},
+					transparentBackdrop = {
+						order = 6,
+						type = "toggle",
+						name = L["Transparent Backdrop"],
+						disabled = function() return not E.db.enhanced.raidmarkerbar.enable end,
+						set = function(info, value) E.db.enhanced.raidmarkerbar.transparentBackdrop = value RM:Backdrop() end
+					},
+					spacer = {
+						order = 7,
+						type = "description",
+						name = " "
+					},
+					buttonSize = {
+						order = 8,
+						type = "range",
+						name = L["Button Size"],
+						min = 16, max = 60, step = 1,
+						disabled = function() return not E.db.enhanced.raidmarkerbar.enable end,
+						set = function(info, value) E.db.enhanced.raidmarkerbar.buttonSize = value RM:UpdateBar() end
+					},
+					spacing = {
+						order = 9,
+						type = "range",
+						name = L["Button Spacing"],
+						min = -1, max = 20, step = 1,
+						disabled = function() return not E.db.enhanced.raidmarkerbar.enable end,
+						set = function(info, value) E.db.enhanced.raidmarkerbar.spacing = value RM:UpdateBar() end
+					},
+					orientation = {
+						order = 10,
+						type = "select",
+						name = L["Orientation"],
+						disabled = function() return not E.db.enhanced.raidmarkerbar.enable end,
+						values = {
+							["HORIZONTAL"] = L["Horizontal"],
+							["VERTICAL"] = L["Vertical"]
+						},
+						set = function(info, value) E.db.enhanced.raidmarkerbar.orientation = value RM:UpdateBar() end
+					},
+					visibility = {
+						order = 11,
+						type = "select",
+						name = L["Visibility"],
+						disabled = function() return not E.db.enhanced.raidmarkerbar.enable end,
+						values = {
+							["DEFAULT"] = L["DEFAULT"],
+							["INPARTY"] = L["In Party"],
+							["ALWAYS"] = ALWAYS,
+							["CUSTOM"] = L["Custom"]
+						},
+						set = function(info, value) E.db.enhanced.raidmarkerbar.visibility = value RM:Visibility() end
+					},
+					customVisibility = {
+						order = 12,
+						type = "input",
+						width = "full",
+						name = L["Visibility State"],
+						disabled = function() return E.db.enhanced.raidmarkerbar.visibility ~= "CUSTOM" or not E.db.enhanced.raidmarkerbar.enable end,
+						set = function(info, value) E.db.enhanced.raidmarkerbar.customVisibility = value RM:Visibility() end
+					}
+				}
+			},--]]
+			watchFrame = {
+				order = 7,
+				type = "group",
+				name = L["Watch Frame"],
+				get = function(info) return E.db.enhanced.watchframe[info[getn(info)]] end,
+				set = function(info, value) E.db.enhanced.watchframe[info[getn(info)]] = value WF:UpdateSettings() end,
+				args = {
+					header = {
+						order = 1,
+						type = "header",
+						name = L["Watch Frame"]
+					},
+					intro = {
+						order = 2,
+						type = "description",
+						name = L["WATCHFRAME_DESC"]
+					},
+					enable = {
+						order = 3,
+						type = "toggle",
+						name = L["Enable"]
+					},
+					settings = {
+						order = 4,
+						type = "group",
+						name = L["Visibility State"],
+						guiInline = true,
+						get = function(info) return E.db.enhanced.watchframe[info[getn(info)]] end,
+						set = function(info, value) E.db.enhanced.watchframe[info[getn(info)]] = value WF:ChangeState() end,
+						disabled = function() return not E.db.enhanced.watchframe.enable end,
+						args = {
+							city = {
+								order = 1,
+								type = "select",
+								name = L["City (Resting)"],
+								values = choices
+							},
+							pvp = {
+								order = 2,
+								type = "select",
+								name = L["PvP"],
+								values = choices
+							},
+							arena = {
+								order = 3,
+								type = "select",
+								name = L["Arena"],
+								values = choices
+							},
+							party = {
+								order = 4,
+								type = "select",
+								name = L["Party"],
+								values = choices
+							},
+							raid = {
+								order = 5,
+								type = "select",
+								name = L["Raid"],
+								values = choices
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return config
+end
+
+function addon:GetOptions()
+	if not E.Options.args.elvuiPlugins then
+		E.Options.args.elvuiPlugins = {
+			order = 50,
+			type = "group",
+			name = "|cff00b30bE|r|cffC4C4C4lvUI_|r|cff00b30bP|r|cffC4C4C4lugins|r",
+			args = {
+				header = {
+					order = 0,
+					type = "header",
+					name = "|cff00b30bE|r|cffC4C4C4lvUI_|r|cff00b30bP|r|cffC4C4C4lugins|r"
+				},
+				enhancedShortcut = {
+					type = "execute",
+					name = ColorizeSettingName(L["Enhanced"]),
+					func = function()
+						if IsAddOnLoaded("ElvUI_Config") then
+							local ACD = LibStub("AceConfigDialog-3.0")
+							ACD:SelectGroup("ElvUI", "elvuiPlugins", "enhanced", "generalGroup")
+						end
+					end
+				}
+			}
+		}
+	elseif not E.Options.args.elvuiPlugins.args.enhancedShortcut then
+		E.Options.args.elvuiPlugins.args.enhancedShortcut = {
+			type = "execute",
+			name = ColorizeSettingName(L["Enhanced"]),
+			func = function()
+				if IsAddOnLoaded("ElvUI_Config") then
+					local ACD = LibStub("AceConfigDialog-3.0")
+					ACD:SelectGroup("ElvUI", "elvuiPlugins", "enhanced", "generalGroup")
+				end
+			end
+		}
+	end
+
+	E.Options.args.elvuiPlugins.args.enhanced = {
+		type = "group",
+		name = ColorizeSettingName(L["Enhanced"]),
+		childGroups = "tab",
+		args = {
+			header = {
+				order = 0,
+				type = "header",
+				name = L["Enhanced"]
+			},
 			generalGroup = GeneralOptions(),
 			-- actionbarGroup = ActionbarOptions(),
 			-- chatGroup = ChatOptions(),
-			characterFrameGroup = CharacterFrameOptions(),
 			datatextsGroup = DataTextsOptions(),
 			minimapGroup = MinimapOptions(),
 			namePlatesGroup = NamePlatesOptions(),
 			tooltipGroup = TooltipOptions(),
-			-- unitframesGroup = UnitFrameOptions(),
-			-- losecontrolGroup = LoseControlOptions(),
-			watchFrameGroup = WatchFrameOptions(),
+			unitframesGroup = UnitFrameOptions(),
+			miscGroup = MiscOptions()
 		}
 	}
 end

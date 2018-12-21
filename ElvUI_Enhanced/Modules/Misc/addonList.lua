@@ -28,37 +28,23 @@ function AL:HasAnyChanged()
 	return false
 end
 
-function AL:IsAddOnLoadOnDemand(index)
-	local lod = false
-
-	if IsAddOnLoadOnDemand(index) then
-		if not IsAddOnLoaded(index) then
-			lod = true
-		end
+function AL:SetStatus(entry, load, status, reload)
+	if load then
+		entry.LoadButton:Show()
+	else
+		entry.LoadButton:Hide()
 	end
 
-	return lod
-end
+	if status then
+		entry.Status:Show()
+	else
+		entry.Status:Hide()
+	end
 
-function AL:SetStatus(entry, load, status, reload)
-	if entry then
-		if load then
-			entry.LoadButton:Show()
-		else
-			entry.LoadButton:Hide()
-		end
-
-		if status then
-			entry.Status:Show()
-		else
-			entry.Status:Hide()
-		end
-
-		if reload then
-			entry.Reload:Show()
-		else
-			entry.Reload:Hide()
-		end
+	if reload then
+		entry.Reload:Show()
+	else
+		entry.Reload:Hide()
 	end
 end
 
@@ -131,6 +117,18 @@ function AL:Update()
 	end
 end
 
+function AL:IsAddOnLoadOnDemand(index)
+	local lod = false
+
+	if IsAddOnLoadOnDemand(index) then
+		if not IsAddOnLoaded(index) then
+			lod = true
+		end
+	end
+
+	return lod
+end
+
 function AL:Enable(index, enabled)
 	if enabled then
 		EnableAddOn(index)
@@ -158,9 +156,9 @@ function AL:TooltipBuildDeps(...)
 
 	for i = 1, getn(arg) do
 		if i == 1 then
-			deps = L["Dependencies: "]..select(i, unpack(arg))
+			deps = L["Dependencies: "]..arg[i]
 		else
-			deps = deps..", "..select(i, unpack(arg))
+			deps = deps..", "..arg[i]
 		end
 	end
 
@@ -313,6 +311,8 @@ function AL:Initialize()
 	E:Point(scrollFrame, "BOTTOMRIGHT", addonList, "BOTTOMRIGHT", -34, 41)
 	S:HandleScrollBar(ElvUI_AddonListScrollFrameScrollBar, 5)
 
+	scrollFrame:SetWidth(475)
+
 	scrollFrame:SetScript("OnVerticalScroll", function()
 		local scrollbar = _G[this:GetName().."ScrollBar"]
 		scrollbar:SetValue(arg1)
@@ -400,7 +400,9 @@ function AL:Initialize()
 	local buttonAddons = CreateFrame("Button", "ElvUI_ButtonAddons", GameMenuFrame, "GameMenuButtonTemplate")
 	E:Point(buttonAddons, "TOP", GameMenuButtonMacros, "BOTTOM", 0, -1)
 	buttonAddons:SetText(L["Addons"])
-	S:HandleButton(buttonAddons)
+	if E.private.skins.blizzard.enable and E.private.skins.blizzard.misc then
+		S:HandleButton(buttonAddons)
+	end
 
 	buttonAddons:SetScript("OnClick", function()
 		HideUIPanel(GameMenuFrame)
@@ -418,13 +420,13 @@ function AL:Initialize()
 	end)
 
 	if GetLocale() == "koKR" then
-		if IsMacClient() then
+		if E.isMacClient then
 			E:Height(GameMenuFrame, 308)
 		else
 			E:Height(GameMenuFrame, 282)
 		end
 	else
-		if IsMacClient() then
+		if E.isMacClient then
 			E:Height(GameMenuFrame, 292)
 		else
 			E:Height(GameMenuFrame, 266)

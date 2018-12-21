@@ -9,9 +9,9 @@ License: Public Domain
 ]]
 
 local MAJOR_VERSION = "LibRangeCheck-2.0"
-local MINOR_VERSION = tonumber(("$Revision: 8 $"):match("%d+")) + 100000
+local MINOR_VERSION = tonumber(string.match("$Revision: 8 $", "%d+")) + 100000
 
-local RangeCheck = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION);
+local RangeCheck = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if (not RangeCheck) then
     return
 end
@@ -76,7 +76,7 @@ HarmSpells["MAGE"] = {
     116, -- ["Frostbolt"], -- 30 ( Arctic Reach: 33, 36 )
     2948, -- ["Scorch"], -- 30 (Flame Throwing: 33, 36 )
     5019, -- ["Shoot"], -- 30
-    2136, -- ["Fire Blast"], -- 20 (Flame Throwing: 23, 26; Gladiator Gloves: +5)
+    2136, -- ["Fire Blast"], -- 20 (Flame Throwing: 23, 26 Gladiator Gloves: +5)
 }
 
 FriendSpells["PALADIN"] = {
@@ -422,7 +422,7 @@ local GetTime = GetTime
 local GetPlayerMapPosition = GetPlayerMapPosition
 function RangeCheck:updateMeasurements()
     local now = GetTime() - self.measurementStart
-    local x, y = GetPlayerMapPosition("player");
+    local x, y = GetPlayerMapPosition("player")
     local t = self.measurements[now]
     local unit = self.measurementUnit
     for name, id in pairs(self.spellsToMeasure) do

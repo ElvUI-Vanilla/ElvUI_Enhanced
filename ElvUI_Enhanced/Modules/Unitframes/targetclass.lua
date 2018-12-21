@@ -1,6 +1,14 @@
-local E, L, V, P, G = unpack(ElvUI)
-local TC = E:NewModule("Enhanced_TargetClass", "AceEvent-3.0")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local TC = E:NewModule("Enhanced_TargetClass", "AceEvent-3.0");
 
+--Cache global variables
+--Lua functions
+local select = select
+--WoW API / Variables
+local CreateFrame = CreateFrame
+local UnitClass = UnitClass
+local UnitIsPlayer = UnitIsPlayer
+local UnitClassification = UnitClassification
 local CLASS_ICON_TCOORDS = CLASS_ICON_TCOORDS
 
 function TC:TargetChanged()
@@ -18,9 +26,9 @@ end
 
 function TC:ToggleSettings()
 	if self.db.enable then
-		self.frame:Size(self.db.size, self.db.size)
+		E:Size(self.frame, self.db.size, self.db.size)
 		self.frame:ClearAllPoints()
-		self.frame:Point("CENTER", ElvUF_Target, "TOP", self.db.xOffset, self.db.yOffset)
+		E:Point(self.frame, "CENTER", ElvUF_Target, "TOP", self.db.xOffset, self.db.yOffset)
 
 		self:RegisterEvent("PLAYER_TARGET_CHANGED", "TargetChanged")
 		self:TargetChanged()
@@ -37,7 +45,7 @@ function TC:Initialize()
 	self.frame:SetFrameLevel(12)
 	self.frame.Texture = self.frame:CreateTexture(nil, "ARTWORK")
 	self.frame.Texture:SetAllPoints()
-	self.frame.Texture:SetTexture([[Interface\WorldStateFrame\Icons-Classes]])
+	self.frame.Texture:SetTexture([[Interface\AddOns\ElvUI\Media\Textures\Icons-Classes]])
 
 	self:ToggleSettings()
 end

@@ -12,10 +12,10 @@
 	<Script file="trainAllButton.lua"/>
 	<Script file="undressButton.lua"/>
 	<Script file="originalCloseButton.lua"/>
-	<Script file="addonsCompatibility.lua"/>
 	<Script file="modelframes.lua"/>
 	<Script file="merchant.lua"/>
 	<!-- <Script file="raidmarkers.lua"/> -->
+	<Script file="worldMapFrame.lua"/>
 
 	<Script file="characterFrame.lua"/>
 

@@ -14,7 +14,7 @@
 	<Script file="originalCloseButton.lua"/>
 	<Script file="modelframes.lua"/>
 	<Script file="merchant.lua"/>
-	<!-- <Script file="raidmarkers.lua"/> -->
+	<Script file="raidMarkers.lua"/>
 	<Script file="worldMapFrame.lua"/>
 
 	<Script file="characterFrame.lua"/>

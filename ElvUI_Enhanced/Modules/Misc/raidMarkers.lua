@@ -12,13 +12,15 @@ local GameTooltip = GameTooltip
 function RM:CreateButtons()
 	for i = 1, 9 do
 		local button = CreateFrame("Button", format("RaidMarkerBarButton%d", i), self.frame, "ActionButtonTemplate")
-		button:SetID(i)
-		E:Size(button, self.db.buttonSize)
+		E:StripTextures(button)
 		E:SetTemplate(button, "Default", true)
+		E:Size(button, self.db.buttonSize)
 
 		local image = button:CreateTexture(nil, "ARTWORK")
 		E:SetInside(image)
 		image:SetTexture(i == 9 and "Interface\\BUTTONS\\UI-GroupLoot-Pass-Up" or format("Interface\\AddOns\\ElvUI_Enhanced\\Media\\Textures\\RaidTargetingIcon\\UI-RaidTargetingIcon_%d", i))
+
+		button:SetID(i)
 
 		button:SetScript("OnClick", function()
 			SetRaidTargetIcon("target", this:GetID() < 9 and this:GetID() or 0)
@@ -36,11 +38,16 @@ function RM:CreateButtons()
 		HookScript(button, "OnEnter", S.SetModifiedBackdrop)
 		HookScript(button, "OnLeave", S.SetOriginalBackdrop)
 
+		E:StyleButton(button)
 		self.frame.buttons[i] = button
 	end
 end
 
-function RM:UpdateBar()
+function RM:UpdateBar(first)
+	if first then
+		E:Point(self.frame, "CENTER", E.UIParent, "CENTER", 0, 0)
+	end
+
 	if self.db.orientation == "VERTICAL" then
 		self.frame:SetWidth(self.db.buttonSize + 4)
 		self.frame:SetHeight(((self.db.buttonSize * 9) + (self.db.spacing * 8)) + 4)
@@ -76,13 +83,26 @@ function RM:UpdateBar()
 			end
 		end
 	end
-
-	if self.db.enable then self.frame:Show() else self.frame:Hide() end
 end
 
 function RM:Visibility()
 	if self.db.enable then
-		self.frame:Show()
+		if self.db.visibility == "INPARTY" then
+			if UnitIsPartyLeader("player") and (GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0) then
+				if event then
+					if UnitInParty("player") and UnitIsPartyLeader("player") then
+						self.frame:Show()
+					else
+						self.frame:Hide()
+					end
+				end
+				self.frame:Show()
+			else
+				self.frame:Hide()
+			end
+		elseif self.db.visibility == "ALWAYS" then
+			self.frame:Show()
+		end
 		E:EnableMover(self.frame.mover:GetName())
 	else
 		self.frame:Hide()
@@ -127,6 +147,9 @@ function RM:Initialize()
 	E:Point(self.frame, "BOTTOMRIGHT", E.UIParent, "BOTTOMRIGHT", -1, 200)
 	self.frame.buttons = {}
 
+	self:RegisterEvent("PLAYER_FLAGS_CHANGED", "Visibility")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "Visibility")
+
 	self.frame.backdrop:SetAllPoints()
 
 	E:CreateMover(self.frame, "RaidMarkerBarAnchor", L["Raid Marker Bar"])
@@ -137,7 +160,7 @@ function RM:Initialize()
 		self:Visibility()
 		self:Backdrop()
 		self:ButtonBackdrop()
-		self:UpdateBar()
+		self:UpdateBar(true)
 	end
 
 	self:ForUpdateAll()

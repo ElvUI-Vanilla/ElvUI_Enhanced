@@ -727,7 +727,7 @@ end
 -- Misc
 local function MiscOptions()
 	local PD = E:GetModule("Enhanced_PaperDoll")
-	-- local RM = E:GetModule("RaidMarkerBar")
+	local RM = E:GetModule("RaidMarkerBar")
 	local WF = E:GetModule("Enhanced_WatchFrame")
 	local B = E:GetModule("Enhanced_Blizzard")
 
@@ -1207,7 +1207,7 @@ local function MiscOptions()
 					}
 				}
 			},--]]
-			--[[raidMarkerBar = {
+			raidMarkerBar = {
 				order = 6,
 				type = "group",
 				name = L["Raid Markers"],
@@ -1291,23 +1291,13 @@ local function MiscOptions()
 						name = L["Visibility"],
 						disabled = function() return not E.db.enhanced.raidmarkerbar.enable end,
 						values = {
-							["DEFAULT"] = L["DEFAULT"],
 							["INPARTY"] = L["In Party"],
-							["ALWAYS"] = ALWAYS,
-							["CUSTOM"] = L["Custom"]
+							["ALWAYS"] = L["Always"]
 						},
 						set = function(info, value) E.db.enhanced.raidmarkerbar.visibility = value RM:Visibility() end
-					},
-					customVisibility = {
-						order = 12,
-						type = "input",
-						width = "full",
-						name = L["Visibility State"],
-						disabled = function() return E.db.enhanced.raidmarkerbar.visibility ~= "CUSTOM" or not E.db.enhanced.raidmarkerbar.enable end,
-						set = function(info, value) E.db.enhanced.raidmarkerbar.customVisibility = value RM:Visibility() end
 					}
 				}
-			},--]]
+			},
 			watchFrame = {
 				order = 7,
 				type = "group",

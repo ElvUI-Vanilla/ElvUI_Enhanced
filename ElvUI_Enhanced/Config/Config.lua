@@ -1291,6 +1291,7 @@ local function MiscOptions()
 						name = L["Visibility"],
 						disabled = function() return not E.db.enhanced.raidmarkerbar.enable end,
 						values = {
+							["DEFAULT"] = L["Default"],
 							["INPARTY"] = L["In Party"],
 							["ALWAYS"] = L["Always"]
 						},

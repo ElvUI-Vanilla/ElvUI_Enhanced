@@ -186,6 +186,6 @@ P.enhanced = {
 		["spacing"] = 1,
 		["orientation"] = "HORIZONTAL",
 		["reverse"] = false,
-		["visibility"] = "ALWAYS",
+		["visibility"] = "DEFAULT",
 	}
 }

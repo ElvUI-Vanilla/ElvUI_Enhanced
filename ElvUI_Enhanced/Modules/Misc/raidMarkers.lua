@@ -8,6 +8,11 @@ local format = string.format
 --WoW API / Variables
 local CreateFrame = CreateFrame
 local GameTooltip = GameTooltip
+local UnitExists = UnitExists
+local UnitIsPartyLeader = UnitIsPartyLeader
+local UnitInParty = UnitInParty
+local GetNumPartyMembers = GetNumPartyMembers
+local GetNumRaidMembers = GetNumRaidMembers
 
 function RM:CreateButtons()
 	for i = 1, 9 do
@@ -85,24 +90,43 @@ function RM:UpdateBar(first)
 	end
 end
 
-function RM:Visibility()
-	if self.db.enable then
-		if self.db.visibility == "INPARTY" then
-			if UnitIsPartyLeader("player") and (GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0) then
-				if event then
-					if UnitInParty("player") and UnitIsPartyLeader("player") then
-						self.frame:Show()
-					else
-						self.frame:Hide()
-					end
-				end
+function RM:VisibilityCheck(visibility)
+	local isPartyLeader = UnitIsPartyLeader("player")
+	local inParty = UnitInParty("player")
+	local numPartyMembers = GetNumPartyMembers()
+	local numRaidMembers = GetNumRaidMembers()
+	local unitExists = UnitExists("target")
+
+	if visibility == "DEFAULT" then
+		self.frame:Hide()
+
+		if inParty and (numPartyMembers > 0 or numRaidMembers > 0) then
+			if isPartyLeader then
 				self.frame:Show()
 			else
 				self.frame:Hide()
 			end
-		elseif self.db.visibility == "ALWAYS" then
-			self.frame:Show()
+		else
+			if unitExists then
+				self.frame:Show()
+			else
+				self.frame:Hide()
+			end
 		end
+	elseif visibility == "INPARTY" then
+		if inParty and isPartyLeader and (numPartyMembers > 0 or numRaidMembers > 0) then
+			self.frame:Show()
+		else
+			self.frame:Hide()
+		end
+	elseif visibility == "ALWAYS" then
+		self.frame:Show()
+	end
+end
+
+function RM:Visibility()
+	if self.db.enable then
+		RM:VisibilityCheck(self.db.visibility)
 		E:EnableMover(self.frame.mover:GetName())
 	else
 		self.frame:Hide()
@@ -147,6 +171,7 @@ function RM:Initialize()
 	E:Point(self.frame, "BOTTOMRIGHT", E.UIParent, "BOTTOMRIGHT", -1, 200)
 	self.frame.buttons = {}
 
+	self:RegisterEvent("PLAYER_TARGET_CHANGED", "Visibility")
 	self:RegisterEvent("PLAYER_FLAGS_CHANGED", "Visibility")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "Visibility")
 

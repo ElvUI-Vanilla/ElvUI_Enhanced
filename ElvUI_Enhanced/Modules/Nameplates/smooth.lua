@@ -26,12 +26,12 @@ local function Smooth(bar)
 		bar.SetValue_ = bar.SetValue
 		bar.SetValue = SetSmooth
 	end
-	bar.Smooth = E.db.enhanced.nameplates.smooth
+	bar.Smooth = E.db.enhanced.nameplates.smoothBars.enable
 	bar.SmoothSpeed = E.db.enhanced.nameplates.smoothBars.smoothSpeed * 10
 end
 
 function ENP:UpdateAllFrame(_, frame)
-	frame.HealthBar.Smooth = E.db.enhanced.nameplates.smooth
+	frame.HealthBar.Smooth = E.db.enhanced.nameplates.smoothBars.enable
 	frame.HealthBar.SmoothSpeed = E.db.enhanced.nameplates.smoothBars.smoothSpeed * 10
 end
 

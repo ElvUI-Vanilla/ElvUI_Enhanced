@@ -10,9 +10,13 @@ L["ITEMLEVEL_DESC"] = "Réglez les paramètres pour afficher le niveau d'objet s
 L["WATCHFRAME_DESC"] = "Adjust the settings for the visibility of the watchframe (questlog) to your personal preference."
 
 -- Actionbars
+L["AutoCast Border"] = true
+L["Checked Border"] = true
 L["Equipped Item Border"] = true
 L["Sets actionbars backgrounds to transparent template."] = true
 L["Sets actionbars buttons backgrounds to transparent template."] = true
+L["Replaces the checked textures with colored borders."] = true
+L["Replaces the auto cast textures with colored borders."] = true
 L["Transparent ActionBars"] = true
 L["Transparent Backdrop"] = true
 L["Transparent Buttons"] = true
@@ -35,6 +39,7 @@ L["Filter DPS meters Spam"] = true
 L["Replaces long reports from damage meters with a clickable hyperlink to reduce chat spam.\nWorks correctly only with general reports such as DPS or HPS. May fail to filter te report of other things"] = true
 
 -- Character Frame
+L["Character"] = "Personnage"
 L["Damaged Only"] = "Dégâts seulement"
 L["Desaturate"] = true
 L["Enable/Disable the display of durability information on the character screen."] = "Activer / Désactiver l'affichage des informations de durabilité sur l'écran d'infos de personnage."
@@ -43,12 +48,12 @@ L["Enhanced Character Frame"] = true
 L["Equipment"] = "Équipement"
 L["Only show durabitlity information for items that are damaged."] = "Afficher la durabilité seulement quand l'équipement est endommagé."
 L["Paperdoll Backgrounds"] = true
+L["Pet"] = "Familier"
 L["Quality Color"] = true
 
 -- Datatext
 L["Combat Indicator"] = true
 L["DataText Color"] = true
-L["Distance"] = true
 L["Enhanced Time Color"] = true
 L["Equipped"] = true
 L["In Combat"] = true
@@ -69,8 +74,9 @@ L["%s by %s"] = true
 L["%s sec before death at %s%% health."] = true
 L["(%d Absorbed)"] = true
 L["(%d Blocked)"] = true
-L["(%d Overkill)"] = true
 L["(%d Resisted)"] = true
+L["Critical"] = true
+L["Crushing"] = true
 L["Death Recap unavailable."] = true
 L["Death Recap"] = "Récapitulatif lors de la mort"
 L["Killing blow at %s%% health."] = true
@@ -88,18 +94,30 @@ L["Set the width of Error Frame. Too narrow frame may cause messages to be split
 L["Set the height of Error Frame. Higher frame can show more lines at once."] = true
 
 -- General
+L["Add button to Dressing Room frame with ability to undress model."] = true
+L["Add button to Trainer frame with ability to train all available skills in one click."] = true
+L["Alt-Click Merchant"] = true
+L["Already Known"] = true
 L["Automatically change your watched faction on the reputation bar to the faction you got reputation points for."] = "Change automatiquement la réputation suivie sur la barre de réputation avec la faction que vous êtes en train de faire."
 L["Automatically release body when killed inside a battleground."] = "Libère automatiquement votre corps quand vous êtes tué en Champs de Bataille."
 L["Automatically select the quest reward with the highest vendor sell value."] = "Sélectionne automatiquement la récompense de quête qui vaut la plus chère chez le vendeur."
 L["Changes the transparency of all the movers."] = "Change la transparence des Ancres"
+L["Colorize the WorldMap party/raid icons with class colors"] = true
 L["Colorizes recipes, mounts & pets that are already known"] = true
+L["Display the item level on the MerchantFrame, to change the font you have to set it in ElvUI - Bags - ItemLevel"] = true
 L["Display quest levels at Quest Log."] = true
 L["Hide Zone Text"] = true
+L["Holding Alt key while buying something from vendor will now buy an entire stack."] = true
+L["Merchant ItemLevel"] = true
 L["Mover Transparency"] = "Transparence des Ancres"
 L["Original Close Button"] = true
 L["PvP Autorelease"] = "Libération automatique en PVP"
+L["Select Quest Reward"] = true
 L["Show Quest Level"] = true
 L["Track Reputation"] = "Suivre la Réputation"
+L["Train All Button"] = true
+L["Undress Button"] = true
+L["WorldMap Blips"] = true
 
 -- Model Frames
 L["Drag"] = "Glisser"
@@ -110,8 +128,6 @@ L["Mouse Wheel Up"] = "Molette vers le haut"
 L["Right-click on character and drag to move it within the window."] = "Cliquez-droit sur le personnage et faites glisser la souris pour le déplacer."
 L["Rotate Left"] = "Pivoter à gauche"
 L["Rotate Right"] = "Pivoter à droite"
-L["Zoom In"] = "Zoomer"
-L["Zoom Out"] = "Dézoomer"
 
 -- Nameplates
 L["Bars will transition smoothly."] = true
@@ -119,6 +135,7 @@ L["Smooth Bars"] = true
 
 -- Minimap
 L["Above Minimap"] = "Sous la minicarte"
+L["Always"] = "Toujours"
 L["Combat Hide"] = true
 L["FadeIn Delay"] = "Délais d'estompage"
 L["Hide minimap while in combat."] = "Cacher la minicarte quand vous êtes en combat"
@@ -132,12 +149,13 @@ L["Toggle Location Panel."] = true
 L["Item Border Color"] = true
 L["Colorize the tooltip border based on item quality."] = true
 L["Show/Hides an Icon for Items on the Tooltip."] = true
-L["Show/Hides an Icon for Spells on the Tooltip."] = true
-L["Show/Hides an Icon for Spells and Items on the Tooltip."] = true
 L["Tooltip Icon"] = true
 
 -- Misc
+L["Enhanced Frames"] = true
+L["Miscellaneous"] = "Divers"
 L["Skin Animations"] = true
+L["Total cost:"] = true
 L["Undress"] = "Déshabillé"
 
 -- Character Frame
@@ -146,10 +164,9 @@ L["Damage Per Second"] = "DPS"
 L["Hide Character Information"] = true
 L["Hide Pet Information"] = true
 L["Item Level"] = true
-L["Resistance"] = true
+L["Resistance"] = "Résistance"
 L["Show Character Information"] = true
 L["Show Pet Information"] = true
-L["Titles"] = true
 
 -- Movers
 L["Loss Control Icon"] = "Icône de la perte de contrôle"
@@ -164,12 +181,12 @@ L["PvE"] = "PvE"
 L["Root"] = "Immobilisation"
 L["Silence"] = "Silence"
 L["Snare"] = "Ralentissement"
+L["Type"] = "Type"
 
 -- Raid Marks
 L["Raid Markers"] = true
 L["Click to clear the mark."] = true
 L["Click to mark the target."] = true
-L["Custom"] = true
 L["In Party"] = true
 L["Raid Marker Bar"] = true
 L["Reverse"] = true
@@ -179,7 +196,7 @@ L["Class Icons"] = true
 L["Detached Height"] = true
 L["Energy Tick"] = true
 L["Show class icon for units."] = true
-L["Target"] = true
+L["Target"] = "Cibler"
 
 -- WatchFrame
 L["Hidden"] = "Caché"

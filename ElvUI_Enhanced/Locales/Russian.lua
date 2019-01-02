@@ -10,9 +10,13 @@ L["ITEMLEVEL_DESC"] = "Настройка параметров информац�
 L["WATCHFRAME_DESC"] = "Настройте отображение списка заданий (квест лог) исходя из ваших личных предпочтений."
 
 -- Actionbars
+L["AutoCast Border"] = true
+L["Checked Border"] = true
 L["Equipped Item Border"] = true
 L["Sets actionbars backgrounds to transparent template."] = "Делает фон панелей команд прозрачным."
 L["Sets actionbars buttons backgrounds to transparent template."] = "Делает кнопки панелей команд прозрачными"
+L["Replaces the checked textures with colored borders."] = true
+L["Replaces the auto cast textures with colored borders."] = true
 L["Transparent ActionBars"] = true
 L["Transparent Backdrop"] = "Прозрачный фон"
 L["Transparent Buttons"] = "Прозрачные кнопки"
@@ -35,6 +39,7 @@ L["Filter DPS meters Spam"] = true
 L["Replaces long reports from damage meters with a clickable hyperlink to reduce chat spam.\nWorks correctly only with general reports such as DPS or HPS. May fail to filter te report of other things"] = true
 
 -- Character Frame
+L["Character"] = "Персонаж"
 L["Damaged Only"] = "Только поврежденные"
 L["Desaturate"] = true
 L["Enable/Disable the display of durability information on the character screen."] = "Включить/Выключить отображение информации о прочности предметов в окне персонажа."
@@ -43,12 +48,12 @@ L["Enhanced Character Frame"] = true
 L["Equipment"] = "Экипировка"
 L["Only show durabitlity information for items that are damaged."] = "Показывать уровень прочности только на поврежденных предметах."
 L["Paperdoll Backgrounds"] = true
+L["Pet"] = "Питомец"
 L["Quality Color"] = true
 
 -- Datatext
 L["Combat Indicator"] = true
 L["DataText Color"] = true
-L["Distance"] = true
 L["Enhanced Time Color"] = true
 L["Equipped"] = true
 L["In Combat"] = true
@@ -69,8 +74,9 @@ L["%s by %s"] = "%s - %s"
 L["%s sec before death at %s%% health."] = "%s сек. до смерти при объеме здоровья %s%%"
 L["(%d Absorbed)"] = "Поглощено: %d ед. урона."
 L["(%d Blocked)"] = "Заблокировано: %d уд. урона."
-L["(%d Overkill)"] = "Избыточный урон: %d ед."
 L["(%d Resisted)"] = "Сопротивление %d еденицам урона."
+L["Critical"] = true
+L["Crushing"] = true
 L["Death Recap unavailable."] = "Информация о смерти не доступна."
 L["Death Recap"] = "Информация о смерти"
 L["Killing blow at %s%% health."] = "Объем здоровья при получении смертельного удара: %s%%"
@@ -88,18 +94,30 @@ L["Set the width of Error Frame. Too narrow frame may cause messages to be split
 L["Set the height of Error Frame. Higher frame can show more lines at once."] = true
 
 -- General
+L["Add button to Dressing Room frame with ability to undress model."] = true
+L["Add button to Trainer frame with ability to train all available skills in one click."] = true
+L["Alt-Click Merchant"] = true
+L["Already Known"] = true
 L["Automatically change your watched faction on the reputation bar to the faction you got reputation points for."] = "Автоматическое изменение фракции на панели репутации на ту, очки репутации которой вы получили."
 L["Automatically release body when killed inside a battleground."] = "Автоматически покидать тело после смерти на полях боя."
 L["Automatically select the quest reward with the highest vendor sell value."] = true
 L["Changes the transparency of all the movers."] = "Изменяет прозрачность фиксаторов"
+L["Colorize the WorldMap party/raid icons with class colors"] = true
 L["Colorizes recipes, mounts & pets that are already known"] = true
+L["Display the item level on the MerchantFrame, to change the font you have to set it in ElvUI - Bags - ItemLevel"] = true
 L["Display quest levels at Quest Log."] = true
 L["Hide Zone Text"] = true
+L["Holding Alt key while buying something from vendor will now buy an entire stack."] = true
+L["Merchant ItemLevel"] = true
 L["Mover Transparency"] = "Прозрачность фиксаторов"
 L["Original Close Button"] = true
 L["PvP Autorelease"] = "Автовыход из тела"
+L["Select Quest Reward"] = true
 L["Show Quest Level"] = true
 L["Track Reputation"] = "Отслеживание репутации"
+L["Train All Button"] = true
+L["Undress Button"] = true
+L["WorldMap Blips"] = true
 
 -- Model Frames
 L["Drag"] = "Перетащить"
@@ -110,8 +128,6 @@ L["Mouse Wheel Up"] = "Прокрутка вверх"
 L["Right-click on character and drag to move it within the window."] = "Зажмите правую кнопку мыши и тащите курсор, чтобы переместить персонажа."
 L["Rotate Left"] = "Вращение влево"
 L["Rotate Right"] = "Вращение вправо"
-L["Zoom In"] = "Приблизить"
-L["Zoom Out"] = "Отдалить"
 
 -- Nameplates
 L["Bars will transition smoothly."] = true
@@ -119,6 +135,7 @@ L["Smooth Bars"] = true
 
 -- Minimap
 L["Above Minimap"] = "Над миникартой"
+L["Always"] = "Всегда"
 L["Combat Hide"] = true
 L["FadeIn Delay"] = "Задержка появления"
 L["Hide minimap while in combat."] = "Скрывать миникарту во время боя."
@@ -132,12 +149,13 @@ L["Toggle Location Panel."] = true
 L["Item Border Color"] = "Цвет рамки предметов"
 L["Colorize the tooltip border based on item quality."] = "Окрашивать бордюр тултипа в цвет качества предмета"
 L["Show/Hides an Icon for Items on the Tooltip."] = true
-L["Show/Hides an Icon for Spells on the Tooltip."] = true
-L["Show/Hides an Icon for Spells and Items on the Tooltip."] = true
 L["Tooltip Icon"] = true
 
 -- Misc
+L["Enhanced Frames"] = true
+L["Miscellaneous"] = "Разное"
 L["Skin Animations"] = true
+L["Total cost:"] = true
 L["Undress"] = "Раздеть"
 
 -- Character Frame
@@ -164,12 +182,12 @@ L["PvE"] = "Рейдовые"
 L["Root"] = "Замедления"
 L["Silence"] = "Молчание"
 L["Snare"] = "Ловушки"
+L["Type"] = "Тип"
 
 -- Raid Marks
 L["Raid Markers"] = true
 L["Click to clear the mark."] = true
 L["Click to mark the target."] = true
-L["Custom"] = true
 L["In Party"] = true
 L["Raid Marker Bar"] = true
 L["Reverse"] = true

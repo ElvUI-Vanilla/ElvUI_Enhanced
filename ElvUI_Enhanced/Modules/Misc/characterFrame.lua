@@ -1406,18 +1406,22 @@ function ECF:Initialize()
 
 	PetNameText:SetPoint("CENTER", CharacterFrame, 0, 200)
 	PetLevelText:SetPoint("TOP", CharacterFrame, 0, -20)
-	PetPaperDollPetInfo:SetPoint("TOPLEFT", 25, -78)
+	PetPaperDollPetInfo:SetPoint("TOPLEFT", E.PixelMode and 25 or 27, -(E.PixelMode and 70 or 72))
 
 	PetTrainingPointText:ClearAllPoints()
-	PetTrainingPointText:SetPoint("BOTTOMRIGHT", PetModelFrame, "BOTTOMRIGHT", -31, -26)
+	PetTrainingPointText:SetPoint("BOTTOMRIGHT", PetModelFrame, "BOTTOMRIGHT", -31, -34)
 	PetTrainingPointLabel:SetPoint("RIGHT", PetTrainingPointText, "LEFT", -5, 1)
 
 	E:Kill(PetPaperDollCloseButton)
 	E:Kill(PetAttributesFrame)
 	E:Kill(PetResistanceFrame)
 
+	E:Size(PetPaperDollFrameExpBar, 310, 10)
+	E:Point(PetPaperDollFrameExpBar, "BOTTOMLEFT", 25, 106)
+
 	E:CreateBackdrop(PetModelFrame, "Default")
 	E:Size(PetModelFrame, 310, 320)
+	E:Point(PetModelFrame, "TOPLEFT", 25, -70)
 
 	PetModelFrame.petPaperDollPetModelBg = PetModelFrame:CreateTexture("$parentPetPaperDollPetModelBg", "BACKGROUND")
 	E:Size(PetModelFrame.petPaperDollPetModelBg, 494, 461)

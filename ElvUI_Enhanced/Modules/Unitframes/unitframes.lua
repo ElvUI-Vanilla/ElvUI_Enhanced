@@ -29,7 +29,6 @@ hooksecurefunc(UF, "Configure_HealthBar", function(self, frame)
 			animatedLoss.postponeDelay = frame.db.animatedLoss.postponeDelay
 
 			animatedLoss.PostUpdate = function(self)
-			-- print(this, self)
 				self:SetPoint("TOPLEFT", frame.Health.texturePointer, "TOPRIGHT")
 				self:SetPoint("BOTTOMLEFT", frame.Health.texturePointer, "BOTTOMRIGHT")
 

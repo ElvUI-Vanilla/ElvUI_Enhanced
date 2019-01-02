@@ -5,12 +5,6 @@ local addon = E:GetModule("ElvUI_Enhanced");
 --Lua functions
 local format = string.format
 local getn = table.getn
---WoW API / Variables
-local ALWAYS, HIDE, FONT_SIZE, NONE = ALWAYS, HIDE, FONT_SIZE, NONE
-local CHARACTER, PET, INSPECT = CHARACTER, PET, INSPECT
-local SPELLS, ITEMS = SPELLS, ITEMS
-local DRESSUP_FRAME = DRESSUP_FRAME
-local MISCELLANEOUS = MISCELLANEOUS
 
 local function ColorizeSettingName(settingName)
 	return format("|cffff8000%s|r", settingName)
@@ -141,16 +135,24 @@ local function GeneralOptions()
 					M:BuyStackToggle()
 				end
 			},
-			worldMapBlips = {
+			merchantItemLevel = {
 				order = 14,
 				type = "toggle",
+				name = L["Merchant ItemLevel"],
+				desc = L["Display the item level on the MerchantFrame, to change the font you have to set it in ElvUI - Bags - ItemLevel"],
+				get = function(info) return E.db.enhanced.general.merchantItemLevel end,
+				set = function(info, value) E.db.enhanced.general.merchantItemLevel = value end
+			},
+			worldMapBlips = {
+				order = 15,
+				type = "toggle",
 				name = L["WorldMap Blips"],
-				desc = L["Colorize worldmap player dots with class colors"],
+				desc = L["Colorize the WorldMap party/raid icons with class colors"],
 				get = function(info) return E.db.enhanced.general.worldMapBlips end,
 				set = function(info, value) E.db.enhanced.general.worldMapBlips = value E:StaticPopup_Show("PRIVATE_RL") end
 			},
 			moverTransparancy = {
-				order = 15,
+				order = 16,
 				type = "range",
 				isPercent = true,
 				name = L["Mover Transparency"],
@@ -166,74 +168,167 @@ end
 
 -- Actionbars
 local function ActionbarOptions()
-	local EAB = E:GetModule("Enhanced_ActionBars")
-	local ETAB = E:GetModule("Enhanced_TransparentActionbars")
+	local AB = E:GetModule("ActionBars")
+	-- local EAB = E:GetModule("Enhanced_ActionBars")
+	-- local ETAB = E:GetModule("Enhanced_TransparentActionbars")
 
 	local config = {
 		order = 2,
 		type = "group",
 		name = L["ActionBars"],
+		childGroups = "tab",
 		args = {
 			header = {
 				order = 1,
 				type = "header",
 				name = ColorizeSettingName(L["ActionBars"])
 			},
-			equipped = {
+			--[[general = {
 				order = 2,
 				type = "group",
-				name = L["Equipped Item Border"],
-				guiInline = true,
+				name = L["General"],
 				args = {
-					equipped = {
+					header = {
 						order = 1,
-						type = "toggle",
-						name = L["Enable"],
-						get = function(info) return E.db.enhanced.actionbars[ info[getn(info)] ] end,
-						set = function(info, value) E.db.enhanced.actionbars[ info[getn(info)] ] = value EAB:UpdateCallback() E:GetModule("ActionBars"):UpdateButtonSettings() end
+						type = "header",
+						name = L["General"],
 					},
-					equippedColor = {
+					transparentActionbars = {
 						order = 2,
-						type = "color",
-						name = L["Border Color"],
-						get = function(info)
-							local t = E.db.enhanced.actionbars[ info[getn(info)] ]
-							local d = P.enhanced.actionbars[ info[getn(info)] ]
-							return t.r, t.g, t.b, t.a, d.r, d.g, d.b
-						end,
-						set = function(info, r, g, b)
-							local t = E.db.enhanced.actionbars[ info[getn(info)] ]
-							t.r, t.g, t.b = r, g, b
-							E:GetModule("ActionBars"):UpdateButtonSettings()
-						end,
-						disabled = function() return not E.db.enhanced.actionbars.equipped end
+						type = "group",
+						name = L["Transparent ActionBars"],
+						guiInline = true,
+						get = function(info) return E.db.enhanced.actionbars.transparentActionbars[ info[getn(info)] ] end,
+						set = function(info, value) E.db.enhanced.actionbars.transparentActionbars[ info[getn(info)] ] = value end,
+						args = {
+							transparentBackdrops = {
+								order = 1,
+								type = "toggle",
+								name = L["Transparent Backdrop"],
+								desc = L["Sets actionbars backgrounds to transparent template."],
+								set = function(info, value) E.db.enhanced.actionbars.transparentActionbars[ info[getn(info)] ] = value ETAB:StyleBackdrops() end
+							},
+							transparentButtons = {
+								order = 2,
+								type = "toggle",
+								name = L["Transparent Buttons"],
+								desc = L["Sets actionbars buttons backgrounds to transparent template."],
+								set = function(info, value) E.db.enhanced.actionbars.transparentActionbars[ info[getn(info)] ] = value ETAB:StyleBackdrops() end
+							}
+						},
+						disabled = function() return not E.private.actionbar.enable end
+					},
+					equipped = {
+						order = 3,
+						type = "group",
+						name = L["Equipped Item Border"],
+						guiInline = true,
+						args = {
+							equipped = {
+								order = 1,
+								type = "toggle",
+								name = L["Enable"],
+								get = function(info) return E.db.enhanced.actionbars[ info[getn(info)] ] end,
+								set = function(info, value) E.db.enhanced.actionbars[ info[getn(info)] ] = value EAB:UpdateCallback() AB:UpdateButtonSettings() end
+							},
+							equippedColor = {
+								order = 2,
+								type = "color",
+								name = L["Border Color"],
+								get = function(info)
+									local t = E.db.enhanced.actionbars[ info[getn(info)] ]
+									local d = P.enhanced.actionbars[ info[getn(info)] ]
+									return t.r, t.g, t.b, t.a, d.r, d.g, d.b
+								end,
+								set = function(info, r, g, b)
+									local t = E.db.enhanced.actionbars[ info[getn(info)] ]
+									t.r, t.g, t.b = r, g, b
+									AB:UpdateButtonSettings()
+								end,
+								disabled = function() return not E.db.enhanced.actionbars.equipped end
+							}
+						},
+						disabled = function() return not E.private.actionbar.enable end
 					}
 				}
-			},
-			transparentActionbars = {
+			},--]]
+			pet = {
 				order = 3,
 				type = "group",
-				name = L["Transparent ActionBars"],
-				guiInline = true,
-				get = function(info) return E.db.enhanced.actionbars.transparentActionbars[ info[getn(info)] ] end,
-				set = function(info, value) E.db.enhanced.actionbars.transparentActionbars[ info[getn(info)] ] = value end,
+				name = L["Pet Bar"],
 				args = {
-					transparentBackdrops = {
+					header = {
 						order = 1,
-						type = "toggle",
-						name = L["Transparent Backdrop"],
-						desc = L["Sets actionbars backgrounds to transparent template."],
-						set = function(info, value) E.db.enhanced.actionbars.transparentActionbars[ info[getn(info)] ] = value ETAB:StyleBackdrops() end
+						type = "header",
+						name = L["Pet Bar"],
 					},
-					transparentButtons = {
+					checked = {
 						order = 2,
-						type = "toggle",
-						name = L["Transparent Buttons"],
-						desc = L["Sets actionbars buttons backgrounds to transparent template."],
-						set = function(info, value) E.db.enhanced.actionbars.transparentActionbars[ info[getn(info)] ] = value ETAB:StyleBackdrops() end
+						type = "group",
+						name = L["Checked Border"],
+						guiInline = true,
+						args = {
+							checkedBorder = {
+								order = 1,
+								type = "toggle",
+								name = L["Enable"],
+								desc = L["Replaces the checked textures with colored borders."],
+								get = function(info) return E.db.enhanced.actionbars.pet[ info[getn(info)] ] end,
+								set = function(info, value) E.db.enhanced.actionbars.pet[ info[getn(info)] ] = value AB:UpdatePet() end
+							},
+							checkedBorderColor = {
+								order = 2,
+								type = "color",
+								name = L["Border Color"],
+								get = function(info)
+									local t = E.db.enhanced.actionbars.pet[ info[getn(info)] ]
+									local d = P.enhanced.actionbars.pet[ info[getn(info)] ]
+									return t.r, t.g, t.b, t.a, d.r, d.g, d.b
+								end,
+								set = function(info, r, g, b)
+									local t = E.db.enhanced.actionbars.pet[ info[getn(info)] ]
+									t.r, t.g, t.b = r, g, b
+									AB:UpdatePet()
+								end,
+								disabled = function() return not E.db.enhanced.actionbars.pet.checkedBorder end
+							}
+						},
+						disabled = function() return not E.private.actionbar.enable or not E.db.actionbar.barPet.enabled end
+					},
+					autoCast = {
+						order = 3,
+						type = "group",
+						name = L["AutoCast Border"],
+						guiInline = true,
+						args = {
+							autoCastBorder = {
+								order = 1,
+								type = "toggle",
+								name = L["Enable"],
+								desc = L["Replaces the auto cast textures with colored borders."],
+								get = function(info) return E.db.enhanced.actionbars.pet[ info[getn(info)] ] end,
+								set = function(info, value) E.db.enhanced.actionbars.pet[ info[getn(info)] ] = value AB:UpdatePet() end
+							},
+							autoCastBorderColor = {
+								order = 2,
+								type = "color",
+								name = L["Border Color"],
+								get = function(info)
+									local t = E.db.enhanced.actionbars.pet[ info[getn(info)] ]
+									local d = P.enhanced.actionbars.pet[ info[getn(info)] ]
+									return t.r, t.g, t.b, t.a, d.r, d.g, d.b
+								end,
+								set = function(info, r, g, b)
+									local t = E.db.enhanced.actionbars.pet[ info[getn(info)] ]
+									t.r, t.g, t.b = r, g, b
+									AB:UpdatePet()
+								end,
+								disabled = function() return not E.db.enhanced.actionbars.pet.autoCastBorder end
+							}
+						},
+						disabled = function() return not E.private.actionbar.enable or not E.db.actionbar.barPet.enabled end
 					}
-				},
-				disabled = function() return not E.private.actionbar.enable end
+				}
 			}
 		}
 	}
@@ -304,7 +399,7 @@ local function DataTextsOptions()
 						type = "select",
 						name = L["DataText Color"],
 						values = {
-							["CLASS"] = CLASS,
+							["CLASS"] = L["Class"],
 							["CUSTOM"] = L["Custom"],
 							["VALUE"] = L["Value Color"]
 						},
@@ -314,7 +409,7 @@ local function DataTextsOptions()
 					custom = {
 						order = 3,
 						type = "color",
-						name = COLOR,
+						name = L["Color"],
 						disabled = function() return E.db.enhanced.datatexts.datatextColor.color == "CLASS" or E.db.enhanced.datatexts.datatextColor.color == "VALUE" end,
 						get = function(info)
 							local t = E.db.enhanced.datatexts.datatextColor.custom
@@ -387,7 +482,7 @@ local function MinimapOptions()
 		["MOUSEOVER"] = L["Minimap Mouseover"],
 		["SHOW"] = L["Always Display"],
 		["ABOVE"] = ColorizeSettingName(L["Above Minimap"]),
-		["HIDE"] = HIDE
+		["HIDE"] = L["Hide"]
 	}
 	config.args.locationText = E.Options.args.maps.args.minimap.args.locationTextGroup.args.locationText
 	return config
@@ -550,8 +645,8 @@ local function UnitFrameOptions()
 						order = 3,
 						type = "group",
 						name = L["Portrait"],
-						get = function(info) return E.db.unitframe.units["player"]["portrait"][ info[getn(info)] ] end,
-						set = function(info, value) E.db.unitframe.units["player"]["portrait"][ info[getn(info)] ] = value E:GetModule("UnitFrames"):CreateAndUpdateUF("player") end,
+						get = function(info) return E.db.unitframe.units.player.portrait[ info[getn(info)] ] end,
+						set = function(info, value) E.db.unitframe.units.player.portrait[ info[getn(info)] ] = value E:GetModule("UnitFrames"):CreateAndUpdateUF("player") end,
 						args = {
 							header = {
 								order = 1,
@@ -589,8 +684,8 @@ local function UnitFrameOptions()
 						order = 4,
 						type = "group",
 						name = L["Energy Tick"],
-						get = function(info) return E.db.unitframe.units["player"]["power"][ info[getn(info)] ] end,
-						set = function(info, value) E.db.unitframe.units["player"]["power"][ info[getn(info)] ] = value E:GetModule("UnitFrames"):CreateAndUpdateUF("player") end,
+						get = function(info) return E.db.unitframe.units.player.power[ info[getn(info)] ] end,
+						set = function(info, value) E.db.unitframe.units.player.power[ info[getn(info)] ] = value E:GetModule("UnitFrames"):CreateAndUpdateUF("player") end,
 						args = {
 							header = {
 								order = 1,
@@ -606,14 +701,14 @@ local function UnitFrameOptions()
 							energyTickColor = {
 								order = 3,
 								type = "color",
-								name = COLOR,
+								name = L["Color"],
 								get = function(info)
-									local t = E.db.unitframe.units["player"]["power"][ info[getn(info)] ]
-									local d = P.unitframe.units["player"]["power"][ info[getn(info)] ]
+									local t = E.db.unitframe.units.player.power[ info[getn(info)] ]
+									local d = P.unitframe.units.player.power[ info[getn(info)] ]
 									return t.r, t.g, t.b, t.a, d.r, d.g, d.b
 								end,
 								set = function(info, r, g, b)
-									local t = E.db.unitframe.units["player"]["power"][ info[getn(info)] ]
+									local t = E.db.unitframe.units.player.power[ info[getn(info)] ]
 									t.r, t.g, t.b = r, g, b
 									E:GetModule("UnitFrames"):CreateAndUpdateUF("player")
 								end,
@@ -690,8 +785,8 @@ local function UnitFrameOptions()
 						order = 3,
 						type = "group",
 						name = L["Portrait"],
-						get = function(info) return E.db.unitframe.units["target"]["portrait"][ info[getn(info)] ] end,
-						set = function(info, value) E.db.unitframe.units["target"]["portrait"][ info[getn(info)] ] = value E:GetModule("UnitFrames"):CreateAndUpdateUF("target") end,
+						get = function(info) return E.db.unitframe.units.target.portrait[ info[getn(info)] ] end,
+						set = function(info, value) E.db.unitframe.units.target.portrait[ info[getn(info)] ] = value E:GetModule("UnitFrames"):CreateAndUpdateUF("target") end,
 						args = {
 							header = {
 								order = 1,
@@ -740,20 +835,20 @@ local function MiscOptions()
 	local B = E:GetModule("Enhanced_Blizzard")
 
 	local choices = {
-		["NONE"] = NONE,
+		["NONE"] = L["None"],
 		["HIDDEN"] = L["Hidden"]
 	}
 
 	local config = {
 		order = 9,
 		type = "group",
-		name = MISCELLANEOUS,
+		name = L["Miscellaneous"],
 		childGroups = "tab",
 		args = {
 			header = {
 				order = 1,
 				type = "header",
-				name = ColorizeSettingName(MISCELLANEOUS)
+				name = ColorizeSettingName(L["Miscellaneous"])
 			},
 			enhancedFrames = {
 				order = 2,
@@ -792,7 +887,7 @@ local function MiscOptions()
 									characterBackground = {
 										order = 1,
 										type = "toggle",
-										name = CHARACTER,
+										name = L["Character"],
 										get = function(info) return E.db.enhanced.character.characterBackground end,
 										set = function(info, value) E.db.enhanced.character.characterBackground = value E:GetModule("Enhanced_CharacterFrame"):UpdateCharacterModelFrame() end,
 										disabled = function() return not E.private.enhanced.character.enable end
@@ -813,7 +908,7 @@ local function MiscOptions()
 									petBackground = {
 										order = 4,
 										type = "toggle",
-										name = PET,
+										name = L["Pet"],
 										get = function(info) return E.db.enhanced.character.petBackground end,
 										set = function(info, value) E.db.enhanced.character.petBackground = value E:GetModule("Enhanced_CharacterFrame"):UpdatePetModelFrame() end,
 										disabled = function() return not E.private.enhanced.character.enable end
@@ -834,7 +929,7 @@ local function MiscOptions()
 									inspectBackground = {
 										order = 7,
 										type = "toggle",
-										name = INSPECT,
+										name = L["Inspect"],
 										get = function(info) return E.db.enhanced.character.inspectBackground end,
 										set = function(info, value) E.db.enhanced.character.inspectBackground = value end,
 										disabled = function() return not E.private.enhanced.character.enable end
@@ -854,7 +949,7 @@ local function MiscOptions()
 					dressingRoom = {
 						order = 3,
 						type = "group",
-						name = DRESSUP_FRAME,
+						name = L["Dressing Room"],
 						get = function(info) return E.db.enhanced.blizzard.dressUpFrame[ info[getn(info)] ] end,
 						set = function(info, value) E.db.enhanced.blizzard.dressUpFrame[ info[getn(info)] ] = value B:UpdateDressUpFrame() end,
 						disabled = function() return not E.private.skins.blizzard.enable or not E.private.skins.blizzard.dressingroom end,
@@ -862,7 +957,7 @@ local function MiscOptions()
 							header = {
 								order = 1,
 								type = "header",
-								name = DRESSUP_FRAME
+								name = L["Dressing Room"]
 							},
 							enable = {
 								order = 2,
@@ -989,7 +1084,7 @@ local function MiscOptions()
 							fontSize = {
 								order = 10,
 								type = "range",
-								name = FONT_SIZE,
+								name = L["Font Size"],
 								min = 6, max = 36, step = 1,
 								disabled = function() return not E.db.enhanced.equipment.durability.enable or not E.db.enhanced.equipment.enable end
 							},
@@ -998,7 +1093,7 @@ local function MiscOptions()
 								type = "select",
 								name = L["Font Outline"],
 								values = {
-									["NONE"] = NONE,
+									["NONE"] = L["None"],
 									["OUTLINE"] = "OUTLINE",
 									["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
 									["THICKOUTLINE"] = "THICKOUTLINE"
@@ -1081,7 +1176,7 @@ local function MiscOptions()
 							fontSize = {
 								order = 10,
 								type = "range",
-								name = FONT_SIZE,
+								name = L["Font Size"],
 								min = 6, max = 36, step = 1,
 								disabled = function() return not E.db.enhanced.equipment.itemlevel.enable or not E.db.enhanced.equipment.enable end
 							},
@@ -1090,7 +1185,7 @@ local function MiscOptions()
 								type = "select",
 								name = L["Font Outline"],
 								values = {
-									["NONE"] = NONE,
+									["NONE"] = L["None"],
 									["OUTLINE"] = "OUTLINE",
 									["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
 									["THICKOUTLINE"] = "THICKOUTLINE"
@@ -1350,20 +1445,14 @@ local function MiscOptions()
 								name = L["PvP"],
 								values = choices
 							},
-							arena = {
-								order = 3,
-								type = "select",
-								name = L["Arena"],
-								values = choices
-							},
 							party = {
-								order = 4,
+								order = 3,
 								type = "select",
 								name = L["Party"],
 								values = choices
 							},
 							raid = {
-								order = 5,
+								order = 4,
 								type = "select",
 								name = L["Raid"],
 								values = choices
@@ -1426,7 +1515,7 @@ function addon:GetOptions()
 				name = L["Enhanced"]
 			},
 			generalGroup = GeneralOptions(),
-			-- actionbarGroup = ActionbarOptions(),
+			actionbarGroup = ActionbarOptions(),
 			-- chatGroup = ChatOptions(),
 			datatextsGroup = DataTextsOptions(),
 			minimapGroup = MinimapOptions(),

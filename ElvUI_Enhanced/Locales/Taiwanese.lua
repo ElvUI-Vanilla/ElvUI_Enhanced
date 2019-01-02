@@ -10,9 +10,13 @@ L["ITEMLEVEL_DESC"] = "調整在角色資訊上顯示物品裝等的各種設定
 L["WATCHFRAME_DESC"] = "Adjust the settings for the visibility of the watchframe (questlog) to your personal preference."
 
 -- Actionbars
+L["AutoCast Border"] = true
+L["Checked Border"] = true
 L["Equipped Item Border"] = true
 L["Sets actionbars backgrounds to transparent template."] = true
 L["Sets actionbars buttons backgrounds to transparent template."] = true
+L["Replaces the checked textures with colored borders."] = true
+L["Replaces the auto cast textures with colored borders."] = true
 L["Transparent ActionBars"] = true
 L["Transparent Backdrop"] = true
 L["Transparent Buttons"] = true
@@ -35,6 +39,7 @@ L["Filter DPS meters Spam"] = true
 L["Replaces long reports from damage meters with a clickable hyperlink to reduce chat spam.\nWorks correctly only with general reports such as DPS or HPS. May fail to filter te report of other things"] = true
 
 -- Character Frame
+L["Character"] = "角色"
 L["Damaged Only"] = "受損顯示"
 L["Desaturate"] = true
 L["Enable/Disable the display of durability information on the character screen."] = "開啓/關閉 人物窗口裝備耐久度顯示."
@@ -43,12 +48,12 @@ L["Enhanced Character Frame"] = true
 L["Equipment"] = "自動換裝"
 L["Only show durabitlity information for items that are damaged."] = "只在裝備受損時顯示耐久度."
 L["Paperdoll Backgrounds"] = true
+L["Pet"] = "寵物"
 L["Quality Color"] = true
 
 -- Datatext
 L["Combat Indicator"] = true
 L["DataText Color"] = true
-L["Distance"] = true
 L["Enhanced Time Color"] = true
 L["Equipped"] = true
 L["In Combat"] = true
@@ -69,8 +74,9 @@ L["%s by %s"] = true
 L["%s sec before death at %s%% health."] = true
 L["(%d Absorbed)"] = true
 L["(%d Blocked)"] = true
-L["(%d Overkill)"] = true
 L["(%d Resisted)"] = true
+L["Critical"] = true
+L["Crushing"] = true
 L["Death Recap unavailable."] = true
 L["Death Recap"] = true
 L["Killing blow at %s%% health."] = true
@@ -88,18 +94,30 @@ L["Set the width of Error Frame. Too narrow frame may cause messages to be split
 L["Set the height of Error Frame. Higher frame can show more lines at once."] = true
 
 -- General
+L["Add button to Dressing Room frame with ability to undress model."] = true
+L["Add button to Trainer frame with ability to train all available skills in one click."] = true
+L["Alt-Click Merchant"] = true
+L["Already Known"] = true
 L["Automatically change your watched faction on the reputation bar to the faction you got reputation points for."] = "當你獲得某個陣營的聲望時, 將自動追蹤此陣營的聲望至經驗值欄位."
 L["Automatically release body when killed inside a battleground."] = "在戰場死亡後自動釋放靈魂."
 L["Automatically select the quest reward with the highest vendor sell value."] = "自動選取有最高賣價的任務獎勵物品"
 L["Changes the transparency of all the movers."] = "改變所有定位器的透明度"
+L["Colorize the WorldMap party/raid icons with class colors"] = true
 L["Colorizes recipes, mounts & pets that are already known"] = true
+L["Display the item level on the MerchantFrame, to change the font you have to set it in ElvUI - Bags - ItemLevel"] = true
 L["Display quest levels at Quest Log."] = true
 L["Hide Zone Text"] = true
+L["Holding Alt key while buying something from vendor will now buy an entire stack."] = true
+L["Merchant ItemLevel"] = true
 L["Mover Transparency"] = "定位器透明度"
 L["Original Close Button"] = true
 L["PvP Autorelease"] = "PVP自動釋放靈魂"
+L["Select Quest Reward"] = true
 L["Show Quest Level"] = true
 L["Track Reputation"] = "聲望追蹤"
+L["Train All Button"] = true
+L["Undress Button"] = true
+L["WorldMap Blips"] = true
 
 -- Model Frames
 L["Drag"] = "拖曳"
@@ -110,8 +128,6 @@ L["Mouse Wheel Up"] = "滑鼠滾輪向上滾動"
 L["Right-click on character and drag to move it within the window."] = "滑鼠右鍵點擊角色並拖曳以在視窗內移動。"
 L["Rotate Left"] = "向左旋轉"
 L["Rotate Right"] = "向右旋轉"
-L["Zoom In"] = "放大"
-L["Zoom Out"] = "縮小"
 
 -- Nameplates
 L["Bars will transition smoothly."] = true
@@ -119,6 +135,7 @@ L["Smooth Bars"] = true
 
 -- Minimap
 L["Above Minimap"] = "小地圖之上"
+L["Always"] = "永遠"
 L["Combat Hide"] = true
 L["FadeIn Delay"] = "隱藏延遲"
 L["Hide minimap while in combat."] = "戰鬥中隱藏小地圖"
@@ -132,12 +149,13 @@ L["Toggle Location Panel."] = true
 L["Item Border Color"] = true
 L["Colorize the tooltip border based on item quality."] = true
 L["Show/Hides an Icon for Items on the Tooltip."] = true
-L["Show/Hides an Icon for Spells on the Tooltip."] = true
-L["Show/Hides an Icon for Spells and Items on the Tooltip."] = true
 L["Tooltip Icon"] = true
 
 -- Misc
+L["Enhanced Frames"] = true
+L["Miscellaneous"] = "雜項"
 L["Skin Animations"] = true
+L["Total cost:"] = true
 L["Undress"] = "無裝備"
 
 -- Character Frame
@@ -164,12 +182,12 @@ L["PvE"] = "PvE"
 L["Root"] = "定身類技能"
 L["Silence"] = "沉默類技能"
 L["Snare"] = "減速類技能"
+L["Type"] = "類型"
 
 -- Raid Marks
 L["Raid Markers"] = true
 L["Click to clear the mark."] = true
 L["Click to mark the target."] = true
-L["Custom"] = true
 L["In Party"] = true
 L["Raid Marker Bar"] = true
 L["Reverse"] = true

@@ -29,6 +29,7 @@ P.enhanced = {
 		pvpAutoRelease = false,
 		autoRepChange = false,
 		merchant = false,
+		merchantItemLevel = false,
 		moverTransparancy = 1,
 		showQuestLevel = false,
 		selectQuestReward = false,
@@ -46,6 +47,12 @@ P.enhanced = {
 		transparentActionbars = {
 			transparentBackdrops = false,
 			transparentButtons = false
+		},
+		pet = {
+			checkedBorder = false,
+			checkedBorderColor = {r = 1, g = 0.56, b = 0},
+			autoCastBorder = false,
+			autoCastBorderColor = {r = 1, g = 0, b = 0}
 		}
 	},
 	blizzard = {
@@ -59,7 +66,7 @@ P.enhanced = {
 			width = 300,
 			height = 60,
 			font = "PT Sans Narrow",
-			fontSize = 30,
+			fontSize = 12,
 			fontOutline = "NONE"
 		}
 	},
@@ -174,7 +181,6 @@ P.enhanced = {
 		enable = false,
 		city = "HIDDEN",
 		pvp = "HIDDEN",
-		arena = "HIDDEN",
 		party = "HIDDEN",
 		raid = "HIDDEN"
 	},

@@ -30,8 +30,6 @@ function mod:UpdateDressUpFrame()
 	DressUpModel.backdrop:SetAlpha(background)
 	DressUpFrame.ModelBackground:SetAlpha(background)
 	DressUpFrame.ModelBackground:SetDesaturated(desaturate)
-
-	-- UpdateUIPanelPositions(DressUpFrame)
 end
 
 function mod:DressUpFrame()

@@ -29,7 +29,7 @@ local function OnUpdate(self)
 
 	local name = GetSpellInfo(20608)
 	local start, duration = GetSpellCooldown(name)
-	if start > 0 and duration > 0 then 
+	if start > 0 and duration > 0 then
 		self.text:SetFormattedText(displayString, format(iconString, tex), format("%d:%02d", floor((duration - (GetTime() - start)) / 60), floor((duration - (GetTime() - start)) % 60)))
 	else
 		self.text:SetFormattedText(displayString, format(iconString, tex), L["Ready"].."!")
@@ -47,7 +47,7 @@ local function OnEvent(self, event)
 		elseif not self.text:GetText() then
 			local name = GetSpellInfo(20608)
 			local start, duration = GetSpellCooldown(name)
-			if start > 0 and duration > 0 then 
+			if start > 0 and duration > 0 then
 				self.text:SetFormattedText(displayString, format(iconString, tex), format("%d:%02d", floor((duration - (GetTime() - start)) / 60), floor((duration - (GetTime() - start)) % 60)))
 			else
 				self.text:SetFormattedText(displayString, format(iconString, tex), L["Ready"].."!")
@@ -106,6 +106,6 @@ local function ValueColorUpdate(hex)
 		then OnEvent(lastPanel)
 	end
 end
-E["valueColorUpdateFuncs"][ValueColorUpdate] = true
+E.valueColorUpdateFuncs[ValueColorUpdate] = true
 
 DT:RegisterDatatext("Reincarnation", {"PLAYER_ENTERING_WORLD", "SPELL_UPDATE_COOLDOWN"}, OnEvent, OnUpdate, OnClick, OnEnter, nil, ColorizeSettingName(L["Reincarnation"]))

@@ -28,6 +28,6 @@ local function ValueColorUpdate(hex)
 		OnEvent(lastPanel)
 	end
 end
-E["valueColorUpdateFuncs"][ValueColorUpdate] = true
+E.valueColorUpdateFuncs[ValueColorUpdate] = true
 
 DT:RegisterDatatext("Strength", {"UNIT_STATS", "UNIT_AURA", "CHARACTER_POINTS_CHANGED"}, OnEvent, nil, nil, nil, nil, ColorizeSettingName(SPELL_STAT0_NAME))

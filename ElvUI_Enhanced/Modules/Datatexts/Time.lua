@@ -57,20 +57,20 @@ local function GetLastPanel(name)
 end
 
 function EDTT:UpdateSettings()
-	if not (DT.RegisteredDataTexts and DT.RegisteredDataTexts["Time"]) then return end
+	if not (DT.RegisteredDataTexts and DT.RegisteredDataTexts.Time) then return end
 
 	lastPanel = GetLastPanel("Time")
 
 	if E.db.enhanced.datatexts.timeColorEnch then
-		original_OnUpdate = DT.RegisteredDataTexts["Time"]["onUpdate"]
+		original_OnUpdate = DT.RegisteredDataTexts.Time.onUpdate
 
-		DT.RegisteredDataTexts["Time"]["onUpdate"] = OnUpdate
+		DT.RegisteredDataTexts.Time.onUpdate = OnUpdate
 
-		E["valueColorUpdateFuncs"][ValueColorUpdate] = true
+		E.valueColorUpdateFuncs[ValueColorUpdate] = true
 	else
-		DT.RegisteredDataTexts["Time"]["onUpdate"] = original_OnUpdate
+		DT.RegisteredDataTexts.Time.onUpdate = original_OnUpdate
 
-		for func in pairs(E["valueColorUpdateFuncs"]) do
+		for func, _ in pairs(E.valueColorUpdateFuncs) do
 			if func == ValueColorUpdate then
 				func = nil
 				break
@@ -81,8 +81,8 @@ function EDTT:UpdateSettings()
 	E:ValueFuncCall()
 
 	if lastPanel then
-		lastPanel:SetScript("OnUpdate", DT.RegisteredDataTexts["Time"]["onUpdate"])
-		DT.RegisteredDataTexts["Time"]["onUpdate"](lastPanel, 1)
+		lastPanel:SetScript("OnUpdate", DT.RegisteredDataTexts.Time.onUpdate)
+		DT.RegisteredDataTexts.Time.onUpdate(lastPanel, 1)
 	end
 end
 

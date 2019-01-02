@@ -57,6 +57,6 @@ local function ValueColorUpdate(hex)
 		OnEvent(lastPanel)
 	end
 end
-E["valueColorUpdateFuncs"][ValueColorUpdate] = true
+E.valueColorUpdateFuncs[ValueColorUpdate] = true
 
 DT:RegisterDatatext("Target Range", {"PLAYER_TARGET_CHANGED"}, OnEvent, OnUpdate, nil, nil, nil, ColorizeSettingName(L["Target Range"]))

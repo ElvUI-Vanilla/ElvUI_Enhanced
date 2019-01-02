@@ -19,10 +19,10 @@ local standing		= format("%s:", STANDING)
 local reputation	= format("%s:", REPUTATION)
 
 function M:CHAT_MSG_COMBAT_FACTION_CHANGE()
-	local faction = select(3, find(arg1, incpat))
+	local _, _, faction = find(arg1, incpat);
 
 	if not faction then
-		faction = select(3, find(arg1, changedpat)) or select(3, find(arg1, decpat))
+		_, _, faction = find(srg1, changedpat) or find(arg1, decpat)
 	end
 
 	if faction then

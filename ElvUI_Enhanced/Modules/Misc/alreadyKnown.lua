@@ -16,6 +16,7 @@ local GetNumAuctionItems = GetNumAuctionItems
 local GetNumBuybackItems = GetNumBuybackItems
 local IsAddOnLoaded = IsAddOnLoaded
 local SetItemButtonTextureVertexColor = SetItemButtonTextureVertexColor
+local hooksecurefunc = hooksecurefunc
 
 local BUYBACK_ITEMS_PER_PAGE = BUYBACK_ITEMS_PER_PAGE
 local ITEM_SPELL_KNOWN = ITEM_SPELL_KNOWN
@@ -32,7 +33,7 @@ local function MerchantFrame_UpdateMerchantInfo()
 			return
 		end
 
-		local button = _G["MerchantItem" .. i .. "ItemButton"]
+		local button = _G["MerchantItem"..i.."ItemButton"]
 
 		if button and button:IsShown() then
 			local _, _, _, _, numAvailable, isUsable = GetMerchantItemInfo(index)
@@ -58,13 +59,13 @@ local function MerchantFrame_UpdateBuybackInfo()
 			return
 		end
 
-		local button = _G["MerchantItem" .. i .. "ItemButton"]
+		local button = _G["MerchantItem"..i.."ItemButton"]
 
 		if button and button:IsShown() then
-			local name = GetBuybackItemInfo(i)
+			local name, _, _, _, _, isUsable = GetBuybackItemInfo(i)
 			local _, itemLink = GetItemInfoByName(name)
 
-			if itemLink and AK:IsAlreadyKnown(itemLink) then
+			if isUsable and AK:IsAlreadyKnown(itemLink) then
 				SetItemButtonTextureVertexColor(button, knownColor.r, knownColor.g, knownColor.b)
 			end
 		end
@@ -79,7 +80,7 @@ local function AuctionFrameBrowse_Update()
 		local index = offset + i
 		if index > numItems then return end
 
-		local texture = _G["BrowseButton" .. i .. "ItemIconTexture"]
+		local texture = _G["BrowseButton"..i.."ItemIconTexture"]
 
 		if texture and texture:IsShown() then
 			local _, _, _, _, canUse = GetAuctionItemInfo("list", index)
@@ -99,7 +100,7 @@ local function AuctionFrameBid_Update()
 		local index = offset + i
 		if index > numItems then return end
 
-		local texture = _G["BidButton" .. i .. "ItemIconTexture"]
+		local texture = _G["BidButton"..i.."ItemIconTexture"]
 
 		if texture and texture:IsShown() then
 			local _, _, _, _, canUse = GetAuctionItemInfo("bidder", index)
@@ -119,7 +120,7 @@ local function AuctionFrameAuctions_Update()
 		local index = offset + i
 		if index > numItems then return end
 
-		local texture = _G["AuctionsButton" .. i .. "ItemIconTexture"]
+		local texture = _G["AuctionsButton"..i.."ItemIconTexture"]
 
 		if texture and texture:IsShown() then
 			local _, _, _, _, canUse, _, _, _, _, _, _, _, saleStatus = GetAuctionItemInfo("owner", index)
@@ -138,14 +139,17 @@ end
 
 function AK:IsAlreadyKnown(itemLink)
 	if not itemLink then return end
-	local itemID = match(itemLink, "item:(%d+)")
-	if self.knownTable[itemID] then return true end
+
+	local itemID = match(itemLink, "item:(%d+):")
+	if self.knownTable[itemID] then
+		return true
+	end
 
 	local _, _, _, _, itemType = GetItemInfo(itemID)
 	if not self.knowableTypes[itemType] then return end
 
 	self.scantip:ClearLines()
-	self.scantip:SetHyperlink(match(itemLink, "item[%-?%d:]+"))
+	self.scantip:SetHyperlink(itemLink)
 
 	for i = 2, self.scantip:NumLines() do
 		local text = _G["ElvUI_MerchantAlreadyKnownTextLeft"..i]:GetText()

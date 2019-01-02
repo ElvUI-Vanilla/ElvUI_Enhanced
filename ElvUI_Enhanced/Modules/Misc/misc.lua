@@ -60,6 +60,7 @@ function M:Initialize()
 	self:LoadMoverTransparancy()
 	self:QuestLevelToggle()
 	self:BuyStackToggle()
+	self:WorldMapBlips()
 end
 
 local function InitializeCallback()

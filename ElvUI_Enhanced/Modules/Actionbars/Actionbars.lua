@@ -1,13 +1,22 @@
-local E, L, V, P, G = unpack(ElvUI)
-local mod = E:NewModule("Enhanced_ActionBars")
-local LAB = LibStub("LibActionButton-1.0")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local AB = E:GetModule("ActionBars")
+local EAB = E:NewModule("Enhanced_ActionBars");
 
-function mod:LAB_ButtonUpdate(button)
-	if button.backdrop then
+--Cache global variables
+--Lua functions
+local pairs, unpack = pairs, unpack
+--WoW API / Variables
+local IsEquippedAction = IsEquippedAction
+local hooksecurefunc = hooksecurefunc
+
+function EAB:ActionButton_Update()
+	if this.backdrop then
 		local color = E.db.enhanced.actionbars.equippedColor
+		local action = ActionButton_GetPagedID(this)
+		local button = this
 
 		E:Delay(0.05, function()
-			if button:IsEquipped() then
+			if IsEquippedAction(action) then
 				button.backdrop:SetBackdropBorderColor(color.r, color.g, color.b)
 			else
 				button.backdrop:SetBackdropBorderColor(unpack(E.media.bordercolor))
@@ -16,28 +25,26 @@ function mod:LAB_ButtonUpdate(button)
 	end
 end
 
-function mod:UpdateCallback()
+function EAB:UpdateCallback()
 	if E.db.enhanced.actionbars.equipped then
-		LAB.RegisterCallback(self, "OnButtonUpdate", self.LAB_ButtonUpdate)
+		hooksecurefunc("ActionButton_Update", self.ActionButton_Update)
 	else
-		for _, bar in pairs(E:GetModule("ActionBars").handledBars) do
+		for _, bar in pairs(AB.handledBars) do
 			for _, button in pairs(bar.buttons) do
-				if button:IsEquipped() then
+				if IsEquippedAction(button:GetID()) then
 					button.backdrop:SetBackdropBorderColor(unpack(E.media.bordercolor))
 				end
 			end
 		end
-
-		LAB.UnregisterAllCallbacks(self)
 	end
 end
 
-function mod:Initialize()
+function EAB:Initialize()
 	self:UpdateCallback()
 end
 
 local function InitializeCallback()
-	mod:Initialize()
+	EAB:Initialize()
 end
 
-E:RegisterModule(mod:GetName(), InitializeCallback)
+E:RegisterModule(EAB:GetName(), InitializeCallback)

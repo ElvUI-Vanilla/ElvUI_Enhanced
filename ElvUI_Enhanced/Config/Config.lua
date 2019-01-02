@@ -169,7 +169,7 @@ end
 -- Actionbars
 local function ActionbarOptions()
 	local AB = E:GetModule("ActionBars")
-	-- local EAB = E:GetModule("Enhanced_ActionBars")
+	local EAB = E:GetModule("Enhanced_ActionBars")
 	-- local ETAB = E:GetModule("Enhanced_TransparentActionbars")
 
 	local config = {
@@ -183,7 +183,7 @@ local function ActionbarOptions()
 				type = "header",
 				name = ColorizeSettingName(L["ActionBars"])
 			},
-			--[[general = {
+			general = {
 				order = 2,
 				type = "group",
 				name = L["General"],
@@ -193,7 +193,7 @@ local function ActionbarOptions()
 						type = "header",
 						name = L["General"],
 					},
-					transparentActionbars = {
+					--[[transparentActionbars = {
 						order = 2,
 						type = "group",
 						name = L["Transparent ActionBars"],
@@ -217,7 +217,7 @@ local function ActionbarOptions()
 							}
 						},
 						disabled = function() return not E.private.actionbar.enable end
-					},
+					},--]]
 					equipped = {
 						order = 3,
 						type = "group",
@@ -229,7 +229,7 @@ local function ActionbarOptions()
 								type = "toggle",
 								name = L["Enable"],
 								get = function(info) return E.db.enhanced.actionbars[ info[getn(info)] ] end,
-								set = function(info, value) E.db.enhanced.actionbars[ info[getn(info)] ] = value EAB:UpdateCallback() AB:UpdateButtonSettings() end
+								set = function(info, value) E.db.enhanced.actionbars[ info[getn(info)] ] = value EAB:UpdateCallback() AB:UpdateButtonSettings() E:StaticPopup_Show("CONFIG_RL") end
 							},
 							equippedColor = {
 								order = 2,
@@ -251,7 +251,7 @@ local function ActionbarOptions()
 						disabled = function() return not E.private.actionbar.enable end
 					}
 				}
-			},--]]
+			},
 			pet = {
 				order = 3,
 				type = "group",

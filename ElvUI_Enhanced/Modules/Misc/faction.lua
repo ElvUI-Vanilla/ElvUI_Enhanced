@@ -22,7 +22,7 @@ function M:CHAT_MSG_COMBAT_FACTION_CHANGE()
 	local _, _, faction = find(arg1, incpat);
 
 	if not faction then
-		_, _, faction = find(srg1, changedpat) or find(arg1, decpat)
+		_, _, faction = find(arg1, changedpat) or find(arg1, decpat)
 	end
 
 	if faction then

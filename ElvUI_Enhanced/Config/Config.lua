@@ -229,7 +229,7 @@ local function ActionbarOptions()
 								type = "toggle",
 								name = L["Enable"],
 								get = function(info) return E.db.enhanced.actionbars[ info[getn(info)] ] end,
-								set = function(info, value) E.db.enhanced.actionbars[ info[getn(info)] ] = value EAB:UpdateCallback() AB:UpdateButtonSettings() E:StaticPopup_Show("CONFIG_RL") end
+								set = function(info, value) E.db.enhanced.actionbars[ info[getn(info)] ] = value EAB:UpdateCallback() AB:UpdateButtonSettings() end
 							},
 							equippedColor = {
 								order = 2,
@@ -243,6 +243,7 @@ local function ActionbarOptions()
 								set = function(info, r, g, b)
 									local t = E.db.enhanced.actionbars[ info[getn(info)] ]
 									t.r, t.g, t.b = r, g, b
+									EAB:UpdateCallback()
 									AB:UpdateButtonSettings()
 								end,
 								disabled = function() return not E.db.enhanced.actionbars.equipped end

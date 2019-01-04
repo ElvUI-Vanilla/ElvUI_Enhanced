@@ -9,31 +9,28 @@ local pairs, unpack = pairs, unpack
 local IsEquippedAction = IsEquippedAction
 local hooksecurefunc = hooksecurefunc
 
-function EAB:ActionButton_Update()
-	if this.backdrop then
+function EAB:UpdateCallback()
+
+	if E.db.enhanced.actionbars.equipped then
 		local color = E.db.enhanced.actionbars.equippedColor
-		local action = ActionButton_GetPagedID(this)
-		local button = this
+		local action
 
 		E:Delay(0.05, function()
-			if IsEquippedAction(action) then
-				button.backdrop:SetBackdropBorderColor(color.r, color.g, color.b)
-			else
-				button.backdrop:SetBackdropBorderColor(unpack(E.media.bordercolor))
+			for _, bar in pairs(AB.handledBars) do
+				for _, button in pairs(bar.buttons) do
+					action = ActionButton_GetPagedID(button)
+					if IsEquippedAction(action) then
+						button.backdrop:SetBackdropBorderColor(color.r, color.g, color.b)
+					else
+						button.backdrop:SetBackdropBorderColor(unpack(E.media.bordercolor))
+					end
+				end
 			end
 		end)
-	end
-end
-
-function EAB:UpdateCallback()
-	if E.db.enhanced.actionbars.equipped then
-		hooksecurefunc("ActionButton_Update", self.ActionButton_Update)
 	else
 		for _, bar in pairs(AB.handledBars) do
 			for _, button in pairs(bar.buttons) do
-				if IsEquippedAction(button:GetID()) then
-					button.backdrop:SetBackdropBorderColor(unpack(E.media.bordercolor))
-				end
+				button.backdrop:SetBackdropBorderColor(unpack(E.media.bordercolor))
 			end
 		end
 	end
@@ -41,6 +38,8 @@ end
 
 function EAB:Initialize()
 	self:UpdateCallback()
+
+	hooksecurefunc("ActionButton_Update", self.UpdateCallback)
 end
 
 local function InitializeCallback()

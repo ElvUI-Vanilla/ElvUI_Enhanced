@@ -170,7 +170,7 @@ end
 local function ActionbarOptions()
 	local AB = E:GetModule("ActionBars")
 	local EAB = E:GetModule("Enhanced_ActionBars")
-	-- local ETAB = E:GetModule("Enhanced_TransparentActionbars")
+	local ETAB = E:GetModule("Enhanced_TransparentActionbars")
 
 	local config = {
 		order = 2,
@@ -193,7 +193,7 @@ local function ActionbarOptions()
 						type = "header",
 						name = L["General"],
 					},
-					--[[transparentActionbars = {
+					transparentActionbars = {
 						order = 2,
 						type = "group",
 						name = L["Transparent ActionBars"],
@@ -217,7 +217,7 @@ local function ActionbarOptions()
 							}
 						},
 						disabled = function() return not E.private.actionbar.enable end
-					},--]]
+					},
 					equipped = {
 						order = 3,
 						type = "group",

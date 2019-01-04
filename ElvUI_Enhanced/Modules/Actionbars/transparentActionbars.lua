@@ -1,9 +1,12 @@
-local E, L, V, P, G = unpack(ElvUI);
-local ETAB = E:NewModule("Enhanced_TransparentActionbars")
+local E, L, V, P, G = unpack(ElvUI); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local AB = E:GetModule("ActionBars")
+local ETAB = E:NewModule("Enhanced_TransparentActionbars");
 
+--Cache global variables
+--Lua functions
 local _G = _G
 local pairs = pairs
-
+--WoW API / Variables
 local NUM_ACTIONBAR_BUTTONS = NUM_ACTIONBAR_BUTTONS
 local NUM_PET_ACTION_SLOTS = NUM_PET_ACTION_SLOTS
 
@@ -17,13 +20,14 @@ function ETAB:StyleBackdrops()
 		frame = _G["ElvUI_Bar"..i]
 		if frame then
 			if frame.backdrop then
-				frame.backdrop:SetTemplate(styleBackdrop)
+				E:SetTemplate(frame.backdrop, styleBackdrop)
 			end
 
-			for j = 1, NUM_ACTIONBAR_BUTTONS do
-				frame = _G["ElvUI_Bar"..i.."Button"..j]
-				if frame and frame.backdrop then
-					frame.backdrop:SetTemplate(styleButtons, true)
+			for _, bar in pairs(AB.handledBars) do
+				for _, button in pairs(bar.buttons) do
+					if button and button.backdrop then
+						E:SetTemplate(button.backdrop, styleButtons, true)
+					end
 				end
 			end
 		end
@@ -31,14 +35,14 @@ function ETAB:StyleBackdrops()
 
 	for _, frame in pairs({ElvUI_BarPet, ElvUI_StanceBar}) do
 		if frame.backdrop then
-			frame.backdrop:SetTemplate(styleBackdrop)
+			E:SetTemplate(frame.backdrop, styleBackdrop)
 		end
 	end
 
 	for i = 1, NUM_PET_ACTION_SLOTS do
 		frame = _G["PetActionButton"..i]
 		if frame and frame.backdrop then
-			frame.backdrop:SetTemplate(styleButtons, true)
+			E:SetTemplate(frame.backdrop, styleButtons, true)
 		end
 	end
 end

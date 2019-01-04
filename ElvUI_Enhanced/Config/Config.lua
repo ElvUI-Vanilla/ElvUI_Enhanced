@@ -335,31 +335,6 @@ local function ActionbarOptions()
 	return config
 end
 
--- Chat
-local function ChatOptions()
-	local config = {
-		order = 3,
-		type = "group",
-		name = L["Chat"],
-		args = {
-			header = {
-				order = 1,
-				type = "header",
-				name = ColorizeSettingName(L["Chat"])
-			},
-			dpsLinks = {
-				order = 2,
-				type = "toggle",
-				name = L["Filter DPS meters Spam"],
-				desc = L["Replaces long reports from damage meters with a clickable hyperlink to reduce chat spam.\nWorks correctly only with general reports such as DPS or HPS. May fail to filter te report of other things"],
-				get = function(info) return E.db.enhanced.chat.dpsLinks end,
-				set = function(info, value) E.db.enhanced.chat.dpsLinks = value E:GetModule("Enhanced_DPSLinks"):UpdateSettings() end
-			}
-		}
-	}
-	return config
-end
-
 -- Datatext
 local function DataTextsOptions()
 	local DTC = E:GetModule("DataTextColors")
@@ -1516,7 +1491,6 @@ function addon:GetOptions()
 			},
 			generalGroup = GeneralOptions(),
 			actionbarGroup = ActionbarOptions(),
-			-- chatGroup = ChatOptions(),
 			datatextsGroup = DataTextsOptions(),
 			minimapGroup = MinimapOptions(),
 			namePlatesGroup = NamePlatesOptions(),

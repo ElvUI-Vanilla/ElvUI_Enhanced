@@ -70,9 +70,6 @@ P.enhanced = {
 			fontOutline = "NONE"
 		}
 	},
-	chat = {
-		dpsLinks = false,
-	},
 	character = {
 		characterBackground = false,
 		desaturateCharacter = false,

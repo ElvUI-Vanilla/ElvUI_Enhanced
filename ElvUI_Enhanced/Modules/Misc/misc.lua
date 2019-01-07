@@ -55,11 +55,13 @@ function M:Initialize()
 	self:AutoRelease()
 	self:DeclineDuel()
 	self:HideZone()
+	self:QuestItemLevel()
 	self:LoadQuestReward()
 	self:WatchedFaction()
 	self:LoadMoverTransparancy()
 	self:QuestLevelToggle()
 	self:BuyStackToggle()
+	self:MerchantItemLevel()
 	self:WorldMapBlips()
 end
 

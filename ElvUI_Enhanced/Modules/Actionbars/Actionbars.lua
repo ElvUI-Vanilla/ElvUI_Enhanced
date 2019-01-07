@@ -10,7 +10,6 @@ local IsEquippedAction = IsEquippedAction
 local hooksecurefunc = hooksecurefunc
 
 function EAB:UpdateCallback()
-
 	if E.db.enhanced.actionbars.equipped then
 		local color = E.db.enhanced.actionbars.equippedColor
 		local action

@@ -9,6 +9,7 @@ local BuyTrainerService = BuyTrainerService
 local GetNumTrainerServices = GetNumTrainerServices
 local GetTrainerServiceCost = GetTrainerServiceCost
 local GetTrainerServiceInfo = GetTrainerServiceInfo
+local ALL, TRAIN = ALL, TRAIN
 
 function TA:ButtonCreate()
 	self.button = CreateFrame("Button", "ElvUI_TrainAllButton", ClassTrainerFrame, "UIPanelButtonTemplate")
@@ -39,7 +40,7 @@ function TA:ButtonCreate()
 		end
 
 		GameTooltip:SetOwner(self.button,"ANCHOR_TOPRIGHT", 0, 4)
-		GameTooltip:SetText("|cffffffff" .. L["Total cost:"].."|r "..E:FormatMoney(cost, E.db.datatexts.goldFormat))
+		GameTooltip:SetText("|cffffffff"..L["Total cost:"].."|r "..E:FormatMoney(cost, E.db.datatexts.goldFormat))
 	end)
 
 	HookScript(self.button, "OnLeave", function()

@@ -4,7 +4,8 @@
 	<Script file="paperdoll.lua"/>
 	<Script file="movers.lua"/>
 	<Script file="addonList.lua"/>
-	<Script file="deathRecap.lua"/>
+	<!-- <Script file="deathRecap.lua"/> -->
+	<Script file="questItemLevel.lua"/>
 	<Script file="questLevel.lua"/>
 	<Script file="questReward.lua"/>
 	<!-- <Script file="losecontrol.lua"/> -->
@@ -14,7 +15,7 @@
 	<Script file="originalCloseButton.lua"/>
 	<Script file="modelframes.lua"/>
 	<Script file="merchant.lua"/>
-	<Script file="raidMarkers.lua"/>
+	<Script file="raidmarkers.lua"/>
 	<Script file="worldMapFrame.lua"/>
 
 	<Script file="characterFrame.lua"/>

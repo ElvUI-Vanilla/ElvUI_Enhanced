@@ -10,6 +10,7 @@ local CreateFrame = CreateFrame
 local FauxScrollFrame_GetOffset = FauxScrollFrame_GetOffset
 local GetAuctionItemInfo = GetAuctionItemInfo
 local GetAuctionItemLink = GetAuctionItemLink
+local GetInboxItem = GetInboxItem
 local GetItemInfo = GetItemInfo
 local GetMerchantNumItems = GetMerchantNumItems
 local GetNumAuctionItems = GetNumAuctionItems
@@ -27,11 +28,9 @@ local knownColor = {r = 0.1, g = 1.0, b = 0.2}
 local function MerchantFrame_UpdateMerchantInfo()
 	local numItems = GetMerchantNumItems()
 
-	for i = 1, MERCHANT_ITEMS_PER_PAGE do
+	for i = 1, BUYBACK_ITEMS_PER_PAGE do
 		local index = (MerchantFrame.page - 1) * MERCHANT_ITEMS_PER_PAGE + i
-		if index > numItems then
-			return
-		end
+		if index > numItems then return end
 
 		local button = _G["MerchantItem"..i.."ItemButton"]
 
@@ -55,9 +54,7 @@ local function MerchantFrame_UpdateBuybackInfo()
 	local numItems = GetNumBuybackItems()
 
 	for i = 1, BUYBACK_ITEMS_PER_PAGE do
-		if i > numItems then
-			return
-		end
+		if i > numItems then return end
 
 		local button = _G["MerchantItem"..i.."ItemButton"]
 
@@ -137,6 +134,50 @@ local function AuctionFrameAuctions_Update()
 	end
 end
 
+local function OpenMail_Update()
+	if OpenMailPackageButton then
+		local name, _, _, _, canUse = GetInboxItem(InboxFrame.openMailID, i)
+		local itemLink = GetItemInfoByName(name)
+		print(itemLink)
+
+		if name and canUse and AK:IsAlreadyKnown(itemLink) then
+			SetItemButtonTextureVertexColor(button, knownColor.r, knownColor.g, knownColor.b)
+		end
+	end
+end
+
+local function QuestFrameItems_Update(questState)
+	local numQuestRewards, numQuestChoices
+	local numQuestSpellRewards = 0
+	if questState == "QuestLog" then
+		numQuestRewards, numQuestChoices = GetNumQuestLogRewards(), GetNumQuestLogChoices()
+		if GetQuestLogRewardSpell() then
+			numQuestSpellRewards = 1
+		end
+	else
+		numQuestRewards, numQuestChoices = GetNumQuestRewards(), GetNumQuestChoices()
+		if GetRewardSpell() then
+			numQuestSpellRewards = 1
+		end
+	end
+
+	local rewardsCount = numQuestChoices + numQuestRewards + numQuestSpellRewards
+	if rewardsCount > 0 then
+		local _, questItem, link, isUsable
+		local questStateItem = questState.."Item"
+
+		for i = 1, rewardsCount do
+			questItem = _G[questStateItem..i]
+			link = questItem.type and (questState == "QuestLog" and GetQuestLogItemLink or GetQuestItemLink)(questItem.type, questItem:GetID())
+			_, _, _, _, isUsable = (questState == "QuestLog" and GetQuestLogChoiceInfo or GetQuestItemInfo)(questState == "QuestLog" and i or questItem.type, i)
+
+			if isUsable and AK:IsAlreadyKnown(link) then
+				SetItemButtonTextureVertexColor(questItem, knownColor.r, knownColor.g, knownColor.b)
+			end
+		end
+	end
+end
+
 function AK:IsAlreadyKnown(itemLink)
 	if not itemLink then return end
 
@@ -145,11 +186,11 @@ function AK:IsAlreadyKnown(itemLink)
 		return true
 	end
 
-	local _, _, _, _, itemType = GetItemInfo(itemID)
+	local _, _, _, _, _, itemType = GetItemInfo(itemID)
 	if not self.knowableTypes[itemType] then return end
 
 	self.scantip:ClearLines()
-	self.scantip:SetHyperlink(itemLink)
+	self.scantip:SetHyperlink(match(itemLink, "item[%-?%d:]+"))
 
 	for i = 2, self.scantip:NumLines() do
 		local text = _G["ElvUI_MerchantAlreadyKnownTextLeft"..i]:GetText()
@@ -178,6 +219,12 @@ function AK:SetHooks()
 	if not self:IsHooked("MerchantFrame_UpdateBuybackInfo") then
 		self:SecureHook("MerchantFrame_UpdateBuybackInfo", MerchantFrame_UpdateBuybackInfo)
 	end
+	if not self:IsHooked("OpenMail_Update") then
+		self:SecureHook("OpenMail_Update", OpenMail_Update)
+	end
+	if not self:IsHooked("QuestFrameItems_Update") then
+		self:SecureHook("QuestFrameItems_Update", QuestFrameItems_Update)
+	end	
 
 	if not self.auctionHooked and IsAddOnLoaded("Blizzard_AuctionUI") then
 		if not self:IsHooked("AuctionFrameBrowse_Update") then

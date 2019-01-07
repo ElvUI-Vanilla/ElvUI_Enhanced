@@ -6,6 +6,7 @@ local S = E:GetModule("Skins");
 --Lua functions
 local _G = _G
 local min, max = math.min, math.max
+local getn = table.getn
 --WoW API / Variables
 local CreateFrame = CreateFrame
 local GetCVar = GetCVar
@@ -13,7 +14,6 @@ local GetCursorPosition = GetCursorPosition
 local PI = PI
 local UIFrameFadeIn = UIFrameFadeIn
 local UIFrameFadeOut = UIFrameFadeOut
-local UnitRace = UnitRace
 local UnitSex = UnitSex
 
 local models = {
@@ -52,16 +52,16 @@ end
 
 function module:ModelWithControls(model)
 	model.controlFrame = CreateFrame("Frame", "$parentControlFrame", model)
-	E:Point(model.controlFrame, "TOP", 0, -2)
+	model.controlFrame:SetPoint("TOP", 0, -2)
 	model.controlFrame:SetAlpha(0.5)
 	model.controlFrame:Hide()
 
 	local zoomInButton = CreateFrame("Button", "$parentZoomInButton", model.controlFrame)
 	self:ModelControlButton(zoomInButton)
-	E:Point(zoomInButton, "LEFT", 2, 0)
-	zoomInButton:RegisterForClicks("AnyUp")
+	zoomInButton:SetPoint("LEFT", 2, 0)
+	zoomInButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	zoomInButton.icon:SetTexCoord(0.57812500, 0.82812500, 0.14843750, 0.27343750)
-	zoomInButton.tooltip = L["Zoom In"]
+	zoomInButton.tooltip = ZOOM_IN
 	zoomInButton.tooltipText = L["Mouse Wheel Up"]
 	zoomInButton:SetScript("OnMouseDown", function()
 		module:Model_OnMouseWheel(this:GetParent():GetParent(), 1)
@@ -69,10 +69,10 @@ function module:ModelWithControls(model)
 
 	local zoomOutButton = CreateFrame("Button", "$parentZoomOutButton", model.controlFrame)
 	self:ModelControlButton(zoomOutButton)
-	E:Point(zoomOutButton, "LEFT", 2, 0)
-	zoomOutButton:RegisterForClicks("AnyUp")
+	zoomOutButton:SetPoint("LEFT", 2, 0)
+	zoomOutButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	zoomOutButton.icon:SetTexCoord(0.29687500, 0.54687500, 0.00781250, 0.13281250)
-	zoomOutButton.tooltip = L["Zoom Out"]
+	zoomOutButton.tooltip = ZOOM_OUT
 	zoomOutButton.tooltipText = L["Mouse Wheel Down"]
 	zoomOutButton:SetScript("OnMouseDown", function()
 		module:Model_OnMouseWheel(this:GetParent():GetParent(), -1)
@@ -81,7 +81,7 @@ function module:ModelWithControls(model)
 	local panButton = CreateFrame("Button", "$parentPanButton", model.controlFrame)
 	self:ModelControlButton(panButton)
 	E:Point(panButton, "LEFT", 2, 0)
-	panButton:RegisterForClicks("AnyUp")
+	panButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	panButton.icon:SetTexCoord(0.29687500, 0.54687500, 0.28906250, 0.41406250)
 	panButton.tooltip = L["Drag"]
 	panButton.tooltipText = L["Right-click on character and drag to move it within the window."]
@@ -121,31 +121,31 @@ function module:ModelWithControls(model)
 	end)
 
 	if E.private.skins.blizzard.enable then
-		E:Size(model.controlFrame, 122, 18)
+		E:Size(model.controlFrame, 122, 20)
 
 		S:HandleButton(zoomInButton)
 
 		S:HandleButton(zoomOutButton)
-		E:Point(zoomOutButton, "LEFT", "$parentZoomInButton", "RIGHT", 2, 0)
+		zoomOutButton:SetPoint("LEFT", "$parentZoomInButton", "RIGHT", 2, 0)
 
 		S:HandleButton(panButton)
-		E:Point(panButton, "LEFT", "$parentZoomOutButton", "RIGHT", 2, 0)
+		panButton:SetPoint("LEFT", "$parentZoomOutButton", "RIGHT", 2, 0)
 
 		S:HandleButton(rotateLeftButton)
-		E:Point(rotateLeftButton, "LEFT", "$parentPanButton", "RIGHT", 2, 0)
+		rotateLeftButton:SetPoint("LEFT", "$parentPanButton", "RIGHT", 2, 0)
 
 		S:HandleButton(rotateRightButton)
-		E:Point(rotateRightButton, "LEFT", "$parentRotateLeftButton", "RIGHT", 2, 0)
+		rotateRightButton:SetPoint("LEFT", "$parentRotateLeftButton", "RIGHT", 2, 0)
 
 		S:HandleButton(rotateResetButton)
-		E:Point(rotateResetButton, "LEFT", "$parentRotateRightButton", "RIGHT", 2, 0)
+		rotateResetButton:SetPoint("LEFT", "$parentRotateRightButton", "RIGHT", 2, 0)
 	else
-		E:Size(model.controlFrame, 114, 23)
-		E:Point(zoomOutButton, "LEFT", "$parentZoomInButton", "RIGHT", 0, 0)
-		E:Point(panButton, "LEFT", "$parentZoomOutButton", "RIGHT", 0, 0)
-		E:Point(rotateLeftButton, "LEFT", "$parentPanButton", "RIGHT", 0, 0)
-		E:Point(rotateRightButton, "LEFT", "$parentRotateLeftButton", "RIGHT", 0, 0)
-		E:Point(rotateResetButton, "LEFT", "$parentRotateRightButton", "RIGHT", 0, 0)
+		model.controlFrame:SetSize(114, 23)
+		zoomOutButton:SetPoint("LEFT", "$parentZoomInButton", "RIGHT", 0, 0)
+		panButton:SetPoint("LEFT", "$parentZoomOutButton", "RIGHT", 0, 0)
+		rotateLeftButton:SetPoint("LEFT", "$parentPanButton", "RIGHT", 0, 0)
+		rotateRightButton:SetPoint("LEFT", "$parentRotateLeftButton", "RIGHT", 0, 0)
+		rotateResetButton:SetPoint("LEFT", "$parentRotateRightButton", "RIGHT", 0, 0)
 	end
 
 	model.controlFrame:SetScript("OnHide", function()
@@ -191,28 +191,27 @@ function module:ModelWithControls(model)
 end
 
 local ModelSettings = {
-	["HumanMale"] = { panMaxLeft = -0.4, panMaxRight = 0.4, panMaxTop = 1.2, panMaxBottom = -0.3, panValue = 38 },
-	["HumanFemale"] = { panMaxLeft = -0.3, panMaxRight = 0.3, panMaxTop = 1.2, panMaxBottom = -0.2, panValue = 45 },
-	["OrcMale"] = { panMaxLeft = -0.7, panMaxRight = 0.8, panMaxTop = 1.2, panMaxBottom = -0.3, panValue = 30 },
-	["OrcFemale"] = { panMaxLeft = -0.4, panMaxRight = 0.3, panMaxTop = 1.2, panMaxBottom = -0.3, panValue = 37 },
-	["DwarfMale"] = { panMaxLeft = -0.4, panMaxRight = 0.6, panMaxTop = 0.9, panMaxBottom = -0.2, panValue = 44 },
-	["DwarfFemale"] = { panMaxLeft = -0.3, panMaxRight = 0.3, panMaxTop = 0.9, panMaxBottom = -0.2, panValue = 47 },
-	["NightElfMale"] = { panMaxLeft = -0.5, panMaxRight = 0.5, panMaxTop = 1.5, panMaxBottom = -0.4, panValue = 30 },
-	["NightElfFemale"] = { panMaxLeft = -0.4, panMaxRight = 0.4, panMaxTop = 1.4, panMaxBottom = -0.4, panValue = 33 },
-	["ScourgeMale"] = { panMaxLeft = -0.4, panMaxRight = 0.4, panMaxTop = 1.1, panMaxBottom = -0.3, panValue = 35 },
-	["ScourgeFemale"] = { panMaxLeft = -0.3, panMaxRight = 0.4, panMaxTop = 1.1, panMaxBottom = -0.3, panValue = 36 },
-	["TaurenMale"] = { panMaxLeft = -0.7, panMaxRight = 0.9, panMaxTop = 1.1, panMaxBottom = -0.5, panValue = 31 },
-	["TaurenFemale"] = { panMaxLeft = -0.5, panMaxRight = 0.6, panMaxTop = 1.3, panMaxBottom = -0.4, panValue = 32 },
-	["GnomeMale"] = { panMaxLeft = -0.3, panMaxRight = 0.3, panMaxTop = 0.5, panMaxBottom = -0.2, panValue = 52 },
-	["GnomeFemale"] = { panMaxLeft = -0.3, panMaxRight = 0.3, panMaxTop = 0.5, panMaxBottom = -0.2, panValue = 60 },
-	["TrollMale"] = { panMaxLeft = -0.5, panMaxRight = 0.6, panMaxTop = 1.3, panMaxBottom = -0.4, panValue = 27 },
-	["TrollFemale"] = { panMaxLeft = -0.4, panMaxRight = 0.4, panMaxTop = 1.5, panMaxBottom = -0.4, panValue = 31 }
+	["HumanMale"]		= {panMaxLeft = -0.4, panMaxRight = 0.4, panMaxTop = 1.2, panMaxBottom = -0.3, panValue = 38},
+	["HumanFemale"]		= {panMaxLeft = -0.3, panMaxRight = 0.3, panMaxTop = 1.2, panMaxBottom = -0.2, panValue = 45},
+	["OrcMale"]			= {panMaxLeft = -0.7, panMaxRight = 0.8, panMaxTop = 1.2, panMaxBottom = -0.3, panValue = 30},
+	["OrcFemale"]		= {panMaxLeft = -0.4, panMaxRight = 0.3, panMaxTop = 1.2, panMaxBottom = -0.3, panValue = 37},
+	["DwarfMale"]		= {panMaxLeft = -0.4, panMaxRight = 0.6, panMaxTop = 0.9, panMaxBottom = -0.2, panValue = 44},
+	["DwarfFemale"]		= {panMaxLeft = -0.3, panMaxRight = 0.3, panMaxTop = 0.9, panMaxBottom = -0.2, panValue = 47},
+	["NightElfMale"]	= {panMaxLeft = -0.5, panMaxRight = 0.5, panMaxTop = 1.5, panMaxBottom = -0.4, panValue = 30},
+	["NightElfFemale"]	= {panMaxLeft = -0.4, panMaxRight = 0.4, panMaxTop = 1.4, panMaxBottom = -0.4, panValue = 33},
+	["ScourgeMale"]		= {panMaxLeft = -0.4, panMaxRight = 0.4, panMaxTop = 1.1, panMaxBottom = -0.3, panValue = 35},
+	["ScourgeFemale"]	= {panMaxLeft = -0.3, panMaxRight = 0.4, panMaxTop = 1.1, panMaxBottom = -0.3, panValue = 36},
+	["TaurenMale"]		= {panMaxLeft = -0.7, panMaxRight = 0.9, panMaxTop = 1.1, panMaxBottom = -0.5, panValue = 31},
+	["TaurenFemale"]	= {panMaxLeft = -0.5, panMaxRight = 0.6, panMaxTop = 1.3, panMaxBottom = -0.4, panValue = 32},
+	["GnomeMale"]		= {panMaxLeft = -0.3, panMaxRight = 0.3, panMaxTop = 0.5, panMaxBottom = -0.2, panValue = 52},
+	["GnomeFemale"]		= {panMaxLeft = -0.3, panMaxRight = 0.3, panMaxTop = 0.5, panMaxBottom = -0.2, panValue = 60},
+	["TrollMale"]		= {panMaxLeft = -0.5, panMaxRight = 0.6, panMaxTop = 1.3, panMaxBottom = -0.4, panValue = 27},
+	["TrollFemale"]		= {panMaxLeft = -0.4, panMaxRight = 0.4, panMaxTop = 1.5, panMaxBottom = -0.4, panValue = 31},
 }
 
 local playerRaceSex
 do
-	local _
-	_, playerRaceSex = UnitRace("player")
+	playerRaceSex = E.myrace
 	if UnitSex("player") == 2 then
 		playerRaceSex = playerRaceSex.."Male"
 	else
@@ -220,9 +219,9 @@ do
 	end
 end
 
-function module:Model_OnMouseWheel(model, delta)
-	local maxZoom = 2.8
-	local minZoom = 0
+function module:Model_OnMouseWheel(model, delta, maxZoom, minZoom)
+	maxZoom = maxZoom or 2.8
+	minZoom = minZoom or 0
 	local zoomLevel = model.zoomLevel or minZoom
 	zoomLevel = zoomLevel + delta * 0.5
 	zoomLevel = min(zoomLevel, maxZoom)
@@ -272,7 +271,7 @@ function module:Model_OnUpdate(rotationsPerSecond)
 		local modelScale = this:GetModelScale()
 		local cursorX, cursorY = GetCursorPosition()
 		local scale = UIParent:GetEffectiveScale()
-		E:Point(ModelPanningFrame, "BOTTOMLEFT", cursorX / scale - 16, cursorY / scale - 16)	-- half the texture size to center it on the cursor
+		ModelPanningFrame:SetPoint("BOTTOMLEFT", cursorX / scale - 16, cursorY / scale - 16)	-- half the texture size to center it on the cursor
 		-- settings
 		local settings = ModelSettings[playerRaceSex]
 
@@ -353,12 +352,12 @@ function module:Model_StopPanning(model)
 end
 
 function module:ModelControlButton_OnMouseDown(model)
-	E:Point(model.icon, "CENTER", 1, -1)
+	model.icon:SetPoint("CENTER", 1, -1)
 	model:GetParent().buttonDown = model
 end
 
 function module:ModelControlButton_OnMouseUp(model)
-	E:Point(model.icon, "CENTER", 0, 0)
+	model.icon:SetPoint("CENTER", 0, 0)
 	model:GetParent().buttonDown = nil
 end
 
@@ -381,7 +380,7 @@ function module:ADDON_LOADED()
 
 		self:ModelWithControls(AuctionDressUpModel)
 
-		E:Point(AuctionDressUpModelControlFrame, "TOP", 0, -10)
+		AuctionDressUpModel.controlFrame:SetPoint("TOP", 0, -7)
 	end
 end
 
@@ -401,7 +400,7 @@ function module:Initialize()
 	end
 
 	if E.myclass == "HUNTER" then
-		E:Point(PetPaperDollPetInfo, "TOPLEFT", PetPaperDollFrame, 23, -76)
+		PetPaperDollPetInfo:SetPoint("TOPLEFT", PetPaperDollFrame, 23, -76)
 	end
 
 	local modelPanning = CreateFrame("Frame", "ModelPanningFrame", UIParent)

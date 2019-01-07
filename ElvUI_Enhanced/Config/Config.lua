@@ -141,10 +141,25 @@ local function GeneralOptions()
 				name = L["Merchant ItemLevel"],
 				desc = L["Display the item level on the MerchantFrame, to change the font you have to set it in ElvUI - Bags - ItemLevel"],
 				get = function(info) return E.db.enhanced.general.merchantItemLevel end,
-				set = function(info, value) E.db.enhanced.general.merchantItemLevel = value end
+				set = function(info, value)
+					E.db.enhanced.general.merchantItemLevel = value
+					M:MerchantItemLevel()
+				end
+			},
+			questItemLevel = {
+				order = 15,
+				type = "toggle",
+				name = L["Quest ItemLevel"],
+				desc = L["Display the item level on the Quest frames, to change the font you have to set it in ElvUI - Bags - ItemLevel"],
+				get = function(info) return E.db.enhanced.general.questItemLevel end,
+				set = function(info, value)
+					E.db.enhanced.general.questItemLevel = value
+					M:QuestItemLevel()
+					E:StaticPopup_Show("PRIVATE_RL")
+				end
 			},
 			worldMapBlips = {
-				order = 15,
+				order = 16,
 				type = "toggle",
 				name = L["WorldMap Blips"],
 				desc = L["Colorize the WorldMap party/raid icons with class colors"],
@@ -152,7 +167,7 @@ local function GeneralOptions()
 				set = function(info, value) E.db.enhanced.general.worldMapBlips = value E:StaticPopup_Show("PRIVATE_RL") end
 			},
 			moverTransparancy = {
-				order = 16,
+				order = 17,
 				type = "range",
 				isPercent = true,
 				name = L["Mover Transparency"],
@@ -243,7 +258,7 @@ local function ActionbarOptions()
 								set = function(info, r, g, b)
 									local t = E.db.enhanced.actionbars[ info[getn(info)] ]
 									t.r, t.g, t.b = r, g, b
-									EAB:UpdateCallback()
+									--EAB:UpdateCallback()
 									AB:UpdateButtonSettings()
 								end,
 								disabled = function() return not E.db.enhanced.actionbars.equipped end

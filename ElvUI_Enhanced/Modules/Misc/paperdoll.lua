@@ -5,11 +5,12 @@ local PD = E:NewModule("Enhanced_PaperDoll", "AceHook-3.0", "AceEvent-3.0");
 --Lua functions
 local _G = _G
 local format, match = string.format, string.match
-local pairs, select, tonumber = pairs, select, tonumber
+local pairs = pairs
 --WoW API / Variables
 local CanInspect = CanInspect
 local GetInventoryItemDurability = GetInventoryItemDurability
 local GetInventoryItemLink = GetInventoryItemLink
+local GetInventoryItemQuality = GetInventoryItemQuality
 local GetInventoryItemTexture = GetInventoryItemTexture
 local GetInventorySlotInfo = GetInventorySlotInfo
 local GetItemQualityColor = GetItemQualityColor
@@ -44,8 +45,7 @@ function PD:UpdatePaperDoll(unit)
 
 	local baseName = unit == "player" and "Character" or "Inspect"
 	local frame, slotID, hasItem
-	local itemLink
-	local _, rarity, itemLevel
+	local itemLink, itemLevel, rarity
 	local current, maximum, r, g, b
 
 	for slotName, durability in pairs(slots) do
@@ -53,26 +53,25 @@ function PD:UpdatePaperDoll(unit)
 		slotID = GetInventorySlotInfo(slotName)
 		hasItem = GetInventoryItemTexture(unit, slotID)
 
-		if frame.ItemLevel then
-			frame.ItemLevel:SetText()
-			if E.db.enhanced.equipment.itemlevel.enable and (unit == "player" or (unit ~= "player" and hasItem)) then
-				itemLink = GetInventoryItemLink(unit, slotID)
+		frame.ItemLevel:SetText()
+		if E.db.enhanced.equipment.itemlevel.enable and (unit == "player" or (unit ~= "player" and hasItem)) then
+			itemLink = GetInventoryItemLink(unit, slotID)
 
-				if itemLink then
-					_, _, rarity, itemLevel = GetItemInfo(match(itemLink, "item:(%d+)"))
-					if itemLevel then
-						frame.ItemLevel:SetText(itemLevel)
+			if itemLink then
+				_, _, _, itemLevel = GetItemInfo(match(itemLink, "item:(%d+)"))
+				if itemLevel then
+					frame.ItemLevel:SetText(itemLevel)
 
-						if E.db.enhanced.equipment.itemlevel.qualityColor then
-							frame.ItemLevel:SetTextColor()
-							if rarity then
-								frame.ItemLevel:SetTextColor(GetItemQualityColor(rarity))
-							else
-								frame.ItemLevel:SetTextColor(1, 1, 1)
-							end
+					if E.db.enhanced.equipment.itemlevel.qualityColor then
+						frame.ItemLevel:SetTextColor()
+						rarity = GetInventoryItemQuality(unit, slotID)
+						if rarity and rarity > 1 then
+							frame.ItemLevel:SetTextColor(GetItemQualityColor(rarity))
 						else
 							frame.ItemLevel:SetTextColor(1, 1, 1)
 						end
+					else
+						frame.ItemLevel:SetTextColor(1, 1, 1)
 					end
 				end
 			end
@@ -96,18 +95,15 @@ function PD:UpdateInfoText(name)
 	local frame
 	for slotName, durability in pairs(slots) do
 		frame = _G[format("%s%s", name, slotName)]
-		if frame then
-			if frame.ItemLevel then
-				frame.ItemLevel:ClearAllPoints()
-				E:Point(frame.ItemLevel, db.itemlevel.position, frame, db.itemlevel.xOffset, db.itemlevel.yOffset)
-				E:FontTemplate(frame.ItemLevel, E.LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
-			end
 
-			if name == "Character" and durability then
-				frame.DurabilityInfo:ClearAllPoints()
-				E:Point(frame.DurabilityInfo, db.durability.position, frame, db.durability.xOffset, db.durability.yOffset)
-				E:FontTemplate(frame.DurabilityInfo, E.LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
-			end
+		frame.ItemLevel:ClearAllPoints()
+		E:Point(frame.ItemLevel, db.itemlevel.position, frame, db.itemlevel.xOffset, db.itemlevel.yOffset)
+		E:FontTemplate(frame.ItemLevel, E.LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
+
+		if name == "Character" and durability then
+			frame.DurabilityInfo:ClearAllPoints()
+			E:Point(frame.DurabilityInfo, db.durability.position, frame, db.durability.xOffset, db.durability.yOffset)
+			E:FontTemplate(frame.DurabilityInfo, E.LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
 		end
 	end
 end
@@ -127,10 +123,7 @@ function PD:BuildInfoText(name)
 end
 
 function PD:OnEvent(event)
-	if event == "ADDON_LOADED" and arg1 == "Blizzard_InspectUI" then
-		self:BuildInfoText("Inspect")
-		self:UnregisterEvent("ADDON_LOADED")
-	elseif event == "UPDATE_INVENTORY_ALERTS" then
+	if event == "UPDATE_INVENTORY_ALERTS" then
 		self:UpdatePaperDoll("player")
 	elseif event == "UNIT_INVENTORY_CHANGED" then
 		self:UpdatePaperDoll(arg1)
@@ -140,12 +133,21 @@ function PD:OnEvent(event)
 	end
 end
 
+local function InspectFrameUpdate()
+	PD:UpdatePaperDoll(InspectFrame.unit)
+end
+
 function PD:InitialUpdatePaperDoll()
 	if self.initialized then return end
 
 	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 
+	LoadAddOn("Blizzard_InspectUI")
+
 	self:BuildInfoText("Character")
+	self:BuildInfoText("Inspect")
+
+	self:SecureHook("InspectFrame_OnUpdate", InspectFrameUpdate)
 
 	self.initialized = true
 end
@@ -168,18 +170,13 @@ function PD:ToggleState(init)
 
 		self:RegisterEvent("UPDATE_INVENTORY_ALERTS", "OnEvent")
 		self:RegisterEvent("UNIT_INVENTORY_CHANGED", "OnEvent")
-		self:RegisterEvent("ADDON_LOADED", "OnEvent")
 	elseif self.initialized then
 		self:UnhookAll()
 		self:UnregisterAllEvents()
 
 		for slotName, durability in pairs(slots) do
-			if _G["Character"..slotName].ItemLevel then
-				_G["Character"..slotName].ItemLevel:SetText()
-			end
-			if _G["Inspect"..slotName].ItemLevel then
-				_G["Inspect"..slotName].ItemLevel:SetText()
-			end
+			_G["Character"..slotName].ItemLevel:SetText()
+			_G["Inspect"..slotName].ItemLevel:SetText()
 
 			if durability then
 				_G["Character"..slotName].DurabilityInfo:SetText()

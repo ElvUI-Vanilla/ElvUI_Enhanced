@@ -179,7 +179,7 @@ function AK:IsAlreadyKnown(itemLink)
 		return true
 	end
 
-	local _, _, _, _, _, itemType = GetItemInfo(itemID)
+	local _, _, _, _, itemType = GetItemInfo(itemID)
 	if not self.knowableTypes[itemType] then return end
 
 	self.scantip:ClearLines()

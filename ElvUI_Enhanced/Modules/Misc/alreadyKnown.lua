@@ -28,7 +28,7 @@ local knownColor = {r = 0.1, g = 1.0, b = 0.2}
 local function MerchantFrame_UpdateMerchantInfo()
 	local numItems = GetMerchantNumItems()
 
-	for i = 1, MERCHANT_ITEMS_PER_PAGE, 1 do
+	for i = 1, BUYBACK_ITEMS_PER_PAGE, 1 do
 		local index = (MerchantFrame.page - 1) * MERCHANT_ITEMS_PER_PAGE + i
 		if index > numItems then return end
 

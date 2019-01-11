@@ -138,7 +138,6 @@ local function OpenMail_Update()
 	if OpenMailPackageButton then
 		local name, _, _, _, canUse = GetInboxItem(InboxFrame.openMailID, i)
 		local itemLink = GetItemInfoByName(name)
-		print(itemLink)
 
 		if name and canUse and AK:IsAlreadyKnown(itemLink) then
 			SetItemButtonTextureVertexColor(button, knownColor.r, knownColor.g, knownColor.b)
@@ -147,32 +146,20 @@ local function OpenMail_Update()
 end
 
 local function QuestFrameItems_Update(questState)
-	local numQuestRewards, numQuestChoices
-	local numQuestSpellRewards = 0
-	if questState == "QuestLog" then
-		numQuestRewards, numQuestChoices = GetNumQuestLogRewards(), GetNumQuestLogChoices()
-		if GetQuestLogRewardSpell() then
-			numQuestSpellRewards = 1
-		end
-	else
-		numQuestRewards, numQuestChoices = GetNumQuestRewards(), GetNumQuestChoices()
-		if GetRewardSpell() then
-			numQuestSpellRewards = 1
-		end
-	end
+	local numQuestRewards = questState == "QuestLog" and GetNumQuestLogRewards() or GetNumQuestRewards()
+	local numQuestChoices = questState == "QuestLog" and GetNumQuestLogChoices() or GetNumQuestChoices()
+	local numQuestSpellRewards = questState == "QuestLog" and GetQuestLogRewardSpell() or GetRewardSpell()
+	local rewardsCount = numQuestChoices + numQuestRewards + (numQuestSpellRewards and 1 or 0)
 
-	local rewardsCount = numQuestChoices + numQuestRewards + numQuestSpellRewards
 	if rewardsCount > 0 then
-		local _, questItem, link, isUsable
-		local questStateItem = questState.."Item"
 
 		for i = 1, rewardsCount do
-			questItem = _G[questStateItem..i]
-			link = questItem.type and (questState == "QuestLog" and GetQuestLogItemLink or GetQuestItemLink)(questItem.type, questItem:GetID())
-			_, _, _, _, isUsable = (questState == "QuestLog" and GetQuestLogChoiceInfo or GetQuestItemInfo)(questState == "QuestLog" and i or questItem.type, i)
+			local item = _G[questState.."Item"..i]
+			local link = item.type and (questState == "QuestLog" and GetQuestLogItemLink or GetQuestItemLink)(item.type, item:GetID())
+			local _, _, _, _, isUsable = (questState == "QuestLog" and GetQuestLogChoiceInfo or GetQuestItemInfo)(questState == "QuestLog" and i or item.type, i)
 
 			if isUsable and AK:IsAlreadyKnown(link) then
-				SetItemButtonTextureVertexColor(questItem, knownColor.r, knownColor.g, knownColor.b)
+				SetItemButtonTextureVertexColor(item, knownColor.r, knownColor.g, knownColor.b)
 			end
 		end
 	end
@@ -186,7 +173,7 @@ function AK:IsAlreadyKnown(itemLink)
 		return true
 	end
 
-	local _, _, _, _, _, itemType = GetItemInfo(itemID)
+	local _, _, _, _, itemType = GetItemInfo(itemID)
 	if not self.knowableTypes[itemType] then return end
 
 	self.scantip:ClearLines()
@@ -224,7 +211,7 @@ function AK:SetHooks()
 	end
 	if not self:IsHooked("QuestFrameItems_Update") then
 		self:SecureHook("QuestFrameItems_Update", QuestFrameItems_Update)
-	end	
+	end
 
 	if not self.auctionHooked and IsAddOnLoaded("Blizzard_AuctionUI") then
 		if not self:IsHooked("AuctionFrameBrowse_Update") then

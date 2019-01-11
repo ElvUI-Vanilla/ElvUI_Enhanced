@@ -50,14 +50,14 @@ function M:MerchantFrame_UpdateMerchantInfo()
 		if not button.text then
 			button.text = button:CreateFontString(nil, "OVERLAY")
 			E:FontTemplate(button.text, E.LSM:Fetch("font", E.db.bags.itemLevelFont), E.db.bags.itemLevelFontSize, E.db.bags.itemLevelFontOutline)
-			button.text:SetPoint("BOTTOMRIGHT", 0, 3)
+			E:Point(button.text, "BOTTOMRIGHT", 0, 3)
 		end
 
 		if index <= GetMerchantNumItems() then
 			itemLink = GetMerchantItemLink(index)
 
 			if itemLink then
-				_, _, quality, itemlevel, _, itemType = GetItemInfo(match(itemLink, "item:(%d+)"))
+				_, _, quality, itemlevel, itemType = GetItemInfo(match(itemLink, "item:(%d+)"))
 				r, g, b = GetItemQualityColor(quality)
 
 				button.text:SetText("")
@@ -72,16 +72,18 @@ function M:MerchantFrame_UpdateMerchantInfo()
 		if not MerchantBuyBackItemItemButton.text then
 			MerchantBuyBackItemItemButton.text = MerchantBuyBackItemItemButton:CreateFontString(nil, "OVERLAY")
 			E:FontTemplate(MerchantBuyBackItemItemButton.text, E.LSM:Fetch("font", E.db.bags.itemLevelFont), E.db.bags.itemLevelFontSize, E.db.bags.itemLevelFontOutline)
-			MerchantBuyBackItemItemButton.text:SetPoint("BOTTOMRIGHT", 0, 3)
+			E:Point(MerchantBuyBackItemItemButton.text, "BOTTOMRIGHT", 0, 3)
 		end
 
 		if GetBuybackItemInfo(GetNumBuybackItems()) then
-			_, _, quality, itemlevel, _, itemType = GetItemInfo(GetBuybackItemInfo(GetNumBuybackItems()))
+			_, _, quality, itemlevel, itemType = GetItemInfo(GetBuybackItemInfo(GetNumBuybackItems()))
 			r, g, b = GetItemQualityColor(quality)
 
 			if (itemlevel and itemlevel > 1) and (quality and quality > 1) and (itemType == ENCHSLOT_WEAPON or itemType == ARMOR) then
 				MerchantBuyBackItemItemButton.text:SetText(itemlevel)
 				MerchantBuyBackItemItemButton.text:SetTextColor(r, g, b)
+			else
+				MerchantBuyBackItemItemButton.text:SetText("")
 			end
 		else
 			MerchantBuyBackItemItemButton.text:SetText("")
@@ -98,12 +100,12 @@ function M:MerchantFrame_UpdateBuybackInfo()
 		if not button.text then
 			button.text = button:CreateFontString(nil, "OVERLAY")
 			E:FontTemplate(button.text, E.LSM:Fetch("font", E.db.bags.itemLevelFont), E.db.bags.itemLevelFontSize, E.db.bags.itemLevelFontOutline)
-			button.text:SetPoint("BOTTOMRIGHT", 0, 3)
+			E:Point(button.text, "BOTTOMRIGHT", 0, 3)
 		end
 
 		if i <= GetNumBuybackItems() then
 			if GetBuybackItemInfo(i) then
-				_, _, quality, itemlevel, _, itemType = GetItemInfo(GetBuybackItemInfo(i))
+				_, _, quality, itemlevel, itemType = GetItemInfo(GetBuybackItemInfo(i))
 				r, g, b = GetItemQualityColor(quality)
 
 				button.text:SetText("")

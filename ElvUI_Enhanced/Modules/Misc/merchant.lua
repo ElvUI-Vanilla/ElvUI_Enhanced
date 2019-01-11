@@ -77,9 +77,10 @@ function M:MerchantFrame_UpdateMerchantInfo()
 
 		if GetBuybackItemInfo(GetNumBuybackItems()) then
 			_, _, quality, itemlevel, itemType = GetItemInfo(GetBuybackItemInfo(GetNumBuybackItems()))
-			r, g, b = GetItemQualityColor(quality)
 
 			if (itemlevel and itemlevel > 1) and (quality and quality > 1) and (itemType == ENCHSLOT_WEAPON or itemType == ARMOR) then
+				r, g, b = GetItemQualityColor(quality)
+
 				MerchantBuyBackItemItemButton.text:SetText(itemlevel)
 				MerchantBuyBackItemItemButton.text:SetTextColor(r, g, b)
 			else
@@ -106,11 +107,12 @@ function M:MerchantFrame_UpdateBuybackInfo()
 		if i <= GetNumBuybackItems() then
 			if GetBuybackItemInfo(i) then
 				_, _, quality, itemlevel, itemType = GetItemInfo(GetBuybackItemInfo(i))
-				r, g, b = GetItemQualityColor(quality)
 
 				button.text:SetText("")
 
 				if (itemlevel and itemlevel > 1) and (quality and quality > 1) and (itemType == ENCHSLOT_WEAPON or itemType == ARMOR) then
+					r, g, b = GetItemQualityColor(quality)
+
 					button.text:SetText(itemlevel)
 					button.text:SetTextColor(r, g, b)
 				end

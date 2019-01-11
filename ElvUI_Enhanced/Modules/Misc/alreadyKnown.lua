@@ -28,7 +28,7 @@ local knownColor = {r = 0.1, g = 1.0, b = 0.2}
 local function MerchantFrame_UpdateMerchantInfo()
 	local numItems = GetMerchantNumItems()
 
-	for i = 1, BUYBACK_ITEMS_PER_PAGE do
+	for i = 1, MERCHANT_ITEMS_PER_PAGE, 1 do
 		local index = (MerchantFrame.page - 1) * MERCHANT_ITEMS_PER_PAGE + i
 		if index > numItems then return end
 
@@ -134,13 +134,19 @@ local function AuctionFrameAuctions_Update()
 	end
 end
 
-local function OpenMail_Update()
-	if OpenMailPackageButton then
-		local name, _, _, _, canUse = GetInboxItem(InboxFrame.openMailID, i)
-		local itemLink = GetItemInfoByName(name)
+local function InboxFrame_Update()
+	local index = ((InboxFrame.pageNum - 1) * INBOXITEMS_TO_DISPLAY) + 1
+	local button = _G["OpenMailPackageButton"]
 
-		if name and canUse and AK:IsAlreadyKnown(itemLink) then
-			SetItemButtonTextureVertexColor(button, knownColor.r, knownColor.g, knownColor.b)
+	if button then
+		local name, _, _, _, canUse = GetInboxItem(index)
+
+		if name then
+			local _, itemLink = GetItemInfoByName(name)
+
+			if name and canUse and AK:IsAlreadyKnown(itemLink) then
+				SetItemButtonTextureVertexColor(button, knownColor.r, knownColor.g, knownColor.b)
+			end
 		end
 	end
 end
@@ -168,12 +174,12 @@ end
 function AK:IsAlreadyKnown(itemLink)
 	if not itemLink then return end
 
-	local itemID = match(itemLink, "item:(%d+):")
+	local itemID = match(itemLink, "item:(%d+)")
 	if self.knownTable[itemID] then
 		return true
 	end
 
-	local _, _, _, _, itemType = GetItemInfo(itemID)
+	local _, _, _, _, _, itemType = GetItemInfo(itemID)
 	if not self.knowableTypes[itemType] then return end
 
 	self.scantip:ClearLines()
@@ -206,8 +212,8 @@ function AK:SetHooks()
 	if not self:IsHooked("MerchantFrame_UpdateBuybackInfo") then
 		self:SecureHook("MerchantFrame_UpdateBuybackInfo", MerchantFrame_UpdateBuybackInfo)
 	end
-	if not self:IsHooked("OpenMail_Update") then
-		self:SecureHook("OpenMail_Update", OpenMail_Update)
+	if not self:IsHooked("InboxFrame_Update") then
+		self:SecureHook("InboxFrame_Update", InboxFrame_Update)
 	end
 	if not self:IsHooked("QuestFrameItems_Update") then
 		self:SecureHook("QuestFrameItems_Update", QuestFrameItems_Update)

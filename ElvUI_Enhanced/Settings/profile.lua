@@ -149,11 +149,7 @@ P.enhanced = {
 	},
 	tooltip = {
 		itemQualityBorderColor = false,
-		tooltipIcon = {
-			enable = false,
-			tooltipIconSpells  = true,
-			tooltipIconItems  = true,
-		}
+		tooltipIcon = false,
 	},
 	loseofcontrol = {
 		CC = true,

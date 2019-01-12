@@ -15,27 +15,27 @@ local GetItemQualityColor = GetItemQualityColor
 function TI:SetIcon(_, tt)
 	local tooltip = tt:GetName()
 
+	self.icon.texture:SetTexture("")
+	self.icon:Hide()
+
 	if not _G[tooltip.."TextRight1"]:IsShown() then
 		local itemName = _G[tooltip.."TextLeft1"]:GetText()
 		if itemName then
 			local _, _, quality, _, _, _, _, _, texture = GetItemInfoByName(itemName)
 			if texture then
-				self.icon.texture:SetTexture(texture)
-				self.icon:Show()
-
 				if E.db.enhanced.tooltip.itemQualityBorderColor then
 					if quality then
 						self.icon:SetBackdropBorderColor(GetItemQualityColor(quality))
 					end
+				else
+					self.icon:SetBackdropBorderColor(unpack(E.media.bordercolor))
 				end
 
-				return
+				self.icon.texture:SetTexture(texture)
+				self.icon:Show()
 			end
 		end
 	end
-
-	self.icon.texture:SetTexture(nil)
-	self.icon:Hide()
 end
 
 function TI:ToggleState()
@@ -48,12 +48,12 @@ function TI:ToggleState()
 			self.icon:Hide()
 
 			self.icon.texture = self.icon:CreateTexture(nil, "ARTWORK")
-			self.icon.texture:SetTexture(nil)
+			self.icon.texture:SetTexture("")
 			E:SetInside(self.icon.texture)
 			self.icon.texture:SetTexCoord(unpack(E.TexCoords))
 		end
 
-		if not self:IsHooked(TT, "SetAction", "SetIcon") then
+		if not self:IsHooked(TT, "Show", "SetIcon") then
 			self:SecureHook(TT, "SetAction", "SetIcon")
 			self:SecureHook(TT, "SetAuctionItem", "SetIcon")
 			self:SecureHook(TT, "SetAuctionSellItem", "SetIcon")
@@ -65,13 +65,13 @@ function TI:ToggleState()
 			self:SecureHook(TT, "SetInventoryItem", "SetIcon")
 			self:SecureHook(TT, "SetLootItem", "SetIcon")
 			self:SecureHook(TT, "SetLootRollItem", "SetIcon")
-			self:SecureHook(TT, "SetMerchantItem", "SetIcon")
-			self:SecureHook(TT, "SetQuestItem", "SetIcon")
+			self:SecureHook(TT, "SetMerchantItem","SetIcon")
 			self:SecureHook(TT, "SetQuestLogItem", "SetIcon")
 			self:SecureHook(TT, "SetSendMailItem", "SetIcon")
 			self:SecureHook(TT, "SetTradePlayerItem", "SetIcon")
 			self:SecureHook(TT, "SetTradeSkillItem", "SetIcon")
 			self:SecureHook(TT, "SetTradeTargetItem", "SetIcon")
+			self:SecureHook(TT, "Show", "SetIcon")
 		end
 	else
 		self.icon:Hide()

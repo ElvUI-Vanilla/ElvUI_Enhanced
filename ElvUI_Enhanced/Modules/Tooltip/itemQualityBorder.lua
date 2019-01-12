@@ -28,7 +28,7 @@ end
 
 function IBC:ToggleState()
 	if E.db.enhanced.tooltip.itemQualityBorderColor then
-		if not self:IsHooked(TT, "SetAction", "SetBorderColor") then
+		if not self:IsHooked(TT, "Show", "SetIcon") then
 			self:SecureHook(TT, "SetAction", "SetBorderColor")
 			self:SecureHook(TT, "SetAuctionItem", "SetBorderColor")
 			self:SecureHook(TT, "SetAuctionSellItem", "SetBorderColor")
@@ -47,6 +47,7 @@ function IBC:ToggleState()
 			self:SecureHook(TT, "SetTradePlayerItem", "SetBorderColor")
 			self:SecureHook(TT, "SetTradeSkillItem", "SetBorderColor")
 			self:SecureHook(TT, "SetTradeTargetItem", "SetBorderColor")
+			self:SecureHook(TT, "Show", "SetBorderColor")
 		end
 	else
 		self:UnhookAll()

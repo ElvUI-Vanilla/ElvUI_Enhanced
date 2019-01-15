@@ -62,3 +62,8 @@ ElvUI_LocPlus supports and contains language specific code for the following gam
 - Chinese (zhCN)
 - Spanish (esES)
 - Russian (ruRU)
+
+# Credits
+All Credits go to those of the TukUI/ElvUI community for making this wonderful addon possible!
+
+https://www.tukui.org

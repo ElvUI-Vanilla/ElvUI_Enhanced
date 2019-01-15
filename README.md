@@ -54,7 +54,7 @@ ElvUI Enhanced for ElvUI adds many quality of life enhancements in addtion to wh
 
 # Languages
 
-ElvUI_LocPlus supports and contains language specific code for the following gameclients:
+ElvUI_Enhanced supports and contains language specific code for the following gameclients:
 - English (enUS)
 - Korean (koKR)
 - French (frFR)
